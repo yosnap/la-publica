@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # API Backend
+  api:
+    build: .
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongo:27017/la-publica
+      - JWT_SECRET=${JWT_SECRET}
+      - FRONTEND_URL=${FRONTEND_URL}
+    depends_on:
+      - mongo
+    volumes:
+      - ./uploads:/app/uploads
+      - ./logs:/app/logs
+    restart: unless-stopped
+
+  # MongoDB
+  mongo:
+    image: mongo:6.0
+    ports:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_DATABASE=la-publica
+    volumes:
+      - mongo-data:/data/db
+    restart: unless-stopped
+
+  # Nginx (para VPS)
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - api
+    restart: unless-stopped
+    profiles: ["vps"]
+
+volumes:
+  mongo-data:
