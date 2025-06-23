@@ -93,7 +93,7 @@ fi
 
 # Health check
 echo "🏥 Verificando health check..."
-response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/api/health)
+response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:5050/api/health)
 
 if [ "$response" = "200" ]; then
     echo_success "Health check exitoso"

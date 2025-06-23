@@ -28,8 +28,19 @@ const io = new Server(server, {
   }
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 5050;
 
+// CORS debe ser el primer middleware
+app.use(cors({
+  origin: true,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+// Handler explícito para preflight
+app.options('*', cors());
+
+// Ahora el resto de middlewares
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
@@ -37,24 +48,20 @@ const limiter = rateLimit({
   message: { error: 'Demasiadas solicitudes, intenta más tarde' }
 });
 
-// Middleware
 app.use(compression());
 app.use(limiter);
 app.use(helmet());
-
-// Configuración de CORS
-const corsOptions = {
-  origin: 'http://localhost:8080', // El origen de tu app de React
-  optionsSuccessStatus: 200 // Para navegadores antiguos
-};
-app.use(cors(corsOptions));
 
 app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Servir archivos estáticos desde la carpeta 'uploads'
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+// Servir archivos estáticos desde la carpeta 'uploads' con headers CORS y Cross-Origin-Resource-Policy
+app.use('/uploads', (req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*'); // O limita a tu frontend
+  res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static(path.join(__dirname, '../uploads')));
 
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);

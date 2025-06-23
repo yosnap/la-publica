@@ -53,7 +53,7 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
         { email: data.login },
         { username: data.login }
       ]
-    });
+    }).select('+password');
 
     if (!user) {
       return res.status(401).json({ success: false, message: 'Credenciales inválidas' });
