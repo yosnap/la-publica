@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import User from './user.model';
 import { validate, updateProfileSchema } from './utils/validation';
 
@@ -92,15 +92,15 @@ export const deleteUser = async (req: Request, res: Response) => {
 };
 
 // Seguir/Dejar de seguir a un usuario
-export const followOrUnfollowUser = async (req: Request, res: Response) => {
-  const userToFollowId = req.params.id;
-  const currentUserId = (req as any).user?.userId;
-
-  if (userToFollowId === currentUserId) {
-    return res.status(400).json({ success: false, message: 'No puedes seguirte a ti mismo' });
-  }
-
+export const followOrUnfollowUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const userToFollowId = req.params.id;
+    const currentUserId = (req as any).user?.userId;
+
+    if (userToFollowId === currentUserId) {
+      return res.status(400).json({ success: false, message: 'No puedes seguirte a ti mismo' });
+    }
+
     const userToFollow = await User.findById(userToFollowId);
     const currentUser = await User.findById(currentUserId);
 
@@ -108,34 +108,24 @@ export const followOrUnfollowUser = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
     }
 
-    // Comprobar si ya lo está siguiendo
     const isFollowing = currentUser.following.some(id => id.toString() === userToFollowId);
 
     if (isFollowing) {
-      // Dejar de seguir (Unfollow)
-      // Quitar userToFollowId de la lista `following` de currentUser
       currentUser.following = currentUser.following.filter(id => id.toString() !== userToFollowId);
-      // Quitar currentUserId de la lista `followers` de userToFollow
       userToFollow.followers = userToFollow.followers.filter(id => id.toString() !== currentUserId);
-      
-      await currentUser.save();
-      await userToFollow.save();
-
-      return res.status(200).json({ success: true, message: `Dejaste de seguir a ${userToFollow.username}` });
-
     } else {
-      // Seguir (Follow)
       currentUser.following.push(userToFollowId as any);
       userToFollow.followers.push(currentUserId as any);
-
-      await currentUser.save();
-      await userToFollow.save();
-
-      return res.status(200).json({ success: true, message: `Ahora sigues a ${userToFollow.username}` });
     }
 
-  } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error en la operación', error: error.message });
+    await Promise.all([currentUser.save(), userToFollow.save()]);
+
+    return res.status(200).json({
+      success: true,
+      message: isFollowing ? 'Dejaste de seguir al usuario' : 'Ahora sigues al usuario'
+    });
+  } catch (error) {
+    return next(error);
   }
 };
 
@@ -168,5 +158,26 @@ export const getFollowing = async (req: Request, res: Response) => {
     return res.status(200).json({ success: true, data: user.following });
   } catch (error: any) {
     return res.status(500).json({ success: false, message: 'Error al obtener seguidos', error: error.message });
+  }
+};
+
+/**
+ * Obtiene el perfil del usuario actualmente autenticado.
+ */
+export const getProfile = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = (req as any).user.userId;
+    if (!userId) {
+      return res.status(401).json({ success: false, message: 'No autenticado' });
+    }
+
+    const user = await User.findById(userId).select('-password');
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+    }
+
+    return res.status(200).json({ success: true, data: user });
+  } catch (error) {
+    return next(error);
   }
 }; 

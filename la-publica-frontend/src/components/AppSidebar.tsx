@@ -1,4 +1,3 @@
-
 import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
@@ -23,7 +22,7 @@ const menuItems = [
   },
   {
     title: "Mi Perfil",
-    url: "/profile",
+    url: "/perfil",
     icon: User,
   },
   {

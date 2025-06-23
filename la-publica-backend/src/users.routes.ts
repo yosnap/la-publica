@@ -6,12 +6,16 @@ import {
   deleteUser,
   followOrUnfollowUser,
   getFollowers,
-  getFollowing
+  getFollowing,
+  getProfile
 } from './users.controller';
 import { authenticate } from './middleware/auth';
 import { authorize } from './middleware/authorize';
 
 const router = Router();
+
+// Ruta para obtener el perfil del usuario autenticado
+router.get('/profile', authenticate, getProfile);
 
 // Listar usuarios
 router.get('/', listUsers);

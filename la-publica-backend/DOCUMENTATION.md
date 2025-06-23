@@ -113,13 +113,30 @@ Las operaciones de modificación (`/profile`) y eliminación (`/:id`) están pro
 
 #### `PUT /api/users/profile` - Actualizar perfil del usuario autenticado
 
--   **Descripción:** Permite al usuario logueado actualizar su propio perfil.
+-   **Descripción:** Permite al usuario logueado actualizar su propio perfil. La nueva estructura permite añadir un array de experiencias laborales.
 -   **Autenticación:** Requerida.
 -   **Body (raw JSON):** Incluir solo los campos a modificar.
     ```json
     {
       "firstName": "Jonathan",
-      "bio": "Software Developer"
+      "bio": "Desarrollador de software con pasión por el código limpio.",
+      "skills": ["React", "Node.js", "TypeScript", "MongoDB"],
+      "workExperience": [
+        {
+          "jobTitle": "Desarrollador Frontend",
+          "company": "Tech Corp",
+          "startDate": "2020-01-15T00:00:00.000Z",
+          "endDate": null,
+          "description": "Desarrollo de interfaces de usuario interactivas y responsivas."
+        },
+        {
+          "jobTitle": "Desarrollador Junior",
+          "company": "Startup Inc",
+          "startDate": "2018-06-01T00:00:00.000Z",
+          "endDate": "2019-12-31T00:00:00.000Z",
+          "description": "Colaboración en el desarrollo del producto principal."
+        }
+      ]
     }
     ```
 -   **Respuesta Exitosa (200):** Devuelve el objeto del usuario actualizado.

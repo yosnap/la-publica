@@ -1,16 +1,31 @@
 import jwt, { Secret } from 'jsonwebtoken';
 import { JWTPayload } from '../types';
 
-const JWT_SECRET: Secret = process.env.JWT_SECRET || 'fallback-secret';
 // JWT_EXPIRES_IN en segundos (por defecto 7 días)
 const JWT_EXPIRES_IN = parseInt(process.env.JWT_EXPIRES_IN || '604800', 10);
 
 export class JWTService {
+  /**
+   * Obtiene el secreto de forma segura desde las variables de entorno.
+   * Lanza un error si no está definido en un entorno de producción.
+   */
+  private static getSecret(): Secret {
+    const secret = process.env.JWT_SECRET;
+    if (!secret) {
+      console.error('FATAL ERROR: JWT_SECRET no está definido en las variables de entorno.');
+      if (process.env.NODE_ENV === 'production') {
+        process.exit(1);
+      }
+      // Usar un secreto de fallback solo para desarrollo para evitar crashes
+      return 'fallback-secret-for-dev-only';
+    }
+    return secret;
+  }
+
   // Generar token de acceso
   static generateAccessToken(payload: { userId: string; email: string; role: 'user' | 'admin' }): string {
     const plainPayload = { ...payload };
-    console.log('Secreto usado para firmar:', JWT_SECRET);
-    return jwt.sign(plainPayload, JWT_SECRET, {
+    return jwt.sign(plainPayload, this.getSecret(), {
       expiresIn: JWT_EXPIRES_IN,
       issuer: 'la-publica-api',
       audience: 'la-publica-users'
@@ -20,20 +35,19 @@ export class JWTService {
   // Verificar token
   static verifyToken(token: string): JWTPayload {
     try {
-      console.log('Secreto usado para verificar:', JWT_SECRET);
-      const decoded = jwt.verify(token, JWT_SECRET, {
+      const decoded = jwt.verify(token, this.getSecret(), {
         issuer: 'la-publica-api'
       }) as JWTPayload;
 
       return decoded;
     } catch (error) {
       if (error instanceof jwt.TokenExpiredError) {
-        throw { status: 401, message: 'Token expirado' };
+        throw new Error('Token expirado');
       }
       if (error instanceof jwt.JsonWebTokenError) {
-        throw { status: 401, message: 'Token inválido' };
+        throw new Error('Token inválido');
       }
-      throw { status: 500, message: 'Error verificando token' };
+      throw new Error('Error verificando token');
     }
   }
 

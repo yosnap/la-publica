@@ -5,10 +5,10 @@ services:
   api:
     build: .
     ports:
-      - "3001:3001"
+      - "3000:3000"
     environment:
       - NODE_ENV=production
-      - PORT=3001
+      - PORT=3000
       - MONGODB_URI=mongodb://mongo:27017/la-publica
       - JWT_SECRET=${JWT_SECRET}
       - FRONTEND_URL=${FRONTEND_URL}

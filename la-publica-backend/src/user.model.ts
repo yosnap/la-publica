@@ -1,4 +1,5 @@
 import mongoose, { Schema, Document } from 'mongoose';
+import bcrypt from 'bcryptjs';
 
 // Interfaz para el documento de usuario
 export interface IUser extends Document {
@@ -12,10 +13,34 @@ export interface IUser extends Document {
   createdAt: Date;
   updatedAt: Date;
   username: string;
-  bio: string;
+  bio?: string;
+  location?: string;
+  phone?: string;
+  position: string;
+  company: string;
+  experience: string;
+  education: string;
+  skills?: string[];
   followers: mongoose.Types.ObjectId[];
   following: mongoose.Types.ObjectId[];
+  workExperience: {
+    jobTitle: string;
+    company: string;
+    startDate?: Date;
+    endDate?: Date;
+    description?: string;
+  }[];
+  isPublic: boolean;
+  comparePassword(password: string): Promise<boolean>;
 }
+
+const workExperienceSchema = new mongoose.Schema({
+  jobTitle: { type: String, required: true },
+  company: { type: String, required: true },
+  startDate: { type: Date },
+  endDate: { type: Date },
+  description: { type: String, maxlength: 500 },
+}, { _id: false });
 
 // Esquema de usuario
 const UserSchema = new Schema<IUser>(
@@ -43,7 +68,8 @@ const UserSchema = new Schema<IUser>(
     },
     password: {
       type: String,
-      required: true
+      required: true,
+      select: false
     },
     role: {
       type: String,
@@ -62,6 +88,7 @@ const UserSchema = new Schema<IUser>(
       type: String,
       required: true,
       unique: true,
+      index: true,
       trim: true,
       minlength: 3,
       maxlength: 30
@@ -70,6 +97,14 @@ const UserSchema = new Schema<IUser>(
       type: String,
       maxlength: 250
     },
+    location: { type: String, trim: true, maxlength: 100 },
+    phone: { type: String, trim: true },
+    position: { type: String, trim: true, maxlength: 100 },
+    company: { type: String, trim: true, maxlength: 100 },
+    experience: { type: String, trim: true },
+    education: { type: String, trim: true },
+    skills: [{ type: String, trim: true }],
+    workExperience: [workExperienceSchema],
     followers: [{
       type: Schema.Types.ObjectId,
       ref: 'User'
@@ -77,7 +112,11 @@ const UserSchema = new Schema<IUser>(
     following: [{
       type: Schema.Types.ObjectId,
       ref: 'User'
-    }]
+    }],
+    isPublic: {
+      type: Boolean,
+      default: true
+    }
   },
   {
     timestamps: true,

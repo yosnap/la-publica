@@ -47,9 +47,9 @@ cp .env.example .env
 npm run dev
 
 # El servidor estará disponible en:
-# 🌍 http://localhost:3001
-# 📍 Health check: http://localhost:3001/api/health
-# 📖 Info: http://localhost:3001/api/info
+# 🌍 http://localhost:3000
+# 📍 Health check: http://localhost:3000/api/health
+# 📖 Info: http://localhost:3000/api/info
 ```
 
 ### Scripts Disponibles
@@ -236,7 +236,7 @@ uploads/
 ### Variables de Entorno Requeridas
 ```bash
 NODE_ENV=production
-PORT=3001
+PORT=3000
 MONGODB_URI=mongodb://your-mongodb-url
 JWT_SECRET=your-super-secret-key
 STRIPE_SECRET_KEY=sk_live_your-stripe-key

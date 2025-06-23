@@ -1,9 +1,8 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
@@ -19,8 +18,25 @@ import Links from "./pages/Links";
 import Settings from "./pages/Settings";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import PrivateRoute from "./components/auth/PrivateRoute";
+import Register from "./pages/Register";
+import CompleteProfile from "./pages/CompleteProfile";
 
 const queryClient = new QueryClient();
+
+// Componente para manejar la ruta de login
+const LoginRoute = () => {
+  const isAuthenticated = !!localStorage.getItem('authToken');
+  // Si el usuario ya está autenticado, lo redirigimos al dashboard
+  return isAuthenticated ? <Navigate to="/" replace /> : <Login />;
+}
+
+// Componente para manejar la ruta de registro
+const RegisterRoute = () => {
+  const isAuthenticated = !!localStorage.getItem('authToken');
+  // Si el usuario ya está autenticado, lo redirigimos al dashboard
+  return isAuthenticated ? <Navigate to="/" replace /> : <Register />;
+}
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -31,22 +47,27 @@ const App = () => (
         <SidebarProvider>
           <div className="min-h-screen flex w-full bg-gray-50">
             <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/" element={<Layout />}>
-                <Route index element={<Dashboard />} />
-                <Route path="profile" element={<Profile />} />
-                <Route path="groups" element={<Groups />} />
-                <Route path="messages" element={<Messages />} />
-                <Route path="forums" element={<Forums />} />
-                <Route path="companies" element={<Companies />} />
-                <Route path="offers" element={<Offers />} />
-                <Route path="announcements" element={<Announcements />} />
-                <Route path="consulting" element={<Consulting />} />
-                <Route path="links" element={<Links />} />
-                <Route path="settings" element={<Settings />} />
+              <Route path="/login" element={<LoginRoute />} />
+              <Route path="/register" element={<RegisterRoute />} />
+              <Route element={<PrivateRoute />}>
+                <Route path="/" element={<Layout />}>
+                  <Route index element={<Dashboard />} />
+                  <Route path="perfil" element={<Profile />} />
+                  <Route path="editar-perfil" element={<CompleteProfile />} />
+                  <Route path="groups" element={<Groups />} />
+                  <Route path="messages" element={<Messages />} />
+                  <Route path="forums" element={<Forums />} />
+                  <Route path="companies" element={<Companies />} />
+                  <Route path="offers" element={<Offers />} />
+                  <Route path="announcements" element={<Announcements />} />
+                  <Route path="consulting" element={<Consulting />} />
+                  <Route path="links" element={<Links />} />
+                  <Route path="settings" element={<Settings />} />
+                </Route>
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <Toaster />
           </div>
         </SidebarProvider>
       </BrowserRouter>

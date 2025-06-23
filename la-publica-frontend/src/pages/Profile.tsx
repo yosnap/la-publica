@@ -1,12 +1,14 @@
-
 import { Edit, MapPin, Calendar, Users, Camera, Settings } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from "react-router-dom";
 
 const Profile = () => {
+  const navigate = useNavigate();
+
   const userStats = [
     { label: "Posts", value: "127" },
     { label: "Seguidores", value: "1.2K" },
@@ -97,7 +99,11 @@ const Profile = () => {
 
             {/* Botones de Acción */}
             <div className="flex justify-center gap-3 pt-2">
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => navigate('/editar-perfil')}
+              >
                 <Edit className="h-4 w-4 mr-2" />
                 Editar Perfil
               </Button>

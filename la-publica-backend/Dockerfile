@@ -19,7 +19,7 @@ RUN npm run build
 RUN mkdir -p uploads
 
 # Exponer puerto
-EXPOSE 3001
+EXPOSE 3000
 
 # Usuario no-root
 RUN addgroup -g 1001 -S nodejs

@@ -1,216 +1,195 @@
-import Joi from 'joi';
-import { UserRole } from '../types';
+import { z, ZodSchema } from 'zod';
 
-// Esquemas de validación para usuarios
-export const registerSchema = Joi.object({
-  username: Joi.string()
-    .alphanum()
-    .min(3)
-    .max(30)
-    .required()
-    .messages({
-      'string.alphanum': 'El nombre de usuario solo puede contener caracteres alfanuméricos',
-      'string.min': 'El nombre de usuario debe tener al menos 3 caracteres',
-      'string.max': 'El nombre de usuario no puede tener más de 30 caracteres'
-    }),
+// Función de validación genérica para Zod
+export function validate<T>(schema: ZodSchema<T>, data: any): T {
+  try {
+    return schema.parse(data);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      const formattedErrors = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
+      throw new Error(`Error de validación: ${formattedErrors}`);
+    }
+    throw error;
+  }
+}
 
-  email: Joi.string()
-    .email()
-    .required()
-    .messages({
-      'string.email': 'Debe ser un email válido'
-    }),
-
-  password: Joi.string()
-    .min(8)
-    .pattern(new RegExp('^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%\\^&\\*])'))
-    .required()
-    .messages({
-      'string.min': 'La contraseña debe tener al menos 8 caracteres',
-      'string.pattern.base': 'La contraseña debe contener al menos: 1 minúscula, 1 mayúscula, 1 número y 1 carácter especial'
-    }),
-
-  firstName: Joi.string()
-    .min(2)
-    .max(50)
-    .required(),
-
-  lastName: Joi.string()
-    .min(2)
-    .max(50)
-    .required(),
-
-  role: Joi.string()
-    .valid(...Object.values(UserRole))
-    .default(UserRole.USER)
+// Esquemas de validación para usuarios con Zod
+export const registerUserSchema = z.object({
+  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/, "El nombre de usuario solo puede contener letras, números y guiones bajos"),
+  firstName: z.string().min(2).max(50),
+  lastName: z.string().min(2).max(50),
+  email: z.string().email(),
+  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
 });
 
-export const loginSchema = Joi.object({
-  login: Joi.string().required(),
-  password: Joi.string().required()
+export const loginSchema = z.object({
+  login: z.string(), // Puede ser email o username
+  password: z.string(),
 });
 
-export const updateProfileSchema = Joi.object({
-  firstName: Joi.string().min(2).max(50),
-  lastName: Joi.string().min(2).max(50),
-  bio: Joi.string().max(500),
-  website: Joi.string().uri(),
-  location: Joi.object({
-    city: Joi.string().max(100),
-    country: Joi.string().max(100),
-    coordinates: Joi.array().items(Joi.number()).length(2)
-  }),
-  socialLinks: Joi.object({
-    linkedin: Joi.string().uri(),
-    twitter: Joi.string().uri(),
-    github: Joi.string().uri()
-  })
+const workExperienceSchema = z.object({
+  jobTitle: z.string().min(2, "El cargo debe tener al menos 2 caracteres").max(100),
+  company: z.string().min(2, "El nombre de la empresa debe tener al menos 2 caracteres").max(100),
+  startDate: z.date().optional().nullable(),
+  endDate: z.date().optional().nullable(),
+  description: z.string().max(500, "La descripción no puede superar los 500 caracteres").optional().nullable(),
+});
+
+export const updateProfileSchema = z.object({
+  firstName: z.string().min(2).max(50).optional(),
+  lastName: z.string().min(2).max(50).optional(),
+  email: z.string().email().optional(),
+  username: z.string().min(3).max(30).optional(),
+  bio: z.string().max(250).optional().nullable(),
+  location: z.string().max(100).optional().nullable(),
+  phone: z.string().optional().nullable(),
+  skills: z.array(z.string()).optional(),
+  workExperience: z.array(workExperienceSchema).optional(),
+});
+
+// Esquema para la creación de un post
+export const postSchema = z.object({
+  content: z.string().min(1, "El contenido no puede estar vacío.").max(2000),
+});
+
+// Esquema para la creación de un comentario
+export const commentSchema = z.object({
+  content: z.string().min(1, "El comentario no puede estar vacío.").max(1000),
 });
 
 // Esquemas para empresas
-export const createCompanySchema = Joi.object({
-  name: Joi.string().min(2).max(100).required(),
-  description: Joi.string().max(1000).required(),
-  category: Joi.string().required(),
+export const createCompanySchema = z.object({
+  name: z.string().min(2).max(100),
+  description: z.string().max(1000),
+  category: z.string(),
   //size: Joi.string().valid(...Object.values(CompanySize)),
-  website: Joi.string().uri(),
-  email: Joi.string().email().required(),
-  phone: Joi.string().pattern(/^[+]?[1-9]\d{1,14}$/),
-  location: Joi.object({
-    address: Joi.string().required(),
-    city: Joi.string().required(),
-    country: Joi.string().required(),
-    coordinates: Joi.array().items(Joi.number()).length(2)
-  }).required(),
-  socialLinks: Joi.object({
-    linkedin: Joi.string().uri(),
-    twitter: Joi.string().uri(),
-    facebook: Joi.string().uri()
+  website: z.string().url().optional(),
+  email: z.string().email(),
+  phone: z.string().regex(/^[+]?[1-9]\d{1,14}$/).optional(),
+  location: z.object({
+    address: z.string(),
+    city: z.string(),
+    country: z.string(),
+    coordinates: z.array(z.number()).length(2).optional()
   }),
-  stats: Joi.object({
-    employees: Joi.number().min(1),
-    founded: Joi.number().min(1800).max(new Date().getFullYear()),
-    revenue: Joi.string()
-  })
+  socialLinks: z.object({
+    linkedin: z.string().url().optional(),
+    twitter: z.string().url().optional(),
+    facebook: z.string().url().optional()
+  }).optional(),
+  stats: z.object({
+    employees: z.number().min(1).optional(),
+    founded: z.number().min(1800).max(new Date().getFullYear()).optional(),
+    revenue: z.string().optional()
+  }).optional()
 });
 
 // Esquemas para ofertas
-export const createOfferSchema = Joi.object({
-  title: Joi.string().min(5).max(100).required(),
-  description: Joi.string().min(20).max(2000).required(),
-  category: Joi.string().required(),
-  subcategory: Joi.string(),
-  price: Joi.object({
-    amount: Joi.number().min(0).required(),
-    currency: Joi.string().length(3).default('USD'),
-    type: Joi.string().valid('fixed', 'hourly', 'daily', 'project', 'negotiable').required()
-  }).required(),
-  location: Joi.object({
-    city: Joi.string(),
-    country: Joi.string(),
-    allowRemote: Joi.boolean().default(false)
+export const createOfferSchema = z.object({
+  title: z.string().min(5).max(100),
+  description: z.string().min(20).max(2000),
+  category: z.string(),
+  subcategory: z.string().optional(),
+  price: z.object({
+    amount: z.number().min(0),
+    currency: z.string().length(3).default('USD'),
+    type: z.enum(['fixed', 'hourly', 'daily', 'project', 'negotiable']),
   }),
-  delivery: Joi.object({
-    type: Joi.string().valid('digital', 'physical', 'service', 'hybrid').required(),
-    timeframe: Joi.string().required()
-  }).required(),
-  requirements: Joi.array().items(Joi.string()),
-  tags: Joi.array().items(Joi.string().max(30))
+  location: z.object({
+    city: z.string().optional(),
+    country: z.string().optional(),
+    allowRemote: z.boolean().default(false)
+  }).optional(),
+  delivery: z.object({
+    type: z.enum(['digital', 'physical', 'service', 'hybrid']),
+    timeframe: z.string()
+  }),
+  requirements: z.array(z.string()).optional(),
+  tags: z.array(z.string().max(30)).optional()
 });
 
 // Esquemas para anuncios
-export const createAdSchema = Joi.object({
-  title: Joi.string().min(5).max(100).required(),
-  description: Joi.string().min(20).max(500).required(),
-  category: Joi.string().required(),
+export const createAdSchema = z.object({
+  title: z.string().min(5).max(100),
+  description: z.string().min(20).max(500),
+  category: z.string(),
   //type: Joi.string().valid(...Object.values(AdType)).required(),
-  content: Joi.object({
-    images: Joi.array().items(Joi.string().uri()),
-    video: Joi.string().uri(),
-    cta: Joi.object({
-      text: Joi.string().max(50).required(),
-      url: Joi.string().uri(),
-      action: Joi.string().valid('visit_website', 'contact', 'learn_more', 'sign_up', 'download').required()
-    }).required()
-  }).required(),
-  targeting: Joi.object({
-    location: Joi.object({
-      cities: Joi.array().items(Joi.string()),
-      countries: Joi.array().items(Joi.string())
-    }),
-    demographics: Joi.object({
-      ageRange: Joi.array().items(Joi.number().min(13).max(100)).length(2),
-      interests: Joi.array().items(Joi.string())
-    }),
-    budget: Joi.object({
-      total: Joi.number().min(10).required(),
-      daily: Joi.number().min(1).required(),
-      bidType: Joi.string().valid('cpm', 'cpc', 'cpa').required()
-    }).required()
-  }).required(),
-  campaign: Joi.object({
-    startDate: Joi.date().min('now').required(),
-    endDate: Joi.date().greater(Joi.ref('startDate')).required()
-  }).required()
+  content: z.object({
+    images: z.array(z.string().url()).optional(),
+    video: z.string().url().optional(),
+    cta: z.object({
+      text: z.string().max(50),
+      url: z.string().url().optional(),
+      action: z.enum(['visit_website', 'contact', 'learn_more', 'sign_up', 'download'])
+    })
+  }),
+  targeting: z.object({
+    location: z.object({
+      cities: z.array(z.string()).optional(),
+      countries: z.array(z.string()).optional()
+    }).optional(),
+    demographics: z.object({
+      ageRange: z.array(z.number().min(13).max(100)).length(2).optional(),
+      interests: z.array(z.string()).optional()
+    }).optional(),
+    budget: z.object({
+      total: z.number().min(10),
+      daily: z.number().min(1),
+      bidType: z.enum(['cpm', 'cpc', 'cpa'])
+    })
+  }),
+  campaign: z.object({
+    startDate: z.date().min(new Date(), "La fecha de inicio debe ser igual o posterior a la fecha actual"),
+    endDate: z.date()
+  }).refine((data) => data.endDate > data.startDate, {
+    message: "La fecha de finalización debe ser posterior a la fecha de inicio",
+    path: ["endDate"],
+  })
 });
 
 // Esquemas para consultas
-export const createConsultationSchema = Joi.object({
-  title: Joi.string().min(5).max(100).required(),
-  description: Joi.string().min(20).max(1000).required(),
-  category: Joi.string().required(),
-  pricing: Joi.object({
-    hourlyRate: Joi.number().min(5).required(),
-    currency: Joi.string().length(3).default('USD'),
-    sessionDuration: Joi.number().valid(30, 45, 60, 90, 120).default(60)
-  }).required(),
-  availability: Joi.object({
-    schedule: Joi.array().items(
-      Joi.object({
-        dayOfWeek: Joi.number().min(0).max(6).required(),
-        startTime: Joi.string().pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).required(),
-        endTime: Joi.string().pattern(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/).required(),
-        available: Joi.boolean().default(true)
-      })
-    ).required(),
-    timezone: Joi.string().required()
-  }).required()
+export const createConsultationSchema = z.object({
+  title: z.string().min(5).max(100),
+  description: z.string().min(20).max(1000),
+  category: z.string(),
+  pricing: z.object({
+    hourlyRate: z.number().min(5),
+    currency: z.string().length(3).default('USD'),
+    sessionDuration: z.union([
+      z.literal(30),
+      z.literal(45),
+      z.literal(60),
+      z.literal(90),
+      z.literal(120),
+    ]).default(60)
+  }),
+  availability: z.object({
+    schedule: z.array(z.object({
+      dayOfWeek: z.number().min(0).max(6),
+      startTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+      endTime: z.string().regex(/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/),
+      available: z.boolean().default(true)
+    })).min(1),
+    timezone: z.string()
+  })
 });
 
 // Esquemas para paginación
-export const paginationSchema = Joi.object({
-  page: Joi.number().min(1).default(1),
-  limit: Joi.number().min(1).max(100).default(20),
-  sort: Joi.string(),
-  order: Joi.string().valid('asc', 'desc').default('desc')
+export const paginationSchema = z.object({
+  page: z.preprocess((val) => Number(val), z.number().min(1).default(1)),
+  limit: z.preprocess((val) => Number(val), z.number().min(1).max(100).default(20)),
+  sort: z.string().optional(),
+  order: z.enum(['asc', 'desc']).default('desc')
 });
 
-export const searchSchema = paginationSchema.keys({
-  q: Joi.string().min(1).max(100),
-  category: Joi.string(),
-  location: Joi.string(),
-  priceMin: Joi.number().min(0),
-  priceMax: Joi.number().min(0),
-  tags: Joi.alternatives().try(
-    Joi.array().items(Joi.string()),
-    Joi.string()
-  )
+export const searchSchema = paginationSchema.extend({
+  q: z.string().min(1).max(100).optional(),
+  category: z.string().optional(),
+  location: z.string().optional(),
+  priceMin: z.preprocess((val) => Number(val), z.number().min(0).optional()),
+  priceMax: z.preprocess((val) => Number(val), z.number().min(0).optional()),
+  tags: z.union([
+    z.string().transform(val => [val]), 
+    z.array(z.string())
+  ]).optional()
 });
-
-// Función helper para validación
-export const validate = (schema: Joi.ObjectSchema, data: any) => {
-  const { error, value } = schema.validate(data, {
-    abortEarly: false,
-    stripUnknown: true
-  });
-
-  if (error) {
-    const errors = error.details.map(detail => ({
-      field: detail.path.join('.'),
-      message: detail.message
-    }));
-    throw { status: 400, message: 'Datos de entrada inválidos', errors };
-  }
-
-  return value;
-};

@@ -1,5 +1,4 @@
-
-import { Bell, Search, MessageSquare, Plus, Menu } from "lucide-react";
+import { Bell, Search, MessageSquare, Plus, Menu, User, Edit, Settings, HelpCircle, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,9 +9,14 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
+import { useNavigate } from "react-router-dom";
 
 export function TopNavigation() {
+  const navigate = useNavigate();
+
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3 md:px-6">
       <div className="flex items-center justify-between">
@@ -65,10 +69,36 @@ export function TopNavigation() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 bg-white border border-gray-200 rounded-xl shadow-lg" align="end" forceMount>
-                <DropdownMenuItem className="hover:bg-gray-50 rounded-lg">Mi Perfil</DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-gray-50 rounded-lg">Configuración</DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-gray-50 rounded-lg">Ayuda</DropdownMenuItem>
-                <DropdownMenuItem className="hover:bg-gray-50 rounded-lg">Cerrar Sesión</DropdownMenuItem>
+                <DropdownMenuLabel className="font-normal">
+                  <div className="flex flex-col space-y-1">
+                    <p className="text-sm font-medium leading-none">Jane Doe</p>
+                    <p className="text-xs leading-none text-muted-foreground">
+                      jane.doe@example.com
+                    </p>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => navigate('/perfil')} className="hover:bg-gray-50 rounded-lg cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Mi Perfil</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate('/editar-perfil')} className="hover:bg-gray-50 rounded-lg cursor-pointer">
+                  <Edit className="mr-2 h-4 w-4" />
+                  <span>Editar Perfil</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="hover:bg-gray-50 rounded-lg cursor-pointer">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Configuración</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem className="hover:bg-gray-50 rounded-lg cursor-pointer">
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  <span>Ayuda</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="hover:bg-gray-50 rounded-lg cursor-pointer text-red-600 focus:text-red-600">
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Cerrar Sesión</span>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

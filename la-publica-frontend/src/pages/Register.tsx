@@ -4,14 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, EyeOff, LogIn, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, UserPlus, AlertCircle } from "lucide-react";
 import apiClient from "@/api/client";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import axios from 'axios';
 
-const Login = () => {
+const Register = () => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,29 +23,28 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (password !== confirmPassword) {
+      setError("Las contraseñas no coinciden.");
+      return;
+    }
+
     setIsLoading(true);
-    setError(null); // Limpiar errores anteriores
+    setError(null);
 
     try {
-      // Recordar que nuestro backend espera un campo 'login' que puede ser email o username
-      const response = await apiClient.post('/auth/login', {
-        login: email, 
-        password: password
+      await apiClient.post('/auth/register', {
+        firstName,
+        lastName,
+        username,
+        email,
+        password
       });
-
-      if (response.data && response.data.success) {
-        // Guardar el token
-        localStorage.setItem('authToken', response.data.token);
-        // Redirigir a la página principal (home)
-        navigate('/');
-      } else {
-        // En caso de que la API devuelva success: false pero sin un error de status
-        setError(response.data.message || 'Ocurrió un error inesperado.');
-      }
+      // Redirigir al login con un mensaje de éxito (opcional, pero buena UX)
+      navigate('/login?registered=true');
     } catch (err) {
-      // Manejar errores de la petición (ej. 401, 500)
       if (axios.isAxiosError(err)) {
-        const errorMessage = err.response?.data?.message || "Error al conectar con el servidor. Inténtalo más tarde.";
+        const errorMessage = err.response?.data?.message || "Error al crear la cuenta. Inténtalo más tarde.";
         setError(errorMessage);
       } else {
         setError("Ocurrió un error inesperado.");
@@ -54,121 +57,135 @@ const Login = () => {
   return (
     <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo y título */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-[#4F8FF7] rounded-2xl flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-2xl">LP</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Bienvenido de vuelta</h1>
-          <p className="text-gray-600 mt-2">Inicia sesión en tu cuenta de La pública</p>
+          <h1 className="text-2xl font-bold text-gray-900">Crea tu cuenta</h1>
+          <p className="text-gray-600 mt-2">Únete a La pública para empezar a conectar</p>
         </div>
 
         <Card className="shadow-lg border-0">
           <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-xl font-semibold text-center">Iniciar Sesión</CardTitle>
+            <CardTitle className="text-xl font-semibold text-center">Registro</CardTitle>
             <CardDescription className="text-center">
-              Ingresa tus credenciales para acceder a tu cuenta
+              Completa el formulario para crear tu perfil
             </CardDescription>
           </CardHeader>
           <CardContent>
             {error && (
               <Alert variant="destructive" className="mb-4">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error de autenticación</AlertTitle>
+                <AlertTitle>Error en el registro</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="firstName">Nombre</Label>
+                  <Input
+                    id="firstName"
+                    type="text"
+                    placeholder="Tu nombre"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                    className="h-11 rounded-xl"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="lastName">Apellidos</Label>
+                  <Input
+                    id="lastName"
+                    type="text"
+                    placeholder="Tus apellidos"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
+                    required
+                    className="h-11 rounded-xl"
+                  />
+                </div>
+              </div>
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                  Correo electrónico o Usuario
-                </Label>
+                <Label htmlFor="username">Nombre de usuario</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  placeholder="tu_usuario"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  required
+                  className="h-11 rounded-xl"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Correo electrónico</Label>
                 <Input
                   id="email"
-                  type="text" // Cambiado a text para permitir usuarios
-                  placeholder="tu@email.com o tu_usuario"
+                  type="email"
+                  placeholder="tu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
-                  className="h-11 rounded-xl border-gray-200 focus:border-[#4F8FF7] focus:ring-[#4F8FF7]"
+                  className="h-11 rounded-xl"
                 />
               </div>
-
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                  Contraseña
-                </Label>
+                <Label htmlFor="password">Contraseña</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Tu contraseña"
+                    placeholder="Crea una contraseña segura"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    className="h-11 rounded-xl border-gray-200 focus:border-[#4F8FF7] focus:ring-[#4F8FF7] pr-10"
+                    className="h-11 rounded-xl pr-10"
                   />
-                  <button
+                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
-
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 text-[#4F8FF7] border-gray-300 rounded focus:ring-[#4F8FF7]"
-                  />
-                  <span className="text-gray-600">Recordarme</span>
-                </label>
-                <Link
-                  to="/forgot-password"
-                  className="text-[#4F8FF7] hover:text-[#4F8FF7]/80 font-medium transition-colors"
-                >
-                  ¿Olvidaste tu contraseña?
-                </Link>
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  placeholder="Vuelve a escribir la contraseña"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className="h-11 rounded-xl"
+                />
               </div>
-
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-11 bg-[#4F8FF7] hover:bg-[#4F8FF7]/90 text-white rounded-xl font-medium transition-colors"
+                className="w-full h-11 bg-[#4F8FF7] hover:bg-[#4F8FF7]/90 text-white rounded-xl font-medium"
               >
-                {isLoading ? (
-                  <div className="flex items-center space-x-2">
-                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Iniciando sesión...</span>
-                  </div>
-                ) : (
-                  <div className="flex items-center space-x-2">
-                    <LogIn className="h-4 w-4" />
-                    <span>Iniciar Sesión</span>
-                  </div>
+                {isLoading ? "Creando cuenta..." : (
+                  <>
+                    <UserPlus className="h-4 w-4 mr-2" />
+                    Crear cuenta
+                  </>
                 )}
               </Button>
             </form>
-
             <div className="mt-6 text-center">
               <p className="text-gray-600">
-                ¿No tienes una cuenta?{" "}
-                <Link
-                  to="/register"
-                  className="text-[#4F8FF7] hover:text-[#4F8FF7]/80 font-medium transition-colors"
-                >
-                  Regístrate aquí
+                ¿Ya tienes una cuenta?{" "}
+                <Link to="/login" className="text-[#4F8FF7] hover:underline font-medium">
+                  Inicia sesión aquí
                 </Link>
               </p>
             </div>
-
+            
             {/* Divisor */}
             <div className="mt-6 flex items-center">
               <div className="flex-1 border-t border-gray-200"></div>
@@ -216,23 +233,9 @@ const Login = () => {
             </div>
           </CardContent>
         </Card>
-
-        {/* Footer */}
-        <div className="mt-8 text-center text-sm text-gray-500">
-          <p>
-            Al iniciar sesión, aceptas nuestros{" "}
-            <Link to="/terms" className="text-[#4F8FF7] hover:underline">
-              Términos de Servicio
-            </Link>{" "}
-            y{" "}
-            <Link to="/privacy" className="text-[#4F8FF7] hover:underline">
-              Política de Privacidad
-            </Link>
-          </p>
-        </div>
       </div>
     </div>
   );
 };
 
-export default Login;
+export default Register; 

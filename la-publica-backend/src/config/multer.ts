@@ -78,6 +78,6 @@ export const deleteFile = (filePath: string): void => {
 
 // Utilidad para obtener URL pública
 export const getFileUrl = (filename: string, folder: string = 'general'): string => {
-  const baseUrl = process.env.BACKEND_URL || 'http://localhost:3001';
+  const baseUrl = process.env.BACKEND_URL || 'http://localhost:3000';
   return `${baseUrl}/uploads/${folder}/${filename}`;
 };

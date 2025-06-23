@@ -1,112 +1,90 @@
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import User from './user.model';
-import { registerSchema, validate, loginSchema } from './utils/validation';
+import { registerUserSchema, validate, loginSchema } from './utils/validation';
 import { PasswordService } from './utils/helpers';
-import { UserRole } from './types';
 import { JWTService } from './utils/jwt';
+import { UserRole } from './types';
 
 // Registro de usuario
-export const registerUser = async (req: Request, res: Response) => {
+export const register = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Validar datos de entrada
-    const data = validate(registerSchema, req.body);
+    const data = validate(registerUserSchema, req.body);
 
-    // Verificar si el email ya existe
-    const existing = await User.findOne({ email: data.email });
-    if (existing) {
-      return res.status(400).json({
+    const existingUser = await User.findOne({ 
+      $or: [{ email: data.email }, { username: data.username }] 
+    });
+
+    if (existingUser) {
+      return res.status(409).json({
         success: false,
-        message: 'El email ya está registrado'
+        message: 'El email o el nombre de usuario ya están en uso.'
       });
     }
 
-    // Hashear la contraseña
     const hashedPassword = await PasswordService.hashPassword(data.password);
-
-    // Crear usuario
-    const user = new User({
+    
+    const newUser = new User({
       username: data.username,
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
-      password: hashedPassword,
-      role: UserRole.USER
+      password: hashedPassword
     });
-    await user.save();
 
-    // Responder sin la contraseña
-    const userObj = user.toObject() as any;
-    if (userObj.password) delete userObj.password;
+    await newUser.save();
 
     return res.status(201).json({
       success: true,
-      data: userObj,
-      message: 'Usuario registrado correctamente'
+      message: 'Usuario registrado con éxito.'
     });
-  } catch (error: any) {
-    // Manejo de errores
-    return res.status(error.status || 500).json({
-      success: false,
-      message: error.message || 'Error en el registro',
-      error: error.errors || undefined
-    });
+
+  } catch (error) {
+    return next(error);
   }
 };
 
 // Login de usuario
-export const loginUser = async (req: Request, res: Response) => {
+export const login = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    // Validar datos de entrada
     const data = validate(loginSchema, req.body);
 
-    // Buscar usuario por email o username
     const user = await User.findOne({
       $or: [
         { email: data.login },
         { username: data.login }
       ]
     });
+
     if (!user) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email o contraseña incorrectos'
-      });
+      return res.status(401).json({ success: false, message: 'Credenciales inválidas' });
     }
 
-    // Verificar contraseña
-    const valid = await PasswordService.verifyPassword(data.password, user.password);
-    if (!valid) {
-      return res.status(400).json({
-        success: false,
-        message: 'Email o contraseña incorrectos'
-      });
+    const isPasswordValid = await PasswordService.verifyPassword(data.password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(401).json({ success: false, message: 'Credenciales inválidas' });
+    }
+    
+    if (!user.isActive) {
+      return res.status(403).json({ success: false, message: 'La cuenta de usuario está inactiva.' });
     }
 
-    // Generar token JWT
-    const token = JWTService.generateAccessToken({
-      userId: String(user._id),
-      email: user.email,
-      role: user.role
-    });
-
-    // Responder sin la contraseña
-    const userObj = user.toObject() as any;
-    if (userObj.password) delete userObj.password;
+    const token = JWTService.generateAccessToken({ userId: user.id, email: user.email, role: user.role });
 
     return res.json({
       success: true,
-      data: {
-        user: userObj,
-        accessToken: token
-      },
-      message: 'Login exitoso'
+      message: 'Login exitoso',
+      token: token,
+      user: {
+        id: user._id,
+        username: user.username,
+        email: user.email,
+        role: user.role
+      }
     });
-  } catch (error: any) {
-    return res.status(error.status || 500).json({
-      success: false,
-      message: error.message || 'Error en el login',
-      error: error.errors || undefined
-    });
+
+  } catch (error) {
+    return next(error);
   }
 };
 

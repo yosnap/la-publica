@@ -1,16 +1,20 @@
 import { Router } from 'express';
-import { registerUser, loginUser, refreshToken, logoutUser, forgotPassword } from './auth.controller';
+import { register, login, refreshToken, logoutUser, forgotPassword } from './auth.controller';
 
 const router = Router();
 
-// Endpoint para registro de usuario
-router.post('/register', registerUser);
-// Endpoint para login
-router.post('/login', loginUser);
+// POST /api/auth/register - Registrar un nuevo usuario
+router.post('/register', register);
+
+// POST /api/auth/login - Iniciar sesión
+router.post('/login', login);
+
 // Endpoint para refresh token
 router.post('/refresh', refreshToken);
+
 // Endpoint para logout
 router.post('/logout', logoutUser);
+
 // Endpoint para recuperar contraseña
 router.post('/forgot', forgotPassword);
 
