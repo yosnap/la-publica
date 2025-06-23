@@ -99,3 +99,20 @@
     @apply bg-background text-foreground;
   }
 }
+
+.phone-input-custom .PhoneInputInput,
+.phone-input-custom .PhoneInputCountry {
+  border: none !important;
+  background-color: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+.phone-input-custom .PhoneInputInput {
+  height: 100%;
+  padding-left: 0.5rem; /* 8px */
+}
+
+.phone-input-custom .PhoneInputCountrySelect-arrow {
+  opacity: 0.5;
+}

@@ -26,6 +26,7 @@ export const ProfileEditSidebar = ({ activeTab, onTabChange }: ProfileEditSideba
           {sidebarItems.map((item) => (
             <button
               key={item.id}
+              type="button"
               onClick={() => onTabChange(item.id)}
               className={`w-full flex items-center space-x-3 px-4 py-4 text-left transition-colors ${
                 activeTab === item.id 

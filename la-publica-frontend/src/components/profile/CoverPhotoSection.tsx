@@ -1,32 +1,55 @@
-
+import { ChangeEvent } from 'react';
 import { Button } from "@/components/ui/button";
+import { Camera, Trash2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-export const CoverPhotoSection = () => {
+interface CoverPhotoSectionProps {
+  coverImage?: string;
+  onImageUpload: (e: ChangeEvent<HTMLInputElement>) => void;
+  onImageDelete: () => void;
+}
+
+export const CoverPhotoSection = ({ coverImage, onImageUpload, onImageDelete }: CoverPhotoSectionProps) => {
   return (
-    <div className="space-y-6">
-      <h3 className="text-xl font-semibold text-gray-900">Change Cover Photo</h3>
+    <div className="space-y-4">
+      <h3 className="text-lg font-medium text-gray-800">Foto de Portada</h3>
       
-      <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
-        <div className="flex items-start space-x-3">
-          <div className="w-5 h-5 bg-bb-primary rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-            <span className="text-white text-xs font-bold">i</span>
-          </div>
-          <p className="text-sm text-gray-700">Your Cover Photo will be used to customize the header of your profile.</p>
+      <div 
+        className="relative border-2 border-dashed border-gray-300 rounded-lg p-6 text-center bg-cover bg-center"
+        style={{ backgroundImage: `url(${coverImage})` }}
+      >
+        <div className="absolute inset-0 bg-black bg-opacity-30 rounded-lg flex flex-col items-center justify-center space-y-3">
+          <p className="text-white font-semibold">Arrastra tu imagen aquí o selecciónala</p>
+          <Label htmlFor="cover-image" className="cursor-pointer">
+            <div className="bg-white text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-100 transition-colors inline-flex items-center">
+              <Camera className="h-4 w-4 mr-2" />
+              {coverImage ? 'Cambiar foto' : 'Seleccionar archivo'}
+            </div>
+          </Label>
+          <Input
+            id="cover-image"
+            type="file"
+            accept="image/*"
+            onChange={onImageUpload}
+            className="hidden"
+          />
+          <p className="text-xs text-white/80">
+            Para mejores resultados, sube una imagen de 1950px por 450px o más grande.
+          </p>
         </div>
       </div>
-
-      <div className="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center bg-gray-50">
-        <div className="space-y-4">
-          <p className="text-gray-500">Drop your image here</p>
-          <Button variant="outline" className="border-gray-300">Select your file</Button>
-          <p className="text-xs text-orange-500">For best results, upload an image that is 1950px by 450px or larger.</p>
+      
+      {coverImage && (
+        <div>
+          <Button variant="destructive" onClick={onImageDelete}>
+            <Trash2 className="h-4 w-4 mr-2" />
+            Eliminar mi Foto de Portada
+          </Button>
         </div>
-      </div>
-
-      <div className="space-y-4">
-        <p className="text-sm text-gray-600">If you'd like to delete your current cover photo, use the delete Cover Photo button.</p>
-        <Button variant="destructive" className="bg-red-600 hover:bg-red-700">Delete My Cover Photo</Button>
-      </div>
+      )}
     </div>
   );
 };
+
+export default CoverPhotoSection;
