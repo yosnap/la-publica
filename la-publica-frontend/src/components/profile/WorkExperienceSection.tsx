@@ -12,13 +12,23 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import { Trash2 } from "lucide-react";
+import { Trash2, Pencil, Check, X } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+
+// Definición de tipo para experiencia laboral
+interface Experience {
+  jobTitle: string;
+  company: string;
+  startDate: string;
+  endDate: string;
+  isCurrentJob: boolean;
+  description: string;
+}
 
 const WorkExperienceSection = () => {
   const { setValue, watch } = useFormContext();
@@ -32,6 +42,9 @@ const WorkExperienceSection = () => {
     isCurrentJob: false,
     description: "",
   });
+
+  const [editIndex, setEditIndex] = useState<number | null>(null);
+  const [editExperience, setEditExperience] = useState<Experience | null>(null);
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -65,6 +78,34 @@ const WorkExperienceSection = () => {
     setValue("workExperience", updatedExperiences, { shouldDirty: true });
   };
 
+  const handleEditClick = (index: number) => {
+    setEditIndex(index);
+    setEditExperience({ ...allExperiences[index] });
+  };
+
+  const handleEditInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setEditExperience((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  };
+
+  const handleSaveEdit = () => {
+    if (!editExperience.jobTitle || !editExperience.company) return;
+    const updatedExperiences = allExperiences.map((exp, i) =>
+      i === editIndex ? editExperience : exp
+    );
+    setValue("workExperience", updatedExperiences, { shouldDirty: true });
+    setEditIndex(null);
+    setEditExperience(null);
+  };
+
+  const handleCancelEdit = () => {
+    setEditIndex(null);
+    setEditExperience(null);
+  };
+
   return (
     <div className="space-y-6">
       <h3 className="text-lg font-medium text-gray-800">Experiencia Laboral</h3>
@@ -74,17 +115,63 @@ const WorkExperienceSection = () => {
         {allExperiences.map((exp, index) => (
           <AccordionItem value={`item-${index}`} key={index}>
             <AccordionTrigger>
-              <div className="flex justify-between w-full pr-4">
+              <div className="flex justify-between w-full pr-4 items-center">
                 <span>{exp.jobTitle} en {exp.company}</span>
-                <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleRemoveExperience(index); }} className="h-8 w-8">
-                  <Trash2 className="h-4 w-4 text-red-500" />
-                </Button>
+                <div className="flex gap-1">
+                  <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleEditClick(index); }} className="h-8 w-8">
+                    <Pencil className="h-4 w-4 text-blue-500" />
+                  </Button>
+                  <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); handleRemoveExperience(index); }} className="h-8 w-8">
+                    <Trash2 className="h-4 w-4 text-red-500" />
+                  </Button>
+                </div>
               </div>
             </AccordionTrigger>
             <AccordionContent className="space-y-2">
-              <p><strong>Desde:</strong> {exp.startDate}</p>
-              <p><strong>Hasta:</strong> {exp.isCurrentJob ? 'Actualidad' : exp.endDate}</p>
-              <p>{exp.description}</p>
+              {editIndex === index ? (
+                <div className="space-y-2 border p-3 rounded-md bg-gray-50">
+                  <div>
+                    <Label htmlFor="edit-jobTitle">Cargo</Label>
+                    <Input id="edit-jobTitle" name="jobTitle" value={editExperience.jobTitle} onChange={handleEditInputChange} />
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-company">Empresa</Label>
+                    <Input id="edit-company" name="company" value={editExperience.company} onChange={handleEditInputChange} />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="edit-startDate">Fecha de Inicio</Label>
+                      <Input id="edit-startDate" name="startDate" type="date" value={editExperience.startDate} onChange={handleEditInputChange} />
+                    </div>
+                    <div>
+                      <Label htmlFor="edit-endDate">Fecha de Fin</Label>
+                      <Input id="edit-endDate" name="endDate" type="date" value={editExperience.endDate} onChange={handleEditInputChange} disabled={editExperience.isCurrentJob} />
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Checkbox id="edit-isCurrentJob" name="isCurrentJob" checked={editExperience.isCurrentJob} onCheckedChange={(checked) => handleEditInputChange({ target: { name: 'isCurrentJob', type: 'checkbox', checked } })} />
+                    <Label htmlFor="edit-isCurrentJob">Trabajo aquí actualmente</Label>
+                  </div>
+                  <div>
+                    <Label htmlFor="edit-description">Descripción</Label>
+                    <Textarea id="edit-description" name="description" value={editExperience.description} onChange={handleEditInputChange} />
+                  </div>
+                  <div className="flex gap-2 justify-end pt-2">
+                    <Button type="button" size="sm" variant="outline" onClick={handleCancelEdit}>
+                      <X className="h-4 w-4 mr-1" /> Cancelar
+                    </Button>
+                    <Button type="button" size="sm" onClick={handleSaveEdit}>
+                      <Check className="h-4 w-4 mr-1" /> Guardar
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <p><strong>Desde:</strong> {exp.startDate}</p>
+                  <p><strong>Hasta:</strong> {exp.isCurrentJob ? 'Actualidad' : exp.endDate}</p>
+                  <p>{exp.description}</p>
+                </>
+              )}
             </AccordionContent>
           </AccordionItem>
         ))}

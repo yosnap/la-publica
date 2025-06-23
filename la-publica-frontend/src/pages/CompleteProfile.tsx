@@ -51,6 +51,14 @@ interface ProfileFormData {
   coverPhotoUrl?: string;
 }
 
+// Utilidad para obtener la URL absoluta de una imagen
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050';
+const getImageUrl = (url?: string | null) => {
+  if (!url) return undefined;
+  if (url.startsWith('http')) return url;
+  return API_BASE_URL.replace(/\/$/, '') + url;
+};
+
 const CompleteProfile = () => {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("edit");
@@ -106,14 +114,16 @@ const CompleteProfile = () => {
         const response = await apiClient.get('/users/profile');
         if (response.data.success) {
           const profile = response.data.data;
-          
+          // Mapeo correcto de imágenes y socialLinks
           const formValues = {
             ...profile,
+            profilePictureUrl: profile.profilePicture,
+            coverPhotoUrl: profile.coverPhoto,
             ...(profile.socialLinks || {}),
           };
-          
           delete formValues.socialLinks;
-
+          delete formValues.profilePicture;
+          delete formValues.coverPhoto;
           form.reset(formValues);
           
           // Clear previews on new data fetch
@@ -140,10 +150,10 @@ const CompleteProfile = () => {
   }, [form]);
 
   const skillsChanged = JSON.stringify(skills) !== JSON.stringify(initialSkills);
-  const hasChanges = isDirty || skillsChanged || !!profileImageFile || !!coverImageFile;
+  const hasFormChanges = isDirty || skillsChanged;
 
   const onSubmit = async (data: ProfileFormData) => {
-    if (!hasChanges) {
+    if (!hasFormChanges) {
       toast.info("No hay cambios para guardar.");
       return;
     }
@@ -153,52 +163,36 @@ const CompleteProfile = () => {
     setError(null);
 
     try {
-      const tempPayload: Partial<ProfileFormData & { skills: string[] }> = { ...data, skills };
-
-      // Subir imagen de perfil si hay una nueva
-      if (profileImageFile) {
-        const formData = new FormData();
-        formData.append('image', profileImageFile);
-        const response = await apiClient.post('/uploads/image', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        tempPayload.profilePictureUrl = response.data.imageUrl;
+      // Mapeo correcto de campos antes de enviar
+      const { profilePictureUrl, coverPhotoUrl, facebook, twitter, youtube, gender, birthDay, birthMonth, birthYear, ...rest } = data;
+      let birthDate: string | undefined = undefined;
+      if (birthDay && birthMonth && birthYear) {
+        birthDate = new Date(
+          Number(birthYear),
+          Number(birthMonth) - 1,
+          Number(birthDay)
+        ).toISOString();
       }
-
-      // Subir imagen de portada si hay una nueva
-      if (coverImageFile) {
-        const formData = new FormData();
-        formData.append('image', coverImageFile);
-        const response = await apiClient.post('/uploads/image', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        tempPayload.coverPhotoUrl = response.data.imageUrl;
-      }
-      
-      // Si se marcó una imagen para eliminar (preview es string vacío)
-      if (profileImagePreview === '') {
-        tempPayload.profilePictureUrl = '';
-      }
-      if (coverImagePreview === '') {
-        tempPayload.coverPhotoUrl = '';
-      }
-
-      // Mapear nombres del frontend al backend antes de enviar
-      const { profilePictureUrl, coverPhotoUrl, ...restOfPayload } = tempPayload;
       const finalPayload = {
-        ...restOfPayload,
+        ...rest,
+        ...(gender ? { gender } : {}),
+        ...(birthDate ? { birthDate } : {}),
         profilePicture: profilePictureUrl,
         coverPhoto: coverPhotoUrl,
+        socialLinks: {
+          facebook,
+          twitter,
+          youtube,
+        },
+        skills,
       };
 
       const response = await apiClient.put('/users/profile', finalPayload);
 
       if (response.data.success) {
         toast.success("¡Perfil actualizado con éxito!", { id: toastId });
-        // Reseteamos el formulario y el estado local a la nueva versión
         const updatedProfile = response.data.data;
         
-        // Mapear nombres del backend al frontend para el reset del formulario
         const formValues = {
             ...updatedProfile,
             profilePictureUrl: updatedProfile.profilePicture,
@@ -210,12 +204,7 @@ const CompleteProfile = () => {
         delete formValues.coverPhoto;
         
         form.reset(formValues);
-
         setInitialSkills(updatedProfile.skills || []);
-        setProfileImageFile(null);
-        setProfileImagePreview(null);
-        setCoverImageFile(null);
-        setCoverImagePreview(null);
       }
     } catch (err) {
       const message = err instanceof AxiosError ? err.response?.data?.message : "Ocurrió un error inesperado.";
@@ -225,32 +214,55 @@ const CompleteProfile = () => {
       setIsLoading(false);
     }
   };
-  
-  const handleImageUpload = (e: ChangeEvent<HTMLInputElement>, field: 'profile' | 'cover') => {
-    const file = e.target.files?.[0];
-    if (!file) return;
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      const result = reader.result as string;
-      if (field === 'profile') {
-        setProfileImagePreview(result);
-        setProfileImageFile(file);
-      } else {
-        setCoverImagePreview(result);
-        setCoverImageFile(file);
+  // Lógica de guardado automático para la foto de portada
+  const handleCoverImageChange = async (file: File | null) => {
+    const toastId = toast.loading(file ? "Subiendo imagen..." : "Eliminando imagen...");
+    setIsLoading(true);
+    let imageUrl: string | null = null;
+    
+    try {
+      if (file) {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await apiClient.post('/uploads/image', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        imageUrl = res.data.imageUrl;
       }
-      // Marcar el formulario como "sucio" para habilitar el botón de guardar
-      setValue('firstName', form.getValues('firstName'), { shouldDirty: true });
-    };
-    reader.readAsDataURL(file);
-    e.target.value = '';
+      
+      const payload = { coverPhoto: imageUrl || '' };
+      const response = await apiClient.put('/users/profile', payload);
+      
+      if (response.data.success) {
+        toast.success(file ? 'Foto de portada actualizada' : 'Foto de portada eliminada', { id: toastId });
+        const updatedProfile = response.data.data;
+        form.reset({ ...form.getValues(), coverPhotoUrl: updatedProfile.coverPhoto });
+      }
+    } catch (err) {
+      toast.error("Error al actualizar la foto de portada", { id: toastId });
+    } finally {
+      setIsLoading(false);
+    }
   };
-  
-  const handleImageDelete = () => {
-    setCoverImagePreview(''); // Usamos string vacío para marcar como borrado
-    setCoverImageFile(null);
-    setValue('coverPhotoUrl', '', { shouldDirty: true });
+
+  // Lógica de guardado automático para la foto de perfil
+  const handleProfileImageChange = async (url: string | null) => {
+    const toastId = toast.loading(url ? "Actualizando foto..." : "Eliminando foto...");
+    setIsLoading(true);
+    try {
+      const payload = { profilePicture: url || '' };
+      const response = await apiClient.put('/users/profile', payload);
+      if (response.data.success) {
+        toast.success(url ? 'Foto de perfil actualizada' : 'Foto de perfil eliminada', { id: toastId });
+        const updatedProfile = response.data.data;
+        form.reset({ ...form.getValues(), profilePictureUrl: updatedProfile.profilePicture });
+      }
+    } catch (err) {
+      toast.error('Error al actualizar la foto de perfil', { id: toastId });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const renderEditContent = () => (
@@ -288,55 +300,49 @@ const CompleteProfile = () => {
             <Card className="shadow-sm border-gray-200">
               <CardContent className="p-8">
                 <FormProvider {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                    {error && (
-                      <Alert variant="destructive" className="relative pr-10">
-                        <button
-                          type="button"
-                          className="absolute top-2 right-2 p-1 text-red-700 hover:text-red-900"
-                          onClick={() => setError(null)}
-                        >
-                          <X className="h-4 w-4" />
-                        </button>
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertTitle>Error</AlertTitle>
-                        <AlertDescription>{error}</AlertDescription>
-                      </Alert>
-                    )}
-                    
-                    {activeTab === "edit" && renderEditContent()}
-                    {activeTab === "profile-photo" && (
-                      <ProfilePhotoSection 
-                        profileImage={(profileImagePreview ?? profilePictureUrl) || ''}
-                        onImageUpload={(e) => handleImageUpload(e, 'profile')} 
-                      />
-                    )}
-                    {activeTab === "cover-photo" && (
-                      <CoverPhotoSection 
-                        coverImage={(coverImagePreview ?? coverPhotoUrl) || undefined}
-                        onImageUpload={(e) => handleImageUpload(e, 'cover')}
-                        onImageDelete={handleImageDelete}
-                      />
-                    )}
-                    
-                    <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => window.history.back()}
-                        disabled={isLoading}
-                      >
-                        Cancelar
-                      </Button>
-                      <Button
-                        type="submit"
-                        disabled={isLoading || !hasChanges}
-                        className="bg-[#4F8FF7] hover:bg-[#4F8FF7]/90 text-white"
-                      >
-                        {isLoading ? "Guardando..." : "Guardar Cambios"}
-                      </Button>
-                    </div>
-                  </form>
+                  {/* El contenido cambia según la pestaña activa */}
+                  {activeTab === 'edit' && (
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                      {error && (
+                        <Alert variant="destructive" className="relative pr-10">
+                          <button
+                            type="button"
+                            className="absolute top-2 right-2 p-1 text-red-700 hover:text-red-900"
+                            onClick={() => setError(null)}
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                          <AlertCircle className="h-4 w-4" />
+                          <AlertTitle>Error</AlertTitle>
+                          <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                      )}
+                      {renderEditContent()}
+                      <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
+                        <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isLoading}>
+                          Cancelar
+                        </Button>
+                        <Button type="submit" disabled={isLoading || !hasFormChanges} className="bg-[#4F8FF7] hover:bg-[#4F8FF7]/90 text-white">
+                          {isLoading ? "Guardando..." : "Guardar Cambios"}
+                        </Button>
+                      </div>
+                    </form>
+                  )}
+
+                  {activeTab === "profile-photo" && (
+                    <ProfilePhotoSection
+                      profileImageUrl={getImageUrl(profilePictureUrl)}
+                      onProfileImageChange={handleProfileImageChange}
+                    />
+                  )}
+
+                  {activeTab === "cover-photo" && (
+                    <CoverPhotoSection
+                      coverImage={getImageUrl(coverPhotoUrl)}
+                      onImageChange={handleCoverImageChange}
+                      isLoading={isLoading}
+                    />
+                  )}
                 </FormProvider>
               </CardContent>
             </Card>

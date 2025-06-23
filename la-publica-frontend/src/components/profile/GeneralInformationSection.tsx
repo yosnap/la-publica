@@ -13,7 +13,9 @@ interface GeneralInformationSectionProps {
 }
 
 const GeneralInformationSection = ({ skills, setSkills }: GeneralInformationSectionProps) => {
-  const { control } = useFormContext();
+  const { control, watch } = useFormContext();
+  // Log para depuración de los valores actuales
+  console.log('Valores actuales:', watch('birthDay'), watch('birthMonth'), watch('birthYear'));
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -61,7 +63,7 @@ const GeneralInformationSection = ({ skills, setSkills }: GeneralInformationSect
             name="birthDay"
             render={({ field }) => (
               <FormItem>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl><SelectTrigger><SelectValue placeholder="Día" /></SelectTrigger></FormControl>
                   <SelectContent>{Array.from({length: 31}, (_, i) => <SelectItem key={i+1} value={String(i+1)}>{i+1}</SelectItem>)}</SelectContent>
                 </Select>
@@ -73,7 +75,7 @@ const GeneralInformationSection = ({ skills, setSkills }: GeneralInformationSect
             name="birthMonth"
             render={({ field }) => (
               <FormItem>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl><SelectTrigger><SelectValue placeholder="Mes" /></SelectTrigger></FormControl>
                   <SelectContent>{[
                     { value: '1', label: 'Enero' }, { value: '2', label: 'Febrero' },
@@ -107,7 +109,7 @@ const GeneralInformationSection = ({ skills, setSkills }: GeneralInformationSect
         render={({ field }) => (
           <FormItem>
             <FormLabel>Género (requerido)</FormLabel>
-            <Select onValueChange={field.onChange} defaultValue={field.value}>
+            <Select onValueChange={field.onChange} value={field.value}>
               <FormControl><SelectTrigger><SelectValue placeholder="Selecciona tu género" /></SelectTrigger></FormControl>
               <SelectContent>
                 <SelectItem value="male">Masculino</SelectItem>
