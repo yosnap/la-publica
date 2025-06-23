@@ -15,7 +15,9 @@ import usersRoutes from './users.routes';
 import postsRoutes from './post.routes';
 import searchRoutes from './search.routes';
 import adminRoutes from './admin.routes';
+import uploadRoutes from './upload.routes';
 import { errorHandler } from './middleware/errorHandler';
+import 'dotenv/config';
 
 const app = express();
 const server = createServer(app);
@@ -51,7 +53,7 @@ app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
-// Servir archivos estáticos (uploads)
+// Servir archivos estáticos desde la carpeta 'uploads'
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Rutas de autenticación
@@ -67,6 +69,7 @@ app.use('/api/search', searchRoutes);
 
 // Rutas de administración
 app.use('/api/admin', adminRoutes);
+app.use('/api/uploads', uploadRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

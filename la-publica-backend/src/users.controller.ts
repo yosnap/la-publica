@@ -45,28 +45,52 @@ export const getUserById = async (req: Request, res: Response) => {
 // Editar perfil del usuario autenticado
 export const updateProfile = async (req: Request, res: Response) => {
   try {
-    // Suponemos que el ID del usuario autenticado está en req.user.userId
     const userId = (req as any).user?.userId;
     if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: 'No autenticado'
-      });
+      return res.status(401).json({ success: false, message: 'No autenticado' });
     }
-    const data = validate(updateProfileSchema, req.body);
-    const user = await User.findByIdAndUpdate(userId, data, { new: true, select: '-password' });
+
+    // No usamos Zod aquí porque permitimos actualizaciones parciales flexibles (p. ej. solo la foto)
+    const updateData = req.body;
+
+    const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: 'Usuario no encontrado'
-      });
+      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
     }
+
+    // Separar los campos sociales de los demás
+    const { facebook, twitter, youtube, ...otherFields } = updateData;
+    const socialFields: { [key: string]: string } = { facebook, twitter, youtube };
+
+    // Actualizar los campos del nivel superior
+    Object.assign(user, otherFields);
+
+    // Actualizar los campos sociales anidados, asegurando que el objeto social exista
+    if (!user.socialLinks) {
+      user.socialLinks = { facebook: '', twitter: '', youtube: '' };
+    }
+    
+    // Fusionar solo los campos sociales que se enviaron
+    for (const key in socialFields) {
+      if (socialFields[key] !== undefined) {
+        (user.socialLinks as any)[key] = socialFields[key];
+      }
+    }
+    
+    const updatedUser = await user.save();
+    
+    const userObject: any = updatedUser.toObject();
+    delete userObject.password;
+
     return res.json({
       success: true,
-      data: user,
+      data: userObject,
       message: 'Perfil actualizado'
     });
   } catch (error: any) {
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({ success: false, message: 'Error de validación', error: error.message });
+    }
     return res.status(500).json({
       success: false,
       message: 'Error al actualizar perfil',

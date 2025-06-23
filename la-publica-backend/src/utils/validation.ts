@@ -27,24 +27,54 @@ export const loginSchema = z.object({
   password: z.string(),
 });
 
+const socialLinksSchema = z.object({
+  facebook: z.string().url("URL de Facebook no válida").optional().nullable(),
+  twitter: z.string().url("URL de Twitter no válida").optional().nullable(),
+  youtube: z.string().url("URL de YouTube no válida").optional().nullable(),
+});
+
 const workExperienceSchema = z.object({
   jobTitle: z.string().min(2, "El cargo debe tener al menos 2 caracteres").max(100),
   company: z.string().min(2, "El nombre de la empresa debe tener al menos 2 caracteres").max(100),
-  startDate: z.date().optional().nullable(),
-  endDate: z.date().optional().nullable(),
+  startDate: z.coerce.date().optional().nullable(),
+  endDate: z.coerce.date().optional().nullable(),
   description: z.string().max(500, "La descripción no puede superar los 500 caracteres").optional().nullable(),
+  isCurrentJob: z.boolean().optional(),
 });
 
 export const updateProfileSchema = z.object({
   firstName: z.string().min(2).max(50).optional(),
   lastName: z.string().min(2).max(50).optional(),
-  email: z.string().email().optional(),
   username: z.string().min(3).max(30).optional(),
   bio: z.string().max(250).optional().nullable(),
   location: z.string().max(100).optional().nullable(),
   phone: z.string().optional().nullable(),
   skills: z.array(z.string()).optional(),
+  gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']).optional(),
+  
+  birthDay: z.string().optional(),
+  birthMonth: z.string().optional(),
+  birthYear: z.string().optional(),
+
+  profilePicture: z.string().url().optional().nullable(),
+  coverPhoto: z.string().url().optional().nullable(),
+  socialLinks: socialLinksSchema.optional(),
   workExperience: z.array(workExperienceSchema).optional(),
+}).transform((data) => {
+  if (data.birthYear && data.birthMonth && data.birthDay) {
+    // El mes en el constructor de Date es 0-indexed
+    const monthIndex = parseInt(data.birthMonth, 10) - 1;
+    const year = parseInt(data.birthYear, 10);
+    const day = parseInt(data.birthDay, 10);
+
+    if (!isNaN(year) && !isNaN(monthIndex) && !isNaN(day)) {
+      return {
+        ...data,
+        birthDate: new Date(year, monthIndex, day),
+      };
+    }
+  }
+  return { ...data, birthDate: undefined };
 });
 
 // Esquema para la creación de un post
