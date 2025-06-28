@@ -8,18 +8,12 @@ import { Camera, Trash2, Upload } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import apiClient from '@/api/client';
+import { getImageUrl } from '@/utils/getImageUrl';
 
 interface ProfilePhotoSectionProps {
   profileImageUrl?: string;
   onProfileImageChange: (url: string | null) => void;
 }
-
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050';
-const getImageUrl = (url?: string | null) => {
-  if (!url) return undefined;
-  if (url.startsWith('http')) return url;
-  return API_BASE_URL.replace(/\/$/, '') + url;
-};
 
 type CropArea = { x: number; y: number; width: number; height: number };
 

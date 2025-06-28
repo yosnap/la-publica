@@ -56,8 +56,20 @@ export const updateProfileSchema = z.object({
   birthMonth: z.string().optional(),
   birthYear: z.string().optional(),
 
-  profilePicture: z.string().url().optional().nullable(),
-  coverPhoto: z.string().url().optional().nullable(),
+  profilePicture: z.string().refine((val) => {
+    if (!val) return true; // Allow empty/null values
+    // Allow both full URLs and relative paths starting with /uploads/
+    return val.startsWith('http') || val.startsWith('/uploads/');
+  }, {
+    message: "Debe ser una URL válida o una ruta de archivo válida (/uploads/...)"
+  }).optional().nullable(),
+  coverPhoto: z.string().refine((val) => {
+    if (!val) return true; // Allow empty/null values
+    // Allow both full URLs and relative paths starting with /uploads/
+    return val.startsWith('http') || val.startsWith('/uploads/');
+  }, {
+    message: "Debe ser una URL válida o una ruta de archivo válida (/uploads/...)"
+  }).optional().nullable(),
   socialLinks: socialLinksSchema.optional(),
   workExperience: z.array(workExperienceSchema).optional(),
 }).transform((data) => {

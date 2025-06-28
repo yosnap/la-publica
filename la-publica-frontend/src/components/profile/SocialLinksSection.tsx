@@ -21,7 +21,11 @@ const SocialLinksSection = () => {
           <FormItem>
             <FormLabel>Facebook</FormLabel>
             <FormControl>
-              <Input placeholder="URL de tu perfil de Facebook" {...field} />
+              <Input
+                placeholder="URL de tu perfil de Facebook"
+                {...field}
+                value={field.value ?? ""}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -34,7 +38,11 @@ const SocialLinksSection = () => {
           <FormItem>
             <FormLabel>Twitter</FormLabel>
             <FormControl>
-              <Input placeholder="URL de tu perfil de Twitter" {...field} />
+              <Input
+                placeholder="URL de tu perfil de Twitter"
+                {...field}
+                value={field.value ?? ""}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -47,7 +55,11 @@ const SocialLinksSection = () => {
           <FormItem>
             <FormLabel>YouTube</FormLabel>
             <FormControl>
-              <Input placeholder="URL de tu canal de YouTube" {...field} />
+              <Input
+                placeholder="URL de tu canal de YouTube"
+                {...field}
+                value={field.value ?? ""}
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

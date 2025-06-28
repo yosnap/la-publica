@@ -57,3 +57,22 @@ static/uploads/
 *.backup
 *.bak
 *.tmp
+
+# Ignorar archivos de entorno
+.env
+**/.env
+
+# Ignorar imágenes y carpetas de uploads
+uploads/
+**/uploads/
+images/
+**/images/
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.webp
+
+# Ignorar archivos de sistema
+.DS_Store
+**/.DS_Store

@@ -1,0 +1,25 @@
+{
+  "name": "la-publica-monorepo",
+  "version": "1.0.0",
+  "description": "Monorepo para La Pública - Frontend y Backend",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd la-publica-backend && npm run dev",
+    "dev:frontend": "cd la-publica-frontend && npm run dev",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd la-publica-backend && npm run build",
+    "build:frontend": "cd la-publica-frontend && npm run build",
+    "install:all": "npm install && cd la-publica-backend && npm install && cd ../la-publica-frontend && npm install",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
+    "start:backend": "cd la-publica-backend && npm start",
+    "start:frontend": "cd la-publica-frontend && npm run preview"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "workspaces": [
+    "la-publica-backend",
+    "la-publica-frontend"
+  ]
+}

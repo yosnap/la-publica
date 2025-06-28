@@ -3,7 +3,7 @@ import { useForm, UseFormReturn, FormProvider } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import apiClient from "@/api/client";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, X, User } from "lucide-react";
+import { AlertCircle, X, User, Loader2 } from "lucide-react";
 import { AxiosError } from "axios";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
@@ -17,6 +17,7 @@ import { ProfilePhotoSection } from "@/components/profile/ProfilePhotoSection";
 import { CoverPhotoSection } from "@/components/profile/CoverPhotoSection";
 import { SkillsSection } from "@/components/profile/SkillsSection";
 import { toast } from "sonner";
+import { getImageUrl } from '@/utils/getImageUrl';
 
 interface WorkExperience {
   jobTitle: string;
@@ -51,13 +52,7 @@ interface ProfileFormData {
   coverPhotoUrl?: string;
 }
 
-// Utilidad para obtener la URL absoluta de una imagen
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5050';
-const getImageUrl = (url?: string | null) => {
-  if (!url) return undefined;
-  if (url.startsWith('http')) return url;
-  return API_BASE_URL.replace(/\/$/, '') + url;
-};
+// Función getImageUrl ahora se importa desde utils
 
 const CompleteProfile = () => {
   const navigate = useNavigate();
@@ -74,6 +69,8 @@ const CompleteProfile = () => {
 
   const [skills, setSkills] = useState<string[]>([]);
   const [initialSkills, setInitialSkills] = useState<string[]>([]);
+
+  const [formKey, setFormKey] = useState(0);
 
   const form = useForm<ProfileFormData>({
     defaultValues: {
@@ -114,9 +111,30 @@ const CompleteProfile = () => {
         const response = await apiClient.get('/users/profile');
         if (response.data.success) {
           const profile = response.data.data;
-          // Mapeo correcto de imágenes y socialLinks
+          // Mapeo correcto de imágenes, socialLinks y fecha de nacimiento
+          let birthDay = '', birthMonth = '', birthYear = '';
+          if (profile.birthDate) {
+            const date = new Date(profile.birthDate);
+            if (!isNaN(date.getTime())) {
+              birthDay = String(date.getDate());
+              birthMonth = String(date.getMonth() + 1);
+              birthYear = String(date.getFullYear());
+            }
+          }
           const formValues = {
             ...profile,
+            birthDay,
+            birthMonth,
+            birthYear,
+            gender: profile.gender || "",
+            socialLinks: {
+              facebook: profile.socialLinks?.facebook || "",
+              twitter: profile.socialLinks?.twitter || "",
+              youtube: profile.socialLinks?.youtube || "",
+            },
+            facebook: profile.socialLinks?.facebook || "",
+            twitter: profile.socialLinks?.twitter || "",
+            youtube: profile.socialLinks?.youtube || "",
             profilePictureUrl: profile.profilePicture,
             coverPhotoUrl: profile.coverPhoto,
             ...(profile.socialLinks || {}),
@@ -124,8 +142,10 @@ const CompleteProfile = () => {
           delete formValues.socialLinks;
           delete formValues.profilePicture;
           delete formValues.coverPhoto;
+          delete formValues.birthDate;
           form.reset(formValues);
-          
+          setFormKey(prev => prev + 1);
+
           // Clear previews on new data fetch
           setProfileImagePreview(null);
           setCoverImagePreview(null);
@@ -152,57 +172,153 @@ const CompleteProfile = () => {
   const skillsChanged = JSON.stringify(skills) !== JSON.stringify(initialSkills);
   const hasFormChanges = isDirty || skillsChanged;
 
-  const onSubmit = async (data: ProfileFormData) => {
-    if (!hasFormChanges) {
-      toast.info("No hay cambios para guardar.");
-      return;
-    }
+    const handleImageUpload = async (file: File, imageType: 'profile' | 'cover') => {
+    const toastId = toast.loading("Subiendo imagen...");
+    setIsLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const res = await apiClient.post('/uploads/image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
 
+      if (res.data.imageUrl) {
+        const imageUrl = res.data.imageUrl;
+        if (imageType === 'profile') {
+          form.setValue('profilePictureUrl', imageUrl, { shouldDirty: true });
+          await handleProfileImageChange(imageUrl); // Trigger auto-save
+        } else {
+          form.setValue('coverPhotoUrl', imageUrl, { shouldDirty: true });
+          await handleCoverImageChange(file); // Trigger auto-save
+        }
+        toast.success("Imagen subida con éxito", { id: toastId });
+      } else {
+        throw new Error("La URL de la imagen no fue devuelta por el servidor.");
+      }
+    } catch (err) {
+      toast.error("Error al subir la imagen", { id: toastId });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const onSubmit = async (data: ProfileFormData) => {
     const toastId = toast.loading("Guardando cambios...");
     setIsLoading(true);
     setError(null);
 
     try {
-      // Mapeo correcto de campos antes de enviar
-      const { profilePictureUrl, coverPhotoUrl, facebook, twitter, youtube, gender, birthDay, birthMonth, birthYear, ...rest } = data;
-      let birthDate: string | undefined = undefined;
-      if (birthDay && birthMonth && birthYear) {
-        birthDate = new Date(
-          Number(birthYear),
-          Number(birthMonth) - 1,
-          Number(birthDay)
-        ).toISOString();
-      }
-      const finalPayload = {
-        ...rest,
-        ...(gender ? { gender } : {}),
-        ...(birthDate ? { birthDate } : {}),
-        profilePicture: profilePictureUrl,
-        coverPhoto: coverPhotoUrl,
-        socialLinks: {
-          facebook,
-          twitter,
-          youtube,
-        },
-        skills,
+      // Helper function to clean the payload
+      const cleanPayload = (payload) => {
+        const cleaned = { ...payload };
+
+        // Convert empty strings to null for optional fields
+        const optionalFields = ['bio', 'location', 'phone'];
+        optionalFields.forEach(field => {
+          if (cleaned[field] === '') {
+            cleaned[field] = null;
+          }
+        });
+
+        // Handle image URLs
+        cleaned.profilePicture = getImageUrl(cleaned.profilePictureUrl) || null;
+        cleaned.coverPhoto = getImageUrl(cleaned.coverPhotoUrl) || null;
+        delete cleaned.profilePictureUrl;
+        delete cleaned.coverPhotoUrl;
+
+        // Clean social links
+        const isValidUrl = (url) => {
+          if (!url || typeof url !== 'string') return false;
+          try {
+            new URL(url);
+            return true;
+          } catch {
+            return false;
+          }
+        };
+        // Normalizar URLs: anteponer https:// si falta
+        const normalizeUrl = (url) => {
+          if (!url || typeof url !== 'string') return url;
+          if (/^https?:\/\//i.test(url)) return url;
+          return 'https://' + url;
+        };
+        // Priorizar los valores planos si existen
+        let fb = typeof cleaned.facebook !== 'undefined' ? cleaned.facebook : cleaned.socialLinks?.facebook;
+        let tw = typeof cleaned.twitter !== 'undefined' ? cleaned.twitter : cleaned.socialLinks?.twitter;
+        let yt = typeof cleaned.youtube !== 'undefined' ? cleaned.youtube : cleaned.socialLinks?.youtube;
+        fb = fb ? normalizeUrl(fb) : fb;
+        tw = tw ? normalizeUrl(tw) : tw;
+        yt = yt ? normalizeUrl(yt) : yt;
+        cleaned.socialLinks = {};
+        cleaned.socialLinks.facebook = isValidUrl(fb) ? fb : (fb === '' ? null : undefined);
+        cleaned.socialLinks.twitter = isValidUrl(tw) ? tw : (tw === '' ? null : undefined);
+        cleaned.socialLinks.youtube = isValidUrl(yt) ? yt : (yt === '' ? null : undefined);
+        // Eliminar propiedades undefined
+        Object.keys(cleaned.socialLinks).forEach(key => {
+          if (typeof cleaned.socialLinks[key] === 'undefined') {
+            delete cleaned.socialLinks[key];
+          }
+        });
+        delete cleaned.facebook;
+        delete cleaned.twitter;
+        delete cleaned.youtube;
+
+        // Clean work experience dates
+        if (cleaned.workExperience) {
+          cleaned.workExperience = cleaned.workExperience.map(exp => ({
+            ...exp,
+            startDate: exp.startDate || null,
+            endDate: exp.isCurrentJob ? null : exp.endDate || null,
+          }));
+        }
+
+        // Handle birth date
+        if (cleaned.birthDay) cleaned.birthDay = String(cleaned.birthDay);
+        if (cleaned.birthMonth) cleaned.birthMonth = String(cleaned.birthMonth);
+        if (cleaned.birthYear) cleaned.birthYear = String(cleaned.birthYear);
+
+        return cleaned;
       };
+
+      const finalPayload = cleanPayload(data);
 
       const response = await apiClient.put('/users/profile', finalPayload);
 
       if (response.data.success) {
         toast.success("¡Perfil actualizado con éxito!", { id: toastId });
         const updatedProfile = response.data.data;
-        
+        // Mapeo correcto de fecha de nacimiento tras guardar
+        let birthDay = '', birthMonth = '', birthYear = '';
+        if (updatedProfile.birthDate) {
+          const date = new Date(updatedProfile.birthDate);
+          if (!isNaN(date.getTime())) {
+            birthDay = String(date.getDate());
+            birthMonth = String(date.getMonth() + 1);
+            birthYear = String(date.getFullYear());
+          }
+        }
         const formValues = {
-            ...updatedProfile,
-            profilePictureUrl: updatedProfile.profilePicture,
-            coverPhotoUrl: updatedProfile.coverPhoto,
-            ...(updatedProfile.socialLinks || {}),
+          ...updatedProfile,
+          birthDay,
+          birthMonth,
+          birthYear,
+          gender: updatedProfile.gender || "",
+          socialLinks: {
+            facebook: updatedProfile.socialLinks?.facebook || "",
+            twitter: updatedProfile.socialLinks?.twitter || "",
+            youtube: updatedProfile.socialLinks?.youtube || "",
+          },
+          facebook: updatedProfile.socialLinks?.facebook || "",
+          twitter: updatedProfile.socialLinks?.twitter || "",
+          youtube: updatedProfile.socialLinks?.youtube || "",
+          profilePictureUrl: updatedProfile.profilePicture,
+          coverPhotoUrl: updatedProfile.coverPhoto,
+          ...(updatedProfile.socialLinks || {}),
         };
         delete formValues.socialLinks;
         delete formValues.profilePicture;
         delete formValues.coverPhoto;
-        
+        delete formValues.birthDate;
         form.reset(formValues);
         setInitialSkills(updatedProfile.skills || []);
       }
@@ -245,6 +361,8 @@ const CompleteProfile = () => {
       setIsLoading(false);
     }
   };
+
+  
 
   // Lógica de guardado automático para la foto de perfil
   const handleProfileImageChange = async (url: string | null) => {
@@ -299,51 +417,104 @@ const CompleteProfile = () => {
           <div className="col-span-12 lg:col-span-9">
             <Card className="shadow-sm border-gray-200">
               <CardContent className="p-8">
-                <FormProvider {...form}>
-                  {/* El contenido cambia según la pestaña activa */}
-                  {activeTab === 'edit' && (
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                      {error && (
-                        <Alert variant="destructive" className="relative pr-10">
-                          <button
-                            type="button"
-                            className="absolute top-2 right-2 p-1 text-red-700 hover:text-red-900"
-                            onClick={() => setError(null)}
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                          <AlertCircle className="h-4 w-4" />
-                          <AlertTitle>Error</AlertTitle>
-                          <AlertDescription>{error}</AlertDescription>
-                        </Alert>
-                      )}
-                      {renderEditContent()}
-                      <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
-                        <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isLoading}>
-                          Cancelar
-                        </Button>
-                        <Button type="submit" disabled={isLoading || !hasFormChanges} className="bg-[#4F8FF7] hover:bg-[#4F8FF7]/90 text-white">
-                          {isLoading ? "Guardando..." : "Guardar Cambios"}
-                        </Button>
-                      </div>
-                    </form>
-                  )}
+                {isLoading && !form.getValues("firstName") ? (
+                  <div className="flex flex-col items-center justify-center min-h-[300px]">
+                    <Loader2 className="animate-spin h-10 w-10 text-[#4F8FF7] mb-4" />
+                    <span className="text-gray-500">Cargando perfil...</span>
+                  </div>
+                ) : (
+                  <FormProvider {...form} key={formKey}>
+                    {/* El contenido cambia según la pestaña activa */}
+                    {activeTab === 'edit' && (
+                      <>
+                        <SectionTabs activeSection={activeSection} onSectionChange={setActiveSection} />
+                        <div className="mt-6">
+                          {activeSection === "general" && (
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={formKey + '-general'}>
+                              {error && (
+                                <Alert variant="destructive" className="relative pr-10">
+                                  <button
+                                    type="button"
+                                    className="absolute top-2 right-2 p-1 text-red-700 hover:text-red-900"
+                                    onClick={() => setError(null)}
+                                  >
+                                    <X className="h-4 w-4" />
+                                  </button>
+                                  <AlertCircle className="h-4 w-4" />
+                                  <AlertTitle>Error</AlertTitle>
+                                  <AlertDescription>{error}</AlertDescription>
+                                </Alert>
+                              )}
+                              <GeneralInformationSection skills={skills} setSkills={setSkills} />
+                              <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
+                                <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isLoading}>
+                                  Cancelar
+                                </Button>
+                                <Button type="submit" disabled={isLoading || !hasFormChanges} className="bg-[#4F8FF7] hover:bg-[#4F8FF7]/90 text-white">
+                                  {isLoading ? "Guardando..." : "Guardar Cambios"}
+                                </Button>
+                              </div>
+                            </form>
+                          )}
+                          {activeSection === "work" && (
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={formKey + '-work'}>
+                              <WorkExperienceSection />
+                              <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
+                                <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isLoading}>
+                                  Cancelar
+                                </Button>
+                                <Button type="submit" disabled={isLoading || !hasFormChanges} className="bg-[#4F8FF7] hover:bg-[#4F8FF7]/90 text-white">
+                                  {isLoading ? "Guardando..." : "Guardar Cambios"}
+                                </Button>
+                              </div>
+                            </form>
+                          )}
+                          {activeSection === "social" && (
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={formKey + '-social'}>
+                              <SocialLinksSection />
+                              <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
+                                <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isLoading}>
+                                  Cancelar
+                                </Button>
+                                <Button type="submit" disabled={isLoading || !hasFormChanges} className="bg-[#4F8FF7] hover:bg-[#4F8FF7]/90 text-white">
+                                  {isLoading ? "Guardando..." : "Guardar Cambios"}
+                                </Button>
+                              </div>
+                            </form>
+                          )}
+                          {activeSection === "biography" && (
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={formKey + '-biography'}>
+                              <BiographySection />
+                              <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
+                                <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isLoading}>
+                                  Cancelar
+                                </Button>
+                                <Button type="submit" disabled={isLoading || !hasFormChanges} className="bg-[#4F8FF7] hover:bg-[#4F8FF7]/90 text-white">
+                                  {isLoading ? "Guardando..." : "Guardar Cambios"}
+                                </Button>
+                              </div>
+                            </form>
+                          )}
+                        </div>
+                      </>
+                    )}
 
-                  {activeTab === "profile-photo" && (
-                    <ProfilePhotoSection
-                      profileImageUrl={getImageUrl(profilePictureUrl)}
-                      onProfileImageChange={handleProfileImageChange}
-                    />
-                  )}
+                    {activeTab === "profile-photo" && (
+                      <ProfilePhotoSection
+                        profileImageUrl={getImageUrl(profilePictureUrl)}
+                        onProfileImageChange={handleProfileImageChange}
+                      />
+                    )}
 
-                  {activeTab === "cover-photo" && (
-                    <CoverPhotoSection
-                      coverImage={getImageUrl(coverPhotoUrl)}
-                      onImageChange={handleCoverImageChange}
-                      isLoading={isLoading}
-                    />
-                  )}
-                </FormProvider>
+                    {activeTab === "cover-photo" && (
+                      <CoverPhotoSection
+                        coverImage={getImageUrl(coverPhotoUrl)}
+                        onImageChange={handleCoverImageChange}
+                        isLoading={isLoading}
+                      />
+                    )}
+                  </FormProvider>
+                )}
               </CardContent>
             </Card>
           </div>

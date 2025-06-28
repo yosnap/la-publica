@@ -50,8 +50,8 @@ export const updateProfile = async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, message: 'No autenticado' });
     }
 
-    // No usamos Zod aquí porque permitimos actualizaciones parciales flexibles (p. ej. solo la foto)
-    const updateData = req.body;
+    // Validar y transformar los datos usando el esquema
+    const data = validate(updateProfileSchema, req.body);
 
     const user = await User.findById(userId);
     if (!user) {
@@ -59,26 +59,43 @@ export const updateProfile = async (req: Request, res: Response) => {
     }
 
     // Separar los campos sociales de los demás
-    const { facebook, twitter, youtube, ...otherFields } = updateData;
-    const socialFields: { [key: string]: string } = { facebook, twitter, youtube };
+    const { socialLinks, ...otherFields } = data;
 
     // Actualizar los campos del nivel superior
-    Object.assign(user, otherFields);
+    // Solo actualizar birthDate si está presente en otherFields
+    if (Object.prototype.hasOwnProperty.call(otherFields, 'birthDate')) {
+      // @ts-expect-error: birthDate puede ser agregado dinámicamente por el esquema de validación
+      user.birthDate = otherFields.birthDate;
+    }
+    // Actualizar el resto de campos excepto birthDate
+    Object.entries(otherFields).forEach(([key, value]) => {
+      if (key !== 'birthDate') {
+        (user as any)[key] = value;
+      }
+    });
 
     // Actualizar los campos sociales anidados, asegurando que el objeto social exista
-    if (!user.socialLinks) {
-      user.socialLinks = { facebook: '', twitter: '', youtube: '' };
-    }
-    
-    // Fusionar solo los campos sociales que se enviaron
-    for (const key in socialFields) {
-      if (socialFields[key] !== undefined) {
-        (user.socialLinks as any)[key] = socialFields[key];
+    if (socialLinks) {
+      if (!user.socialLinks) {
+        user.socialLinks = { facebook: '', twitter: '', youtube: '' };
+      }
+      const allowedSocialKeys = ['facebook', 'twitter', 'youtube'] as const;
+      for (const key of allowedSocialKeys) {
+        const value = socialLinks[key];
+        if (typeof value === 'string' && value.trim() === '') {
+          // Si es string vacío, borrar el campo
+          user.socialLinks[key] = undefined;
+        } else if (value === null) {
+          // Si es null, borrar el campo
+          user.socialLinks[key] = undefined;
+        } else if (value !== undefined) {
+          user.socialLinks[key] = value;
+        }
+        // Si value es undefined, no modificar el valor existente
       }
     }
-    
+
     const updatedUser = await user.save();
-    
     const userObject: any = updatedUser.toObject();
     delete userObject.password;
 
@@ -199,6 +216,16 @@ export const getProfile = async (req: Request, res: Response, next: NextFunction
     if (!user) {
       return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
     }
+
+    // Log temporal para debug
+    console.log('🔍 Datos del usuario devueltos:', {
+      id: user._id,
+      firstName: user.firstName,
+      birthDate: user.birthDate,
+      birthDateType: typeof user.birthDate
+    });
+
+    console.log(' '); // Agregar un espacio para forzar el reinicio del servidor
 
     return res.status(200).json({ success: true, data: user });
   } catch (error) {

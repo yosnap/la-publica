@@ -12,40 +12,46 @@ interface GeneralInformationSectionProps {
   setSkills: React.Dispatch<React.SetStateAction<string[]>>;
 }
 
-const GeneralInformationSection = ({ skills, setSkills }: GeneralInformationSectionProps) => {
-  const { control, watch } = useFormContext();
-  // Log para depuración de los valores actuales
-  console.log('Valores actuales:', watch('birthDay'), watch('birthMonth'), watch('birthYear'));
+const GeneralInformationSection = ({ 
+  skills, 
+  setSkills
+}: GeneralInformationSectionProps) => {
+  const { control } = useFormContext();
+  
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <FormField
-          control={control}
-          name="firstName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nombre (requerido)</FormLabel>
-              <FormControl><Input placeholder="Tu nombre" {...field} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="lastName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Apellido (requerido)</FormLabel>
-              <FormControl><Input placeholder="Tu apellido" {...field} /></FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
+      <h3 className="text-lg font-semibold">Información General</h3>
+      
+      <FormField
+        control={control}
+        name="firstName"
+        rules={{ required: "El nombre es requerido" }}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Nombre (requerido)</FormLabel>
+            <FormControl><Input placeholder="Tu nombre" {...field} /></FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={control}
+        name="lastName"
+        rules={{ required: "El apellido es requerido" }}
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Apellido (requerido)</FormLabel>
+            <FormControl><Input placeholder="Tu apellido" {...field} /></FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
 
       <FormField
         control={control}
         name="username"
+        rules={{ required: "El apodo es requerido" }}
         render={({ field }) => (
           <FormItem>
             <FormLabel>Apodo (requerido)</FormLabel>
@@ -55,62 +61,109 @@ const GeneralInformationSection = ({ skills, setSkills }: GeneralInformationSect
         )}
       />
       
-      <div>
+      <div className="space-y-2">
         <FormLabel>Fecha de Nacimiento (requerido)</FormLabel>
-        <div className="grid grid-cols-3 gap-4 mt-2">
+        <div className="grid grid-cols-3 gap-4">
           <FormField
             control={control}
             name="birthDay"
+            rules={{ required: "Selecciona el día" }}
             render={({ field }) => (
               <FormItem>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl><SelectTrigger><SelectValue placeholder="Día" /></SelectTrigger></FormControl>
-                  <SelectContent>{Array.from({length: 31}, (_, i) => <SelectItem key={i+1} value={String(i+1)}>{i+1}</SelectItem>)}</SelectContent>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || ""}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Día" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 31 }, (_, i) => (
+                      <SelectItem key={i + 1} value={String(i + 1)}>
+                        {i + 1}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />
           <FormField
             control={control}
             name="birthMonth"
+            rules={{ required: "Selecciona el mes" }}
             render={({ field }) => (
               <FormItem>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl><SelectTrigger><SelectValue placeholder="Mes" /></SelectTrigger></FormControl>
-                  <SelectContent>{[
-                    { value: '1', label: 'Enero' }, { value: '2', label: 'Febrero' },
-                    { value: '3', label: 'Marzo' }, { value: '4', label: 'Abril' },
-                    { value: '5', label: 'Mayo' }, { value: '6', label: 'Junio' },
-                    { value: '7', label: 'Julio' }, { value: '8', label: 'Agosto' },
-                    { value: '9', label: 'Septiembre' }, { value: '10', label: 'Octubre' },
-                    { value: '11', label: 'Noviembre' }, { value: '12', label: 'Diciembre' }
-                  ].map((month) => <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>)}</SelectContent>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || ""}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Mes" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {[
+                      { value: '1', label: 'Enero' }, { value: '2', label: 'Febrero' },
+                      { value: '3', label: 'Marzo' }, { value: '4', label: 'Abril' },
+                      { value: '5', label: 'Mayo' }, { value: '6', label: 'Junio' },
+                      { value: '7', label: 'Julio' }, { value: '8', label: 'Agosto' },
+                      { value: '9', label: 'Septiembre' }, { value: '10', label: 'Octubre' },
+                      { value: '11', label: 'Noviembre' }, { value: '12', label: 'Diciembre' }
+                    ].map((month) => (
+                      <SelectItem key={month.value} value={month.value}>
+                        {month.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />
           <FormField
             control={control}
             name="birthYear"
+            rules={{ required: "Selecciona el año" }}
             render={({ field }) => (
               <FormItem>
-                 <FormControl>
-                    <Input type="number" placeholder="Año" {...field} />
-                  </FormControl>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value || ""}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Año" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: new Date().getFullYear() - 1900 + 1 }, (_, i) => {
+                      const year = new Date().getFullYear() - i;
+                      return (
+                        <SelectItem key={year} value={String(year)}>
+                          {year}
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
               </FormItem>
             )}
           />
         </div>
       </div>
-      
+
       <FormField
         control={control}
         name="gender"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Género (requerido)</FormLabel>
-            <Select onValueChange={field.onChange} value={field.value}>
-              <FormControl><SelectTrigger><SelectValue placeholder="Selecciona tu género" /></SelectTrigger></FormControl>
+            <FormLabel>Género</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value || ""}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecciona tu género" />
+                </SelectTrigger>
+              </FormControl>
               <SelectContent>
                 <SelectItem value="male">Masculino</SelectItem>
                 <SelectItem value="female">Femenino</SelectItem>

@@ -45,16 +45,18 @@ export const SkillsSection = ({ skills, setSkills }: SkillsSectionProps) => {
 
         {skills.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {skills.map((skill, index) => (
-              <Badge key={index} variant="secondary" className="bg-[#4F8FF7]/10 text-[#4F8FF7] border-[#4F8FF7]/20">
+            {skills.map((skill) => (
+              <Badge key={skill} variant="secondary" className="bg-[#4F8FF7]/10 text-[#4F8FF7] border-[#4F8FF7]/20">
                 {skill}
-                <button
-                  type="button"
+                <span
+                  role="button"
+                  tabIndex={0}
                   onClick={() => removeSkill(skill)}
-                  className="ml-2 hover:text-red-500 transition-colors"
+                  className="ml-2 hover:text-red-500 transition-colors cursor-pointer"
+                  onKeyPress={e => { if (e.key === 'Enter') removeSkill(skill); }}
                 >
                   <X className="h-3 w-3" />
-                </button>
+                </span>
               </Badge>
             ))}
           </div>
