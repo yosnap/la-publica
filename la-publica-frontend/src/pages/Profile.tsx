@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import apiClient from "@/api/client";
 import { getImageUrl } from '@/utils/getImageUrl';
+import { fetchPosts, Post as PostType } from "@/api/posts";
 
 const getSocialUrl = (url?: string) => {
   if (!url) return undefined;
@@ -54,6 +55,9 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const [userPosts, setUserPosts] = useState<PostType[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
+
   useEffect(() => {
     const fetchProfile = async () => {
       setLoading(true);
@@ -72,6 +76,18 @@ const Profile = () => {
     };
     fetchProfile();
   }, []);
+
+  useEffect(() => {
+    if (!user) return;
+    setLoadingPosts(true);
+    fetchPosts()
+      .then((res) => {
+        // Filtrar solo los posts del usuario autenticado
+        const posts = (res.data || []).filter((p: PostType) => p.author?._id === user._id);
+        setUserPosts(posts);
+      })
+      .finally(() => setLoadingPosts(false));
+  }, [user]);
 
   if (loading) {
     return <div className="text-center py-12">Cargando perfil...</div>;
@@ -265,36 +281,40 @@ const Profile = () => {
         </TabsList>
 
         <TabsContent value="posts" className="space-y-4">
-          {recentPosts.map((post) => (
-            <Card key={post.id} className="shadow-sm border-0 bg-white">
-              <CardContent className="p-6">
-                <div className="flex items-start space-x-4">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src="https://images.unsplash.com/photo-1649972904349-6e44c42644a7?w=100&h=100&fit=crop&crop=face" />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2 mb-2">
-                      <span className="font-semibold text-gray-900">Jane Doe</span>
-                      <span className="text-gray-500 text-sm">{post.timestamp}</span>
-                    </div>
-                    <p className="text-gray-800 mb-4">{post.content}</p>
-                    {post.image && (
-                      <img
-                        src={post.image}
-                        alt="Post content"
-                        className="w-full h-48 object-cover rounded-lg mb-4"
-                      />
-                    )}
-                    <div className="flex items-center space-x-6 text-sm text-gray-600">
-                      <span>{post.likes} me gusta</span>
-                      <span>{post.comments} comentarios</span>
+          {loadingPosts ? (
+            <div>Cargando posts...</div>
+          ) : userPosts.length === 0 ? (
+            <div>No hay publicaciones aún.</div>
+          ) : (
+            userPosts.map((post) => (
+              <Card key={post._id} className="shadow-sm border-0 bg-white">
+                <CardContent className="p-6">
+                  <div className="flex items-start space-x-4">
+                    <Avatar className="h-10 w-10">
+                      {/* TODO: Mostrar avatar real del usuario */}
+                      <AvatarImage src={getImageUrl(user.profilePicture)} />
+                      <AvatarFallback>{user.firstName?.[0]}{user.lastName?.[0]}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <span className="font-semibold text-gray-900">{user.firstName} {user.lastName}</span>
+                        <span className="text-gray-500 text-sm">{new Date(post.createdAt).toLocaleString()}</span>
+                      </div>
+                      <p className="text-gray-800 mb-4">
+                        {/* TODO: Resaltar menciones y hashtags */}
+                        {post.content}
+                      </p>
+                      {/* TODO: Mostrar likes y comentarios reales */}
+                      <div className="flex gap-4 text-sm text-gray-500">
+                        <span>{post.likes.length} me gusta</span>
+                        <span>{post.comments.length} comentarios</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+            ))
+          )}
         </TabsContent>
 
         <TabsContent value="about" className="space-y-6">

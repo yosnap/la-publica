@@ -19,7 +19,7 @@ export const createPost = async (req: Request, res: Response) => {
     await post.save();
     
     // Poblar el autor para devolverlo en la respuesta
-    const populatedPost = await Post.findById(post._id).populate('author', 'username firstName lastName');
+    const populatedPost = await Post.findById(post._id).populate('author', 'username firstName lastName profilePicture');
 
     return res.status(201).json({
       success: true,
@@ -35,7 +35,7 @@ export const createPost = async (req: Request, res: Response) => {
 export const listPosts = async (req: Request, res: Response) => {
   try {
     const posts = await Post.find()
-      .populate('author', 'username firstName lastName') // Poblar datos del autor
+      .populate('author', 'username firstName lastName profilePicture') // Poblar datos del autor
       .sort({ createdAt: -1 }); // Ordenar por más reciente
 
     return res.json({
@@ -51,8 +51,8 @@ export const listPosts = async (req: Request, res: Response) => {
 export const getPostById = async (req: Request, res: Response) => {
   try {
     const post = await Post.findById(req.params.id)
-      .populate('author', 'username firstName lastName')
-      .populate('comments.author', 'username firstName lastName'); // Poblar autores de comentarios
+      .populate('author', 'username firstName lastName profilePicture')
+      .populate('comments.author', 'username firstName lastName profilePicture'); // Poblar autores de comentarios
 
     if (!post) {
       return res.status(404).json({ success: false, message: 'Post no encontrado' });
@@ -86,7 +86,7 @@ export const updatePost = async (req: Request, res: Response) => {
     post.content = content;
     await post.save();
     
-    const populatedPost = await Post.findById(post._id).populate('author', 'username firstName lastName');
+    const populatedPost = await Post.findById(post._id).populate('author', 'username firstName lastName profilePicture');
 
 
     return res.json({
@@ -151,8 +151,8 @@ export const likePost = async (req: Request, res: Response) => {
     
     // Devolver el post actualizado
     const populatedPost = await Post.findById(post._id)
-      .populate('author', 'username firstName lastName')
-      .populate('comments.author', 'username firstName lastName');
+      .populate('author', 'username firstName lastName profilePicture')
+      .populate('comments.author', 'username firstName lastName profilePicture');
 
     return res.json({
       success: true,
@@ -189,8 +189,8 @@ export const commentOnPost = async (req: Request, res: Response) => {
     
     // Devolver el post actualizado
     const populatedPost = await Post.findById(post._id)
-      .populate('author', 'username firstName lastName')
-      .populate('comments.author', 'username firstName lastName');
+      .populate('author', 'username firstName lastName profilePicture')
+      .populate('comments.author', 'username firstName lastName profilePicture');
 
     return res.json({
       success: true,
@@ -222,12 +222,12 @@ export const getUserFeed = async (req: Request, res: Response) => {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .populate('author', 'username firstName lastName')
+      .populate('author', 'username firstName lastName profilePicture')
       .populate({
         path: 'comments',
         populate: {
           path: 'author',
-          select: 'username firstName lastName'
+          select: 'username firstName lastName profilePicture'
         }
       });
       

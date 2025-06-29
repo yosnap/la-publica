@@ -1,4 +1,4 @@
-import { Heart, MessageSquare, Share, MoreHorizontal, Camera, Users, Calendar, User, BookOpen, CheckCircle, Activity, Clock, Play, Building, UserPlus, Settings } from "lucide-react";
+import { Heart, MessageSquare, Share, MoreHorizontal, Camera, Users, Calendar, User, BookOpen, CheckCircle, Activity, Clock, Play, Building, UserPlus, Settings, XCircle, Edit, Trash, BellOff, Pin, Download, Flag, Bell } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -6,8 +6,110 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
+import { CircularProgress } from "@/components/ui/circular-progress";
+import { SemiCircularProgress } from "@/components/ui/semi-circular-progress";
+import { useEffect, useState } from "react";
+import apiClient from "@/api/client";
+import { getImageUrl } from '@/utils/getImageUrl';
+import { fetchUserFeed, createPost, updatePost } from "@/api/posts";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Paperclip, Image as ImageIcon, Smile, BarChart2, Globe, Lock, Users as UsersIcon } from "lucide-react";
+import {
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
+
+// Post type for dashboard feed
+export interface Post {
+  _id: string;
+  author: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    profilePicture?: string;
+    // Add more fields if needed
+  };
+  content: string;
+  likes: string[];
+  comments: Array<{
+    _id: string;
+    author: {
+      _id: string;
+      firstName: string;
+      lastName: string;
+      profilePicture?: string;
+    };
+    text: string;
+    createdAt: string;
+  }>;
+  createdAt: string;
+  updatedAt: string;
+  image?: string;
+}
 
 const Dashboard = () => {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [loadingPosts, setLoadingPosts] = useState(true);
+  const [creatingPost, setCreatingPost] = useState(false);
+  const [postContent, setPostContent] = useState("");
+  const [modalOpen, setModalOpen] = useState(false);
+  const [newPostContent, setNewPostContent] = useState("");
+  const [posting, setPosting] = useState(false);
+  const [privacy, setPrivacy] = useState("public"); // Simulado
+  const [editingPost, setEditingPost] = useState<Post | null>(null);
+  const [editContent, setEditContent] = useState("");
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await apiClient.get('/users/profile');
+        if (response.data.success) {
+          setUser(response.data.data);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  // Calcular progreso de perfil
+  const profileFields = [
+    user?.firstName,
+    user?.lastName,
+    user?.email,
+    user?.profilePicture,
+    user?.bio,
+    user?.skills?.length,
+    user?.workExperience?.length,
+    user?.socialLinks?.facebook,
+    user?.socialLinks?.twitter,
+    user?.socialLinks?.youtube,
+    user?.birthDate,
+    user?.gender,
+    user?.phone,
+  ];
+  const completedFields = profileFields.filter(Boolean).length;
+  const totalFields = profileFields.length;
+  const profileProgress = Math.round((completedFields / totalFields) * 100);
+
   const activities = [
     {
       id: 1,
@@ -193,6 +295,139 @@ const Dashboard = () => {
     }
   ];
 
+  // Steps for profile completion (con subcampos)
+  const profileSteps = [
+    {
+      label: "Información general",
+      complete: Boolean(user?.firstName && user?.lastName && user?.email && user?.bio && user?.gender && user?.birthDate),
+      total: 6,
+      done: [user?.firstName, user?.lastName, user?.email, user?.bio, user?.gender, user?.birthDate].filter(Boolean).length,
+    },
+    {
+      label: "Experiencia laboral",
+      complete: Boolean(user?.workExperience && user?.workExperience.length > 0),
+      total: 3,
+      done: user?.workExperience ? Math.min(user?.workExperience.length, 3) : 0,
+    },
+    {
+      label: "Foto de perfil",
+      complete: Boolean(user?.profilePicture),
+      total: 1,
+      done: user?.profilePicture ? 1 : 0,
+    },
+    {
+      label: "Foto de portada",
+      complete: Boolean(user?.coverPhoto),
+      total: 1,
+      done: user?.coverPhoto ? 1 : 0,
+    },
+    {
+      label: "Redes sociales",
+      complete: Boolean(user?.socialLinks && (user?.socialLinks.facebook || user?.socialLinks.twitter || user?.socialLinks.youtube)),
+      total: 1,
+      done: user?.socialLinks && (user?.socialLinks.facebook || user?.socialLinks.twitter || user?.socialLinks.youtube) ? 1 : 0,
+    },
+  ];
+  const stepsCompleted = profileSteps.filter(s => s.complete).length;
+  const stepsTotal = profileSteps.length;
+  const percent = Math.round((stepsCompleted / stepsTotal) * 100);
+
+  // Fetch posts on mount
+  useEffect(() => {
+    setLoadingPosts(true);
+    fetchUserFeed()
+      .then((res) => {
+        setPosts(res.data || []);
+      })
+      .finally(() => setLoadingPosts(false));
+  }, []);
+
+  // Handle post creation
+  const handleCreatePost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!postContent.trim()) return;
+    setCreatingPost(true);
+    try {
+      // TODO: Detect mentions, hashtags, categories, scheduling
+      await createPost(postContent);
+      setPostContent("");
+      // Refresh posts after creation
+      setLoadingPosts(true);
+      const res = await fetchUserFeed();
+      setPosts(res.data || []);
+    } catch (err) {
+      // TODO: Show error toast
+    } finally {
+      setCreatingPost(false);
+      setLoadingPosts(false);
+    }
+  };
+
+  const handleOpenModal = () => setModalOpen(true);
+  const handleCloseModal = () => {
+    setModalOpen(false);
+    setNewPostContent("");
+  };
+
+  const handleCreatePostModal = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPostContent.trim()) return;
+    setPosting(true);
+    try {
+      await createPost(newPostContent);
+      setNewPostContent("");
+      setModalOpen(false);
+      setLoadingPosts(true);
+      const res = await fetchUserFeed();
+      setPosts(res.data || []);
+    } catch (err) {
+      // TODO: Mostrar error
+    } finally {
+      setPosting(false);
+      setLoadingPosts(false);
+    }
+  };
+
+  // Función para eliminar post
+  const handleDeletePost = async (postId: string) => {
+    if (!window.confirm("¿Seguro que quieres eliminar este post?")) return;
+    try {
+      // Aquí deberías llamar a la API para eliminar el post
+      // await deletePost(postId);
+      setPosts(posts.filter(p => p._id !== postId));
+      toast.success("Post eliminado correctamente");
+    } catch (err) {
+      toast.error("Error al eliminar el post");
+    }
+  };
+
+  // Función para abrir modal de edición
+  const handleEditPost = (post: Post) => {
+    setEditingPost(post);
+    setEditContent(post.content);
+    setEditModalOpen(true);
+  };
+
+  // Función para guardar edición
+  const handleSaveEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingPost || !editContent.trim()) return;
+    setSavingEdit(true);
+    try {
+      // Llamar a la API para actualizar el post
+      const updated = await updatePost(editingPost._id, editContent);
+      setPosts(posts.map(p => p._id === editingPost._id ? { ...p, ...updated.data } : p));
+      toast.success("Post editado correctamente");
+      setEditModalOpen(false);
+      setEditingPost(null);
+      setEditContent("");
+    } catch (err) {
+      toast.error("Error al editar el post");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
   return (
     <div className="p-6 bg-gray-50 min-h-screen">
       <div className="max-w-7xl mx-auto">
@@ -231,7 +466,6 @@ const Dashboard = () => {
                 ))}
               </CardContent>
             </Card>
-
             {/* Blog Widget */}
             <Card className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
@@ -265,185 +499,261 @@ const Dashboard = () => {
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">Activity Feed</h1>
               <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
-                <span className="cursor-pointer hover:text-gray-900">Show all updates</span>
+                <span className="cursor-pointer hover:text-gray-900">Mostrar todo</span>
                 <span>·</span>
-                <span className="cursor-pointer hover:text-gray-900">by new posts</span>
+                <span className="cursor-pointer hover:text-gray-900">por nuevos posts</span>
               </div>
             </div>
 
-            {/* Crear Post */}
-            <Card className="bg-white rounded-xl border border-gray-100 shadow-sm">
-              <CardContent className="p-6">
-                <div className="flex space-x-4">
+            {/* Crear Post (área en el feed) */}
+            <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+              <DialogTrigger asChild>
+                <Card className="bg-white rounded-xl border border-gray-100 shadow-sm cursor-pointer hover:shadow-md transition-shadow mb-4">
+                  <CardContent className="p-4 flex items-center gap-4">
                   <Avatar className="h-10 w-10">
-                    <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" />
-                    <AvatarFallback>J</AvatarFallback>
+                      <AvatarImage src={getImageUrl(user?.profilePicture)} />
+                      <AvatarFallback>{user?.firstName?.[0]}{user?.lastName?.[0]}</AvatarFallback>
                   </Avatar>
                   <div className="flex-1">
-                    <Textarea
-                      placeholder="Share what's on your mind, John..."
-                      className="min-h-[60px] border-0 bg-gray-50 resize-none focus:bg-white focus:ring-2 focus:ring-blue-500/20 rounded-lg"
-                    />
-                    <div className="flex items-center justify-between mt-4">
-                      <div className="flex space-x-2">
-                        <Button variant="ghost" size="sm" className="text-gray-500 hover:bg-gray-100 rounded-lg p-2">
-                          <Camera className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-gray-500 hover:bg-gray-100 rounded-lg p-2">
-                          <Users className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-gray-500 hover:bg-gray-100 rounded-lg p-2">
-                          <BookOpen className="h-4 w-4" />
-                        </Button>
-                        <Button variant="ghost" size="sm" className="text-gray-500 hover:bg-gray-100 rounded-lg p-2">
-                          <Calendar className="h-4 w-4" />
-                        </Button>
+                      <input
+                        className="w-full bg-gray-100 rounded-full px-4 py-2 text-gray-500 cursor-pointer outline-none"
+                        placeholder={`¿Qué estás pensando, ${user?.firstName}?`}
+                        readOnly
+                        onClick={handleOpenModal}
+                      />
+                    </div>
+                  </CardContent>
+                </Card>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Crear una publicación</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleCreatePostModal} className="space-y-4">
+                  <div className="flex items-center gap-3 mb-2">
+                    <Avatar className="h-12 w-12">
+                      <AvatarImage src={getImageUrl(user?.profilePicture)} />
+                      <AvatarFallback>{user?.firstName?.[0]}{user?.lastName?.[0]}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <div className="font-semibold text-gray-900">{user?.firstName} {user?.lastName}</div>
+                      {/* Selector de privacidad simulado */}
+                      <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 rounded px-2 py-1 mt-1 cursor-pointer">
+                        {privacy === "public" ? <Globe className="h-4 w-4 mr-1" /> : privacy === "friends" ? <UsersIcon className="h-4 w-4 mr-1" /> : <Lock className="h-4 w-4 mr-1" />}
+                        {privacy === "public" ? "Público" : privacy === "friends" ? "Solo amigos" : "Privado"}
                       </div>
                     </div>
                   </div>
+                  <RichTextEditor
+                    value={newPostContent}
+                    onChange={setNewPostContent}
+                    placeholder={`Comparte algo con la comunidad, ${user?.firstName}...`}
+                    className="mb-2"
+                  />
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex gap-2">
+                      <Button type="button" variant="ghost" size="icon" disabled title="Adjuntar imagen">
+                        <ImageIcon className="h-5 w-5" />
+                      </Button>
+                      <Button type="button" variant="ghost" size="icon" disabled title="Adjuntar archivo">
+                        <Paperclip className="h-5 w-5" />
+                      </Button>
+                      <Button type="button" variant="ghost" size="icon" disabled title="Agregar GIF">
+                        <Smile className="h-5 w-5" />
+                      </Button>
+                      <Button type="button" variant="ghost" size="icon" disabled title="Encuesta">
+                        <BarChart2 className="h-5 w-5" />
+                      </Button>
+                    </div>
+                    <Button type="submit" disabled={posting || !newPostContent || newPostContent === '<p><br></p>'} className="bg-[#4F8FF7] text-white">
+                      {posting ? "Publicando..." : "Publicar"}
+                    </Button>
                 </div>
-              </CardContent>
-            </Card>
+                </form>
+                <DialogClose asChild>
+                  <button className="absolute right-4 top-4 text-gray-400 hover:text-gray-700" aria-label="Cerrar">
+                    ×
+                  </button>
+                </DialogClose>
+              </DialogContent>
+            </Dialog>
 
             {/* Feed de Actividades */}
             <div className="space-y-6">
-              {activities.map((activity) => (
-                <Card key={activity.id} className="bg-white rounded-xl border border-gray-100 shadow-sm">
+              {loadingPosts ? (
+                Array.from({ length: 3 }).map((_, i) => (
+                  <Card key={i} className="bg-white rounded-xl border border-gray-100 shadow-sm">
                   <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={activity.user.avatar} />
-                          <AvatarFallback>{activity.user.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <span className="font-semibold text-gray-900">{activity.user.name}</span>
-                            <span className="text-gray-500 text-sm">{activity.content}</span>
-                          </div>
-                          <span className="text-gray-500 text-sm">{activity.timestamp}</span>
+                        <Skeleton className="h-10 w-10 rounded-full" />
+                        <div className="flex-1">
+                          <Skeleton className="h-4 w-32 mb-2" />
+                          <Skeleton className="h-3 w-20" />
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <Skeleton className="h-4 w-full mb-2" />
+                      <Skeleton className="h-32 w-full rounded-lg" />
+                    </CardContent>
+                  </Card>
+                ))
+              ) : posts.length === 0 ? (
+                <div className="text-center text-gray-400">No hay publicaciones aún.</div>
+              ) : (
+                posts.map((post) => (
+                  <Card key={post._id} className="bg-white rounded-xl border border-gray-100 shadow-sm">
+                    <CardHeader className="pb-3 flex flex-row items-start justify-between">
+                      <div className="flex items-center space-x-3">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={getImageUrl(post.author?.profilePicture)} />
+                          <AvatarFallback>{post.author?.firstName?.[0]}{post.author?.lastName?.[0]}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-gray-900 truncate">{post.author?.firstName} {post.author?.lastName}</span>
+                            <span className="text-xs text-gray-400">· {new Date(post.createdAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Menú de opciones */}
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="p-2 rounded-full hover:bg-gray-100 text-gray-500">
+                            <MoreHorizontal className="h-5 w-5" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          {/* Si es el autor */}
+                          {user?._id === post.author._id && (
+                            <>
+                              <DropdownMenuItem onClick={() => handleEditPost(post)}>
+                                <Edit className="h-4 w-4 mr-2" /> Editar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDeletePost(post._id)}>
+                                <Trash className="h-4 w-4 mr-2" /> Eliminar
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem disabled>
+                                <MessageSquare className="h-4 w-4 mr-2" /> Desactivar comentarios
+                              </DropdownMenuItem>
+                              <DropdownMenuItem disabled>
+                                <Pin className="h-4 w-4 mr-2" /> Fijar en el feed
+                              </DropdownMenuItem>
+                              <DropdownMenuItem disabled>
+                                <Download className="h-4 w-4 mr-2" /> Descargar archivos
+                              </DropdownMenuItem>
+                              <DropdownMenuItem disabled>
+                                <BellOff className="h-4 w-4 mr-2" /> Apagar notificaciones
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                          {/* Si es admin y no es el autor */}
+                          {user?.role === 'admin' && user._id !== post.author._id && (
+                            <>
+                              <DropdownMenuItem onClick={() => handleDeletePost(post._id)}>
+                                <Trash className="h-4 w-4 mr-2" /> Eliminar (admin)
+                              </DropdownMenuItem>
+                              <DropdownMenuItem disabled>
+                                <Pin className="h-4 w-4 mr-2" /> Fijar en el feed
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                          {/* Si NO es el autor */}
+                          {user?._id !== post.author._id && user?.role !== 'admin' && (
+                            <>
+                              <DropdownMenuItem disabled>
+                                <Flag className="h-4 w-4 mr-2" /> Reportar
+                              </DropdownMenuItem>
+                              <DropdownMenuItem disabled>
+                                <Bell className="h-4 w-4 mr-2" /> Apagar/encender notificaciones
+                              </DropdownMenuItem>
+                            </>
+                          )}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                   </CardHeader>
                   <CardContent className="pt-0">
-                    {activity.jobTitle && (
-                      <div className="mb-4 p-3 bg-orange-50 rounded-lg border border-orange-100">
-                        <Button variant="ghost" size="sm" className="text-orange-600 hover:text-orange-700">
-                          {activity.jobTitle}
-                        </Button>
-                      </div>
-                    )}
-                    {activity.image && (
-                      <div className="mb-4 relative">
-                        <img
-                          src={activity.image}
-                          alt="Post content"
-                          className="w-full h-64 object-cover rounded-lg"
-                        />
-                        {activity.hasVideo && (
-                          <div className="absolute inset-0 flex items-center justify-center">
-                            <Button size="lg" className="rounded-full bg-white/90 hover:bg-white text-gray-900 w-16 h-16">
-                              <Play className="h-6 w-6 ml-1" />
-                            </Button>
-                          </div>
-                        )}
+                      <div className="mb-2 text-gray-900 text-base whitespace-pre-line">{post.content}</div>
+                      {/* Imagen si existe */}
+                      {post.image && (
+                        <div className="mb-4">
+                          <img src={post.image} alt="Imagen del post" className="w-full h-64 object-cover rounded-lg" />
                       </div>
                     )}
                     <div className="flex items-center space-x-6 pt-2">
                       <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
                         <Heart className="h-4 w-4 mr-2" />
-                        Like
+                          {post.likes.length > 0 ? post.likes.length : "Me gusta"}
                       </Button>
                       <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
                         <MessageSquare className="h-4 w-4 mr-2" />
-                        Comment
+                          {post.comments.length > 0 ? post.comments.length : "Comentar"}
                       </Button>
                       <Button variant="ghost" size="sm" className="text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
                         <Share className="h-4 w-4 mr-2" />
-                        Share
+                          Compartir
                       </Button>
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+                ))
+              )}
             </div>
           </div>
 
           {/* Columna Derecha - Widgets */}
           <div className="lg:col-span-3 space-y-6">
-            {/* Complete Profile Widget - Mejorado */}
-            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
-                  <User className="h-5 w-5 mr-2 text-blue-500" />
-                  Completa tu Perfil
-                </CardTitle>
+            {/* Widget Completa tu Perfil */}
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-center text-base font-semibold">Completa tu Perfil</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="relative w-20 h-20 mx-auto">
-                    <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
-                      <path
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        fill="none"
-                        stroke="#e5e7eb"
-                        strokeWidth="3"
-                      />
-                      <path
-                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                        fill="none"
-                        stroke="#3b82f6"
-                        strokeWidth="3"
-                        strokeDasharray="73, 100"
-                      />
-                    </svg>
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-xl font-bold text-gray-900">73<span className="text-sm">%</span></span>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center justify-between p-2 rounded-lg hover:bg-white/50">
-                      <div className="flex items-center">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                        <span className="text-gray-900">Información General</span>
-                      </div>
-                      <span className="text-green-600 font-medium">5/5</span>
-                    </div>
-                    <div className="flex items-center justify-between p-2 rounded-lg hover:bg-white/50">
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 text-orange-500 mr-2" />
-                        <span className="text-gray-600">Experiencia Laboral</span>
-                      </div>
-                      <span className="text-orange-600 font-medium">1/3</span>
-                    </div>
-                    <div className="flex items-center justify-between p-2 rounded-lg hover:bg-white/50">
-                      <div className="flex items-center">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                        <span className="text-gray-900">Foto de Perfil</span>
-                      </div>
-                      <span className="text-green-600 font-medium">1/1</span>
-                    </div>
-                    <div className="flex items-center justify-between p-2 rounded-lg hover:bg-white/50">
-                      <div className="flex items-center">
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                        <span className="text-gray-900">Foto de Portada</span>
-                      </div>
-                      <span className="text-green-600 font-medium">1/1</span>
-                    </div>
-                  </div>
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-4">
-                    <Settings className="h-4 w-4 mr-2" />
-                    Completar Perfil
-                  </Button>
+              <CardContent className="flex flex-col items-center gap-4">
+                <div className="relative flex flex-col items-center w-full">
+                  <SemiCircularProgress value={percent} size={180} strokeWidth={14} color="#2563eb">
+                    <span className="text-sm text-gray-400 font-medium">Completado</span>
+                  </SemiCircularProgress>
                 </div>
+                <ul className="w-full flex flex-col gap-0 relative pl-2 pr-4 mb-2 mt-2">
+                  {profileSteps.map((step, idx) => (
+                    <li key={idx} className="flex items-center gap-3 min-h-[28px] relative">
+                      {/* Stepper vertical line */}
+                      {idx < profileSteps.length - 1 && (
+                        <span className="absolute left-2 top-6 w-px h-[24px] bg-gray-200 z-0" />
+                      )}
+                      {/* Step icon */}
+                      <span className="relative z-10 flex items-center justify-center h-5 w-5">
+                        {step.complete ? (
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="10" r="9" stroke="#2563eb" strokeWidth="2" fill="none" />
+                            <path d="M6 10.5L9 13.5L14 8.5" stroke="#2563eb" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        ) : (
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <circle cx="10" cy="10" r="9" stroke="#d1d5db" strokeWidth="2" fill="none" />
+                          </svg>
+                        )}
+                      </span>
+                      {/* Step label and count */}
+                      <span className={
+                        step.complete
+                          ? "font-semibold text-[#2563eb] flex-1 text-base"
+                          : "text-gray-400 flex-1 text-base"
+                      }>
+                        {step.label}
+                      </span>
+                      <span className={step.complete ? "font-semibold text-[#2563eb] text-xs" : "text-gray-400 text-xs"}>
+                        {step.done}/{step.total}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+                <Button variant="outline" className="w-full" onClick={() => window.location.href = '/editar-perfil'}>
+                  Completar Perfil
+                </Button>
               </CardContent>
             </Card>
-
             {/* Empresas Widget */}
             <Card className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
@@ -479,7 +789,6 @@ const Dashboard = () => {
                 </Button>
               </CardContent>
             </Card>
-
             {/* Colaboradores Widget */}
             <Card className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
@@ -520,6 +829,58 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
+      {/* Modal de edición de post */}
+      <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Editar publicación</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveEdit} className="space-y-4">
+            <div className="flex items-center gap-3 mb-2">
+              <Avatar className="h-12 w-12">
+                <AvatarImage src={getImageUrl(user?.profilePicture)} />
+                <AvatarFallback>{user?.firstName?.[0]}{user?.lastName?.[0]}</AvatarFallback>
+              </Avatar>
+              <div>
+                <div className="font-semibold text-gray-900">{user?.firstName} {user?.lastName}</div>
+                <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 rounded px-2 py-1 mt-1">
+                  Editando publicación
+                </div>
+              </div>
+            </div>
+            <RichTextEditor
+              value={editContent}
+              onChange={setEditContent}
+              placeholder="Edita tu publicación..."
+              className="mb-2"
+            />
+            <div className="flex items-center justify-between mt-2">
+              <div className="flex gap-2">
+                <Button type="button" variant="ghost" size="icon" disabled title="Adjuntar imagen">
+                  <ImageIcon className="h-5 w-5" />
+                </Button>
+                <Button type="button" variant="ghost" size="icon" disabled title="Adjuntar archivo">
+                  <Paperclip className="h-5 w-5" />
+                </Button>
+                <Button type="button" variant="ghost" size="icon" disabled title="Agregar GIF">
+                  <Smile className="h-5 w-5" />
+                </Button>
+                <Button type="button" variant="ghost" size="icon" disabled title="Encuesta">
+                  <BarChart2 className="h-5 w-5" />
+                </Button>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setEditModalOpen(false)} disabled={savingEdit}>
+                  Cancelar
+                </Button>
+                <Button type="submit" disabled={savingEdit || !editContent || editContent === '<p><br></p>'} className="bg-[#4F8FF7] text-white">
+                  {savingEdit ? "Guardando..." : "Guardar Cambios"}
+                </Button>
+              </div>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

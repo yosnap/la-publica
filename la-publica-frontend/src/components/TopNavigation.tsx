@@ -13,9 +13,28 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import apiClient from "@/api/client";
+import { getImageUrl } from '@/utils/getImageUrl';
 
 export function TopNavigation() {
   const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await apiClient.get('/users/profile');
+        if (response.data.success) {
+          setUser(response.data.data);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3 md:px-6">
@@ -63,17 +82,19 @@ export function TopNavigation() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" />
-                    <AvatarFallback>JD</AvatarFallback>
+                    <AvatarImage src={getImageUrl(user?.profilePicture)} />
+                    <AvatarFallback>
+                      {user?.firstName?.[0]}{user?.lastName?.[0]}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56 bg-white border border-gray-200 rounded-xl shadow-lg" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">Jane Doe</p>
+                    <p className="text-sm font-medium leading-none">{user?.firstName} {user?.lastName}</p>
                     <p className="text-xs leading-none text-muted-foreground">
-                      jane.doe@example.com
+                      {user?.email}
                     </p>
                   </div>
                 </DropdownMenuLabel>
