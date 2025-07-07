@@ -11,8 +11,17 @@ export interface IComment extends Document {
 export interface IPost extends Document {
   author: mongoose.Types.ObjectId;
   content: string;
+  image?: string;
   likes: mongoose.Types.ObjectId[];
   comments: IComment[];
+  mood?: {
+    emoji: string;
+    label: string;
+  };
+  commentsDisabled: boolean;
+  pinned: boolean;
+  pinnedBy?: mongoose.Types.ObjectId;
+  pinnedAt?: Date;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -48,13 +57,44 @@ const PostSchema = new Schema<IPost>(
       trim: true,
       maxlength: 2000
     },
+    image: {
+      type: String,
+      required: false
+    },
     likes: [
       {
         type: Schema.Types.ObjectId,
         ref: 'User'
       }
     ],
-    comments: [CommentSchema]
+    comments: [CommentSchema],
+    mood: {
+      emoji: {
+        type: String,
+        required: false
+      },
+      label: {
+        type: String,
+        required: false
+      }
+    },
+    commentsDisabled: {
+      type: Boolean,
+      default: false
+    },
+    pinned: {
+      type: Boolean,
+      default: false
+    },
+    pinnedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: false
+    },
+    pinnedAt: {
+      type: Date,
+      required: false
+    }
   },
   {
     timestamps: true

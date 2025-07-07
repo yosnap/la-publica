@@ -6,7 +6,9 @@ import User from './user.model';
 export const createPost = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId;
-    const { content } = req.body;
+    const { content, image, mood } = req.body;
+
+    console.log('Received post data:', { content, image, mood }); // Debug
 
     if (!content) {
       return res.status(400).json({ success: false, message: 'El contenido es requerido' });
@@ -14,7 +16,9 @@ export const createPost = async (req: Request, res: Response) => {
 
     const post = new Post({
       content,
-      author: userId
+      author: userId,
+      ...(image && { image }),
+      ...(mood && { mood })
     });
     await post.save();
     
@@ -175,6 +179,10 @@ export const commentOnPost = async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: 'Post no encontrado' });
     }
 
+    if (post.commentsDisabled) {
+      return res.status(403).json({ success: false, message: 'Los comentarios están desactivados para este post' });
+    }
+
     if (!text) {
       return res.status(400).json({ success: false, message: 'El texto del comentario es requerido' });
     }
@@ -219,10 +227,11 @@ export const getUserFeed = async (req: Request, res: Response) => {
     const userIds = [...currentUser.following, currentUserId];
 
     const posts = await Post.find({ author: { $in: userIds } })
-      .sort({ createdAt: -1 })
+      .sort({ pinned: -1, createdAt: -1 }) // Posts fijados primero, luego por fecha
       .skip(skip)
       .limit(limit)
       .populate('author', 'username firstName lastName profilePicture')
+      .populate('pinnedBy', 'username firstName lastName')
       .populate({
         path: 'comments',
         populate: {
@@ -246,5 +255,79 @@ export const getUserFeed = async (req: Request, res: Response) => {
 
   } catch (error: any) {
     return res.status(500).json({ success: false, message: 'Error al obtener el feed', error: error.message });
+  }
+};
+
+// Desactivar/activar comentarios en un post (solo admin/moderador)
+export const toggleComments = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.userId;
+    const userRole = (req as any).user?.role;
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ success: false, message: 'Post no encontrado' });
+    }
+
+    // Verificar permisos: solo admin, moderador o el autor del post
+    if (userRole !== 'admin' && userRole !== 'moderator' && post.author.toString() !== userId) {
+      return res.status(403).json({ success: false, message: 'No tienes permisos para esta acción' });
+    }
+
+    post.commentsDisabled = !post.commentsDisabled;
+    await post.save();
+
+    const populatedPost = await Post.findById(post._id)
+      .populate('author', 'username firstName lastName profilePicture')
+      .populate('comments.author', 'username firstName lastName profilePicture');
+
+    return res.json({
+      success: true,
+      data: populatedPost,
+      message: post.commentsDisabled ? 'Comentarios desactivados' : 'Comentarios activados'
+    });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, message: 'Error al cambiar estado de comentarios', error: error.message });
+  }
+};
+
+// Fijar/desfijar post en el feed (solo admin/moderador)
+export const togglePinPost = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.userId;
+    const userRole = (req as any).user?.role;
+    const post = await Post.findById(req.params.id);
+
+    if (!post) {
+      return res.status(404).json({ success: false, message: 'Post no encontrado' });
+    }
+
+    // Verificar permisos: solo admin o moderador
+    if (userRole !== 'admin' && userRole !== 'moderator') {
+      return res.status(403).json({ success: false, message: 'No tienes permisos para esta acción' });
+    }
+
+    post.pinned = !post.pinned;
+    if (post.pinned) {
+      post.pinnedBy = userId;
+      post.pinnedAt = new Date();
+    } else {
+      post.pinnedBy = undefined;
+      post.pinnedAt = undefined;
+    }
+    await post.save();
+
+    const populatedPost = await Post.findById(post._id)
+      .populate('author', 'username firstName lastName profilePicture')
+      .populate('pinnedBy', 'username firstName lastName')
+      .populate('comments.author', 'username firstName lastName profilePicture');
+
+    return res.json({
+      success: true,
+      data: populatedPost,
+      message: post.pinned ? 'Post fijado en el feed' : 'Post desfijado del feed'
+    });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, message: 'Error al fijar/desfijar post', error: error.message });
   }
 }; 
