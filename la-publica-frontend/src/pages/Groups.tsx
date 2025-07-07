@@ -179,8 +179,8 @@ const Groups = () => {
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Grupos</h1>
-            <p className="text-gray-600">Conecta con comunidades que comparten tus intereses</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Grupos</h1>
+            <p className="text-gray-600 dark:text-gray-400">Conecta con comunidades que comparten tus intereses</p>
           </div>
           <CreateGroupModal onGroupCreated={() => { loadMyGroups(); loadDiscoverGroups(); }}>
             <Button className="bg-primary hover:bg-primary/90">
@@ -191,7 +191,7 @@ const Groups = () => {
         </div>
 
         {/* Búsqueda */}
-        <Card className="shadow-sm border-0 bg-white">
+        <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
           <CardContent className="p-6">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -199,7 +199,7 @@ const Groups = () => {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Buscar grupos por nombre, descripción o categoría..."
-                className="pl-10 bg-gray-50 border-0 focus:bg-white focus:ring-2 focus:ring-primary/20"
+                className="pl-10 bg-gray-50 dark:bg-gray-700/50 border-0 focus:bg-white dark:bg-gray-800/50 focus:ring-2 focus:ring-primary/20"
               />
             </div>
           </CardContent>
@@ -207,7 +207,7 @@ const Groups = () => {
 
         {/* Tabs */}
         <Tabs defaultValue="my-groups" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-2 bg-white border border-gray-200">
+          <TabsList className="grid w-full grid-cols-2 bg-white dark:bg-gray-800/50 border">
             <TabsTrigger 
               value="my-groups" 
               className="data-[state=active]:bg-primary data-[state=active]:text-white"
@@ -226,7 +226,7 @@ const Groups = () => {
             {loading ? (
               // Skeleton loading
               Array.from({ length: 3 }).map((_, index) => (
-                <Card key={index} className="shadow-sm border-0 bg-white">
+                <Card key={index} className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-4">
                       <Skeleton className="w-16 h-16 rounded-xl" />
@@ -240,11 +240,11 @@ const Groups = () => {
                 </Card>
               ))
             ) : myGroups.length === 0 ? (
-              <Card className="shadow-sm border-0 bg-white">
+              <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
                 <CardContent className="p-12 text-center">
                   <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes grupos aún</h3>
-                  <p className="text-gray-500 mb-4">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No tienes grupos aún</h3>
+                  <p className="text-gray-500 dark:text-gray-400 mb-4">
                     Únete a grupos existentes o crea tu propio grupo para conectar con personas que comparten tus intereses.
                   </p>
                   <CreateGroupModal onGroupCreated={() => { loadMyGroups(); loadDiscoverGroups(); }}>
@@ -257,7 +257,7 @@ const Groups = () => {
               </Card>
             ) : (
               myGroups.map((group) => (
-                <Card key={group._id} className="shadow-sm border-0 bg-white hover:shadow-md transition-shadow">
+                <Card key={group._id} className="shadow-sm border-0 bg-white dark:bg-gray-800/50 hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center space-y-4 lg:space-y-0 lg:space-x-6">
                     {/* Imagen del grupo */}
@@ -276,7 +276,7 @@ const Groups = () => {
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
                         <div>
                           <div className="flex items-center space-x-2 mb-1">
-                            <h3 className="text-lg font-semibold text-gray-900 truncate">{group.name}</h3>
+                            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 truncate">{group.name}</h3>
                             {group.privacy === "private" && (
                               <Badge variant="secondary" className="text-xs flex items-center">
                                 <Lock className="h-3 w-3 mr-1" />
@@ -289,8 +289,8 @@ const Groups = () => {
                               </div>
                             )}
                           </div>
-                          <p className="text-gray-600 text-sm line-clamp-2 mb-2">{group.description}</p>
-                          <div className="flex items-center space-x-4 text-sm text-gray-500">
+                          <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-2">{group.description}</p>
+                          <div className="flex items-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                             <div className="flex items-center">
                               <Users className="h-4 w-4 mr-1" />
                               {group.memberCount} miembros
@@ -348,7 +348,7 @@ const Groups = () => {
             {loadingDiscover ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {Array.from({ length: 4 }).map((_, index) => (
-                  <Card key={index} className="shadow-sm border-0 bg-white">
+                  <Card key={index} className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
                     <CardContent className="p-6">
                       <div className="flex items-start space-x-4">
                         <Skeleton className="w-16 h-16 rounded-xl" />
@@ -370,13 +370,13 @@ const Groups = () => {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {discoverGroups.length === 0 ? (
                   <div className="col-span-full">
-                    <Card className="shadow-sm border-0 bg-white">
+                    <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
                       <CardContent className="p-12 text-center">
                         <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                           {searchTerm ? "No se encontraron grupos" : "No hay grupos disponibles"}
                         </h3>
-                        <p className="text-gray-500">
+                        <p className="text-gray-500 dark:text-gray-400">
                           {searchTerm 
                             ? "Intenta con otros términos de búsqueda o categorías diferentes."
                             : "Sé el primero en crear un grupo para esta comunidad."
@@ -387,7 +387,7 @@ const Groups = () => {
                   </div>
                 ) : (
                   discoverGroups.map((group) => (
-                    <Card key={group._id} className="shadow-sm border-0 bg-white hover:shadow-md transition-shadow">
+                    <Card key={group._id} className="shadow-sm border-0 bg-white dark:bg-gray-800/50 hover:shadow-md transition-shadow">
                       <CardContent className="p-6">
                         <div className="flex items-start space-x-4">
                           <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
@@ -403,7 +403,7 @@ const Groups = () => {
                             <div className="flex items-start justify-between mb-2">
                               <div>
                                 <div className="flex items-center space-x-2 mb-1">
-                                  <h3 className="font-semibold text-gray-900 truncate">{group.name}</h3>
+                                  <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">{group.name}</h3>
                                   {group.privacy === "private" && (
                                     <Badge variant="secondary" className="text-xs flex items-center">
                                       <Lock className="h-3 w-3 mr-1" />
@@ -411,7 +411,7 @@ const Groups = () => {
                                     </Badge>
                                   )}
                                 </div>
-                                <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                                <div className="flex items-center space-x-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
                                   <Users className="h-4 w-4" />
                                   <span>{group.memberCount} miembros</span>
                                   {group.category && typeof group.category === 'object' && (
@@ -429,7 +429,7 @@ const Groups = () => {
                                 </div>
                               </div>
                             </div>
-                            <p className="text-gray-600 text-sm line-clamp-2 mb-4">{group.description}</p>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-4">{group.description}</p>
                             <div className="flex items-center space-x-2">
                               <Button 
                                 size="sm" 
@@ -458,9 +458,9 @@ const Groups = () => {
 
             {/* Categorías Populares */}
             {categories.length > 0 && (
-              <Card className="shadow-sm border-0 bg-white mt-8">
+              <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50 mt-8">
                 <CardHeader>
-                  <h3 className="text-lg font-semibold text-gray-900">Categorías</h3>
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Categorías</h3>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">

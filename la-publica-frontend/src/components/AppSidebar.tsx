@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag } from "lucide-react";
+import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag, PanelLeftClose, PanelLeft, Moon, Sun } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -12,9 +12,13 @@ import {
   SidebarMenuItem,
   SidebarHeader,
   SidebarFooter,
+  SidebarTrigger,
+  SidebarRail,
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import apiClient from "@/api/client";
+import { getImageUrl } from "@/utils/getImageUrl";
 
 const menuItems = [
   {
@@ -98,6 +102,8 @@ const adminItems = [
 export function AppSidebar() {
   const location = useLocation();
   const [user, setUser] = useState<any>(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const { state } = useSidebar();
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -111,27 +117,49 @@ export function AppSidebar() {
       }
     };
     fetchUserProfile();
+
+    // Cargar preferencia de modo oscuro
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setIsDarkMode(savedDarkMode);
+    if (savedDarkMode) {
+      document.documentElement.classList.add('dark');
+    }
   }, []);
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', newDarkMode.toString());
+    
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   const isAdmin = user?.role === 'admin';
 
   return (
-    <Sidebar className="border-r border-gray-200 bg-white" collapsible="icon">
-      <SidebarHeader className="p-4 border-b border-gray-100">
-        <div className="flex items-center space-x-3 group-data-[collapsible=icon]:justify-center">
-          <div className="w-8 h-8 bg-[#4F8FF7] rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-white font-bold text-sm">LP</span>
+    <Sidebar className="border-r border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-700" collapsible="icon" style={{ "--sidebar-width-icon": "4rem" } as React.CSSProperties}>
+      <SidebarHeader className="p-4 border-b border-gray-100 dark:border-gray-700">
+        <div className="flex items-center justify-between group-data-[collapsible=icon]:justify-center">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-[#4F8FF7] rounded-lg flex items-center justify-center flex-shrink-0">
+              <span className="text-white font-bold text-sm">LP</span>
+            </div>
+            <div className="group-data-[collapsible=icon]:hidden">
+              <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">La pública</h2>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Comunidad Social</p>
+            </div>
           </div>
-          <div className="group-data-[collapsible=icon]:hidden">
-            <h2 className="text-lg font-semibold text-gray-900">La pública</h2>
-            <p className="text-xs text-gray-500">Comunidad Social</p>
-          </div>
+          <SidebarTrigger className="group-data-[collapsible=icon]:hidden hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors" />
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="px-3">
+      <SidebarContent className="px-3 group-data-[collapsible=icon]:px-2">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-gray-500 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
+          <SidebarGroupLabel className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
             Navegación Principal
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -143,11 +171,11 @@ export function AppSidebar() {
                     className={`${
                       location.pathname === item.url 
                         ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90' 
-                        : 'hover:bg-gray-100 text-gray-700'
-                    } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:justify-center`}
+                        : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                    } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-14 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto`}
                     tooltip={item.title}
                   >
-                    <Link to={item.url} className="flex items-center space-x-3 px-3 py-2">
+                    <Link to={item.url} className="flex items-center space-x-3 px-3 py-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:space-x-0">
                       <item.icon className="h-5 w-5 flex-shrink-0" />
                       <span className="font-medium group-data-[collapsible=icon]:hidden">{item.title}</span>
                     </Link>
@@ -159,7 +187,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className="text-gray-500 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
+          <SidebarGroupLabel className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
             Empresas y Negocios
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -171,11 +199,11 @@ export function AppSidebar() {
                     className={`${
                       location.pathname === item.url 
                         ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90' 
-                        : 'hover:bg-gray-100 text-gray-700'
-                    } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:justify-center`}
+                        : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                    } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-14 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto`}
                     tooltip={item.title}
                   >
-                    <Link to={item.url} className="flex items-center space-x-3 px-3 py-2">
+                    <Link to={item.url} className="flex items-center space-x-3 px-3 py-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:space-x-0">
                       <item.icon className="h-5 w-5 flex-shrink-0" />
                       <span className="font-medium group-data-[collapsible=icon]:hidden">{item.title}</span>
                     </Link>
@@ -187,7 +215,7 @@ export function AppSidebar() {
         </SidebarGroup>
 
         <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className="text-gray-500 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
+          <SidebarGroupLabel className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
             Acciones Rápidas
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -195,10 +223,10 @@ export function AppSidebar() {
               {quickActions.map((action) => (
                 <SidebarMenuItem key={action.title}>
                   <SidebarMenuButton 
-                    className="hover:bg-gray-100 text-gray-700 rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:justify-center"
+                    className="hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-14 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto"
                     tooltip={action.title}
                   >
-                    <div className="flex items-center space-x-3 px-3 py-2">
+                    <div className="flex items-center space-x-3 px-3 py-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:space-x-0">
                       <action.icon className="h-5 w-5 flex-shrink-0" />
                       <span className="font-medium group-data-[collapsible=icon]:hidden">{action.title}</span>
                     </div>
@@ -212,7 +240,7 @@ export function AppSidebar() {
         {/* Sección de Administración - Solo para admins */}
         {isAdmin && (
           <SidebarGroup className="mt-6">
-            <SidebarGroupLabel className="text-gray-500 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
+            <SidebarGroupLabel className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
               <div className="flex items-center space-x-1">
                 <Shield className="h-3 w-3" />
                 <span>Administración</span>
@@ -227,7 +255,7 @@ export function AppSidebar() {
                       className={`${
                         location.pathname === item.url 
                           ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90' 
-                          : 'hover:bg-gray-100 text-gray-700'
+                          : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                       } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:justify-center`}
                       tooltip={item.title}
                     >
@@ -244,7 +272,7 @@ export function AppSidebar() {
         )}
 
         <SidebarGroup className="mt-6">
-          <SidebarGroupLabel className="text-gray-500 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
+          <SidebarGroupLabel className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
             Configuración
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -256,13 +284,31 @@ export function AppSidebar() {
                     location.pathname === "/settings" 
                       ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90' 
                       : 'hover:bg-gray-100 text-gray-700'
-                  } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:justify-center`}
+                  } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-14 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto`}
                   tooltip="Configuración"
                 >
-                  <Link to="/settings" className="flex items-center space-x-3 px-3 py-2">
+                  <Link to="/settings" className="flex items-center space-x-3 px-3 py-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:space-x-0">
                     <Settings className="h-5 w-5 flex-shrink-0" />
                     <span className="font-medium group-data-[collapsible=icon]:hidden">Configuración</span>
                   </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton 
+                  onClick={toggleDarkMode}
+                  className="hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-14 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto"
+                  tooltip={isDarkMode ? "Modo Claro" : "Modo Oscuro"}
+                >
+                  <div className="flex items-center space-x-3 px-3 py-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:space-x-0">
+                    {isDarkMode ? (
+                      <Sun className="h-5 w-5 flex-shrink-0" />
+                    ) : (
+                      <Moon className="h-5 w-5 flex-shrink-0" />
+                    )}
+                    <span className="font-medium group-data-[collapsible=icon]:hidden">
+                      {isDarkMode ? "Modo Claro" : "Modo Oscuro"}
+                    </span>
+                  </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
@@ -270,22 +316,25 @@ export function AppSidebar() {
         </SidebarGroup>
       </SidebarContent>
 
-      <SidebarFooter className="p-4 border-t border-gray-100">
+      <SidebarFooter className="p-4 border-t border-gray-100 dark:border-gray-700">
         <div className="flex items-center space-x-3 group-data-[collapsible=icon]:justify-center">
           <Avatar className="h-8 w-8 flex-shrink-0">
-            <AvatarImage src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face" />
-            <AvatarFallback>JD</AvatarFallback>
+            <AvatarImage src={getImageUrl(user?.profilePicture)} />
+            <AvatarFallback>
+              {user?.firstName?.[0]}{user?.lastName?.[0]}
+            </AvatarFallback>
           </Avatar>
           <div className="flex-1 min-w-0 group-data-[collapsible=icon]:hidden">
-            <p className="text-sm font-medium text-gray-900 truncate">
-              John Doe
+            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+              {user?.firstName} {user?.lastName}
             </p>
-            <p className="text-xs text-gray-500 truncate">
-              john@example.com
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              {user?.email}
             </p>
           </div>
         </div>
       </SidebarFooter>
+      <SidebarRail />
     </Sidebar>
   );
 }

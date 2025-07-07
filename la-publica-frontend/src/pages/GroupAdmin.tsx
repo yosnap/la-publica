@@ -340,9 +340,15 @@ const GroupAdmin = () => {
         {/* Content */}
         <Tabs defaultValue="settings" className="space-y-6">
           <TabsList className="grid grid-cols-3 bg-white border">
-            <TabsTrigger value="settings">Configuración</TabsTrigger>
-            <TabsTrigger value="members">Miembros ({group.memberCount})</TabsTrigger>
-            <TabsTrigger value="stats">Estadísticas</TabsTrigger>
+            <TabsTrigger value="settings" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+              Configuración
+            </TabsTrigger>
+            <TabsTrigger value="members" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+              Miembros ({group.memberCount})
+            </TabsTrigger>
+            <TabsTrigger value="stats" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+              Estadísticas
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="settings">

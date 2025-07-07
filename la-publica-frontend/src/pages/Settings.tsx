@@ -20,7 +20,7 @@ const Settings = () => {
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-5 bg-white border border-gray-200">
+        <TabsList className="grid w-full grid-cols-5 bg-white border">
           <TabsTrigger value="profile" className="data-[state=active]:bg-primary data-[state=active]:text-white">
             <User className="h-4 w-4 mr-2" />
             Perfil

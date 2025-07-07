@@ -190,10 +190,16 @@ export default function Announcements() {
         {/* View Toggle and Filter Tabs */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <Tabs value={activeFilter} onValueChange={setActiveFilter} className="flex-1">
-            <TabsList className="grid w-full grid-cols-3 max-w-md">
-              <TabsTrigger value="all">Todos</TabsTrigger>
-              <TabsTrigger value="offers">Ofertas ({offerAnnouncements.length})</TabsTrigger>
-              <TabsTrigger value="demands">Demandas ({demandAnnouncements.length})</TabsTrigger>
+            <TabsList className="grid w-full grid-cols-3 max-w-md bg-white border">
+              <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                Todos
+              </TabsTrigger>
+              <TabsTrigger value="offers" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                Ofertas ({offerAnnouncements.length})
+              </TabsTrigger>
+              <TabsTrigger value="demands" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                Demandas ({demandAnnouncements.length})
+              </TabsTrigger>
             </TabsList>
           </Tabs>
           

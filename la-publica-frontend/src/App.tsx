@@ -48,7 +48,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <SidebarProvider>
-          <div className="min-h-screen flex w-full bg-gray-50">
+          <div className="min-h-screen flex w-full bg-gray-50 dark:bg-gray-900">
             <Routes>
               <Route path="/login" element={<LoginRoute />} />
               <Route path="/register" element={<RegisterRoute />} />

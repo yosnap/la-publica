@@ -17,6 +17,7 @@ import searchRoutes from './search.routes';
 import adminRoutes from './admin.routes';
 import uploadRoutes from './upload.routes';
 import groupRoutes from './group.routes';
+import groupPostRoutes from './groupPost.routes';
 import { errorHandler } from './middleware/errorHandler';
 import 'dotenv/config';
 
@@ -81,6 +82,9 @@ app.use('/api/uploads', uploadRoutes);
 
 // Rutas de grupos
 app.use('/api/groups', groupRoutes);
+
+// Rutas de posts de grupos
+app.use('/api/groups', groupPostRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

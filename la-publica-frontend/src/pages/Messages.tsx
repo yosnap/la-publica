@@ -126,10 +126,10 @@ const Messages = () => {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
         {/* Lista de Conversaciones */}
         <div className="lg:col-span-4 space-y-4">
-          <Card className="shadow-sm border-0 bg-white">
+          <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg font-semibold text-gray-900">Mensajes</h2>
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Mensajes</h2>
                 <Button size="sm" variant="outline">
                   Nuevo Chat
                 </Button>
@@ -140,20 +140,20 @@ const Messages = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   placeholder="Buscar conversaciones..."
-                  className="pl-10 bg-gray-50 border-0 focus:bg-white focus:ring-2 focus:ring-primary/20"
+                  className="pl-10 bg-gray-50 dark:bg-gray-700/50 border-0 focus:bg-white dark:bg-gray-800/50 focus:ring-2 focus:ring-primary/20"
                 />
               </div>
             </CardContent>
           </Card>
 
-          <Card className="shadow-sm border-0 bg-white flex-1">
+          <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50 flex-1">
             <CardContent className="p-0">
               <div className="space-y-1 max-h-[500px] overflow-y-auto">
                 {conversations.map((conversation) => (
                   <div
                     key={conversation.id}
                     onClick={() => setSelectedChat(conversation.id)}
-                    className={`p-4 cursor-pointer transition-colors hover:bg-gray-50 ${
+                    className={`p-4 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800 ${
                       selectedChat === conversation.id ? 'bg-primary/5 border-r-2 border-primary' : ''
                     }`}
                   >
@@ -167,11 +167,11 @@ const Messages = () => {
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
-                          <p className="text-sm font-medium text-gray-900 truncate">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                             {conversation.user.name}
                           </p>
                           <div className="flex items-center space-x-2">
-                            <span className="text-xs text-gray-500">{conversation.timestamp}</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">{conversation.timestamp}</span>
                             {conversation.unread > 0 && (
                               <Badge className="bg-primary text-white h-5 w-5 p-0 text-xs flex items-center justify-center">
                                 {conversation.unread}
@@ -179,7 +179,7 @@ const Messages = () => {
                             )}
                           </div>
                         </div>
-                        <p className="text-sm text-gray-600 truncate mt-1">
+                        <p className="text-sm text-gray-600 dark:text-gray-400 truncate mt-1">
                           {conversation.lastMessage}
                         </p>
                       </div>
@@ -193,9 +193,9 @@ const Messages = () => {
 
         {/* Chat Activo */}
         <div className="lg:col-span-8">
-          <Card className="shadow-sm border-0 bg-white h-full flex flex-col">
+          <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50 h-full flex flex-col">
             {/* Header del Chat */}
-            <CardHeader className="border-b border-gray-100 pb-3">
+            <CardHeader className="border-b border-gray-100 dark:border-gray-700 pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="relative">
@@ -206,8 +206,8 @@ const Messages = () => {
                     <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${getStatusColor(selectedConversation?.user.status || 'offline')}`} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-900">{selectedConversation?.user.name}</h3>
-                    <p className="text-sm text-gray-500 capitalize">{selectedConversation?.user.status}</p>
+                    <h3 className="font-semibold text-gray-900 dark:text-gray-100">{selectedConversation?.user.name}</h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 capitalize">{selectedConversation?.user.status}</p>
                   </div>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -238,20 +238,20 @@ const Messages = () => {
                           <AvatarImage src={selectedConversation?.user.avatar} />
                           <AvatarFallback className="text-xs">{message.sender.charAt(0)}</AvatarFallback>
                         </Avatar>
-                        <span className="text-xs text-gray-500">{message.sender}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{message.sender}</span>
                       </div>
                     )}
                     <div
                       className={`rounded-lg px-4 py-2 ${
                         message.isOwn
                           ? 'bg-primary text-white'
-                          : 'bg-gray-100 text-gray-900'
+                          : 'bg-gray-100 dark:bg-gray-700/50 text-gray-900 dark:text-gray-100'
                       }`}
                     >
                       <p className="text-sm">{message.content}</p>
                     </div>
                     <div className={`flex ${message.isOwn ? 'justify-end' : 'justify-start'} mt-1`}>
-                      <span className="text-xs text-gray-500">{message.timestamp}</span>
+                      <span className="text-xs text-gray-500 dark:text-gray-400">{message.timestamp}</span>
                     </div>
                   </div>
                 </div>
@@ -259,7 +259,7 @@ const Messages = () => {
             </CardContent>
 
             {/* Input para nuevo mensaje */}
-            <div className="border-t border-gray-100 p-4">
+            <div className="border-t border-gray-100 dark:border-gray-700 p-4">
               <div className="flex items-end space-x-2">
                 <Button variant="ghost" size="sm" className="mb-2">
                   <Paperclip className="h-4 w-4" />
@@ -269,7 +269,7 @@ const Messages = () => {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Escribe un mensaje..."
-                    className="min-h-[40px] max-h-[120px] resize-none border-0 bg-gray-50 focus:bg-white focus:ring-2 focus:ring-primary/20"
+                    className="min-h-[40px] max-h-[120px] resize-none border-0 bg-gray-50 dark:bg-gray-700/50 focus:bg-white dark:bg-gray-800/50 focus:ring-2 focus:ring-primary/20"
                     onKeyPress={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();

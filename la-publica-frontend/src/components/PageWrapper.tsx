@@ -8,7 +8,7 @@ interface PageWrapperProps {
 
 export const PageWrapper = ({ children, className = "" }: PageWrapperProps) => {
   return (
-    <div className={`p-6 bg-gray-50 min-h-screen ${className}`}>
+    <div className={`p-6 bg-gray-50 dark:bg-gray-900 min-h-screen ${className}`}>
       <div className="max-w-7xl mx-auto">
         {children}
       </div>

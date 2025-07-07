@@ -28,6 +28,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { CreateGroupPost } from "@/components/groups/CreateGroupPost";
+import { GroupPostCard } from "@/components/groups/GroupPostCard";
 import {
   fetchGroupById,
   joinGroup,
@@ -35,21 +37,36 @@ import {
   updateMemberRole,
   type Group
 } from "@/api/groups";
+import {
+  fetchGroupPosts,
+  type GroupPost
+} from "@/api/groupPosts";
 import { getImageUrl } from "@/utils/getImageUrl";
 
 const GroupDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [group, setGroup] = useState<Group | null>(null);
+  const [posts, setPosts] = useState<GroupPost[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingPosts, setLoadingPosts] = useState(true);
   const [joining, setJoining] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string>("");
+  const [userProfile, setUserProfile] = useState<any>(null);
 
   useEffect(() => {
     if (id) {
       loadGroupDetails();
+      loadUserProfile();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (id && group) {
+      loadGroupPosts();
+    }
+  }, [id, group]);
 
   const loadGroupDetails = async () => {
     if (!id) return;
@@ -73,6 +90,50 @@ const GroupDetail = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadUserProfile = async () => {
+    try {
+      // Obtener perfil del usuario actual para tener su información
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        // Extraer userId del token
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        setCurrentUserId(payload.userId);
+        
+        // Obtener perfil completo del usuario
+        import('@/api/client').then(({ default: apiClient }) => {
+          apiClient.get('/users/profile').then(response => {
+            if (response.data.success) {
+              setUserProfile(response.data.data);
+            }
+          }).catch(error => {
+            console.error("Error loading user profile:", error);
+          });
+        });
+      }
+    } catch (error) {
+      console.error("Error parsing token:", error);
+    }
+  };
+
+  const loadGroupPosts = async () => {
+    if (!id) return;
+    
+    try {
+      setLoadingPosts(true);
+      const response = await fetchGroupPosts(id, { page: 1, limit: 20 });
+      if (response.success) {
+        setPosts(response.data);
+      }
+    } catch (error: any) {
+      console.error("Error loading group posts:", error);
+      if (error.response?.status !== 403) {
+        toast.error("Error al cargar los posts del grupo");
+      }
+    } finally {
+      setLoadingPosts(false);
     }
   };
 
@@ -292,12 +353,85 @@ const GroupDetail = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Contenido principal */}
           <div className="lg:col-span-2">
-            <Tabs defaultValue="about" className="space-y-6">
+            <Tabs defaultValue="posts" className="space-y-6">
               <TabsList className="grid grid-cols-3 bg-white border">
-                <TabsTrigger value="about">Acerca de</TabsTrigger>
-                <TabsTrigger value="posts">Posts ({group.postCount})</TabsTrigger>
-                <TabsTrigger value="members">Miembros ({group.memberCount})</TabsTrigger>
+                <TabsTrigger value="posts" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                  Posts ({group.postCount})
+                </TabsTrigger>
+                <TabsTrigger value="about" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                  Acerca de
+                </TabsTrigger>
+                <TabsTrigger value="members" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+                  Miembros ({group.memberCount})
+                </TabsTrigger>
               </TabsList>
+
+              <TabsContent value="posts" className="space-y-6">
+                {/* Create post (only for members) */}
+                {isMember && userProfile && (
+                  <CreateGroupPost
+                    groupId={group._id}
+                    groupName={group.name}
+                    userProfilePicture={userProfile.profilePicture}
+                    userFirstName={userProfile.firstName}
+                    userLastName={userProfile.lastName}
+                    onPostCreated={loadGroupPosts}
+                  />
+                )}
+
+                {/* Posts feed */}
+                {loadingPosts ? (
+                  <div className="space-y-4">
+                    {Array.from({ length: 3 }).map((_, index) => (
+                      <Card key={index} className="shadow-sm border-0 bg-white">
+                        <CardContent className="p-6">
+                          <div className="animate-pulse">
+                            <div className="flex items-center space-x-3 mb-4">
+                              <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                              <div className="space-y-2">
+                                <div className="h-4 bg-gray-200 rounded w-32"></div>
+                                <div className="h-3 bg-gray-200 rounded w-24"></div>
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <div className="h-4 bg-gray-200 rounded"></div>
+                              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : posts.length === 0 ? (
+                  <Card>
+                    <CardContent className="p-12 text-center">
+                      <div className="text-gray-400 mb-4">📝</div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
+                        {isMember ? "Sé el primero en publicar" : "No hay posts aún"}
+                      </h3>
+                      <p className="text-gray-500">
+                        {isMember 
+                          ? "Comparte algo interesante con el grupo."
+                          : "Los posts del grupo aparecerán aquí cuando los miembros publiquen contenido."
+                        }
+                      </p>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="space-y-6">
+                    {posts.map((post) => (
+                      <GroupPostCard
+                        key={post._id}
+                        post={post}
+                        currentUserId={currentUserId}
+                        userGroupRole={group.userRole}
+                        onPostUpdate={loadGroupPosts}
+                        onPostDelete={loadGroupPosts}
+                      />
+                    ))}
+                  </div>
+                )}
+              </TabsContent>
 
               <TabsContent value="about">
                 <Card>
@@ -364,18 +498,6 @@ const GroupDetail = () => {
                         </span>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </TabsContent>
-
-              <TabsContent value="posts">
-                <Card>
-                  <CardContent className="p-12 text-center">
-                    <div className="text-gray-400 mb-4">📝</div>
-                    <h3 className="text-lg font-medium text-gray-900 mb-2">Posts del Grupo</h3>
-                    <p className="text-gray-500">
-                      Los posts del grupo aparecerán aquí próximamente.
-                    </p>
                   </CardContent>
                 </Card>
               </TabsContent>

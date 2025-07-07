@@ -154,7 +154,7 @@ const CompanyProfile = ({ companyData }: CompanyProfileProps) => {
 
       {/* Contenido con Tabs */}
       <Tabs defaultValue="services" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200">
+        <TabsList className="grid w-full grid-cols-4 bg-white border">
           <TabsTrigger value="services" className="data-[state=active]:bg-primary data-[state=active]:text-white">
             Servicios
           </TabsTrigger>

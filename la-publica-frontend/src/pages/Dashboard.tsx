@@ -715,34 +715,34 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="p-6 bg-gray-50 min-h-screen">
+    <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Columna Izquierda - Widgets */}
           <div className="lg:col-span-3 space-y-6">
             {/* Mis Grupos Widget */}
-            <Card className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <Card className="bg-white dark:bg-gray-800/50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 dark:text-gray-100 flex items-center justify-between">
                   <div className="flex items-center">
                     <Users className="h-5 w-5 mr-2 text-blue-500" />
                     Mis Grupos
                   </div>
-                  <Button variant="ghost" size="sm" className="text-xs text-gray-500 hover:text-blue-600">
+                  <Button variant="ghost" size="sm" className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-blue-600">
                     Ver todos
                   </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {myGroups.map((group, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <div key={index} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
                     <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
                       <img src={group.image} alt={group.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{group.name}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{group.name}</p>
                       <div className="flex items-center space-x-2">
-                        <span className="text-xs text-gray-500">{group.members} miembros</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{group.members} miembros</span>
                         {group.isPrivate && (
                           <Badge variant="secondary" className="text-xs">Privado</Badge>
                         )}
@@ -753,26 +753,26 @@ const Dashboard = () => {
               </CardContent>
             </Card>
             {/* Blog Widget */}
-            <Card className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center">
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
                   <BookOpen className="h-5 w-5 mr-2 text-orange-500" />
                   Blog
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {blogPosts.slice(0, 4).map((post, index) => (
-                  <div key={index} className="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 p-2 rounded-lg">
+                  <div key={index} className="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded-lg">
                     <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                       <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 line-clamp-2 leading-tight">{post.title}</p>
-                      <p className="text-xs text-gray-500 mt-1">{post.date}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 leading-tight">{post.title}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{post.date}</p>
                     </div>
                   </div>
                 ))}
-                <Button variant="ghost" size="sm" className="w-full text-gray-600 mt-4 hover:bg-gray-100">
+                <Button variant="ghost" size="sm" className="w-full text-gray-600 dark:text-gray-400 mt-4 hover:bg-gray-100 dark:hover:bg-gray-800">
                   VER TODOS
                 </Button>
               </CardContent>
@@ -783,18 +783,18 @@ const Dashboard = () => {
           <div className="lg:col-span-6 space-y-6">
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">Activity Feed</h1>
-              <div className="flex items-center justify-center space-x-4 text-sm text-gray-500">
-                <span className="cursor-pointer hover:text-gray-900">Mostrar todo</span>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Activity Feed</h1>
+              <div className="flex items-center justify-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
+                <span className="cursor-pointer hover:text-gray-900 dark:text-gray-100">Mostrar todo</span>
                 <span>·</span>
-                <span className="cursor-pointer hover:text-gray-900">por nuevos posts</span>
+                <span className="cursor-pointer hover:text-gray-900 dark:text-gray-100">por nuevos posts</span>
               </div>
             </div>
 
             {/* Crear Post (área en el feed) */}
             <Dialog open={modalOpen} onOpenChange={setModalOpen}>
               <DialogTrigger asChild>
-                <Card className="bg-white rounded-xl border border-gray-100 shadow-sm cursor-pointer hover:shadow-md transition-shadow mb-4">
+                <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm cursor-pointer hover:shadow-md transition-shadow mb-4">
                   <CardContent className="p-4 flex items-center gap-4">
                   <Avatar className="h-10 w-10">
                       <AvatarImage src={getImageUrl(user?.profilePicture)} />
@@ -802,7 +802,7 @@ const Dashboard = () => {
                   </Avatar>
                   <div className="flex-1">
                       <input
-                        className="w-full bg-gray-100 rounded-full px-4 py-2 text-gray-500 cursor-pointer outline-none"
+                        className="w-full bg-gray-100 dark:bg-gray-700/50 rounded-full px-4 py-2 text-gray-500 dark:text-gray-400 cursor-pointer outline-none"
                         placeholder={`¿Qué estás pensando, ${user?.firstName}?`}
                         readOnly
                         onClick={handleOpenModal}
@@ -811,9 +811,9 @@ const Dashboard = () => {
                   </CardContent>
                 </Card>
               </DialogTrigger>
-              <DialogContent>
+              <DialogContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                 <DialogHeader>
-                  <DialogTitle>Crear una publicación</DialogTitle>
+                  <DialogTitle className="text-gray-900 dark:text-gray-100">Crear una publicación</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleCreatePostModal} className="space-y-4">
                   <div className="flex items-center gap-3 mb-2">
@@ -822,10 +822,10 @@ const Dashboard = () => {
                       <AvatarFallback>{user?.firstName?.[0]}{user?.lastName?.[0]}</AvatarFallback>
                     </Avatar>
                     <div>
-                      <div className="font-semibold text-gray-900">
+                      <div className="font-semibold text-gray-900 dark:text-gray-100">
                         {user?.firstName} {user?.lastName}
                         {selectedMood && (
-                          <span className="ml-2 text-sm font-normal text-gray-600">
+                          <span className="ml-2 text-sm font-normal text-gray-600 dark:text-gray-400">
                             se siente {selectedMood.emoji} {selectedMood.label}
                           </span>
                         )}
@@ -833,21 +833,21 @@ const Dashboard = () => {
                       {/* Selector de privacidad */}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 rounded px-2 py-1 mt-1 cursor-pointer hover:bg-gray-200">
+                          <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700/50 rounded px-2 py-1 mt-1 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600">
                             {privacy === "public" ? <Globe className="h-4 w-4 mr-1" /> : privacy === "friends" ? <UsersIcon className="h-4 w-4 mr-1" /> : <Lock className="h-4 w-4 mr-1" />}
                             {privacy === "public" ? "Público" : privacy === "friends" ? "Solo amigos" : "Privado"}
                           </div>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent align="start">
-                          <DropdownMenuItem onClick={() => setPrivacy("public")}>
+                        <DropdownMenuContent align="start" className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
+                          <DropdownMenuItem onClick={() => setPrivacy("public")} className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
                             <Globe className="h-4 w-4 mr-2" />
                             Público
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setPrivacy("friends")}>
+                          <DropdownMenuItem onClick={() => setPrivacy("friends")} className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
                             <UsersIcon className="h-4 w-4 mr-2" />
                             Solo amigos
                           </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => setPrivacy("private")}>
+                          <DropdownMenuItem onClick={() => setPrivacy("private")} className="text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700">
                             <Lock className="h-4 w-4 mr-2" />
                             Privado
                           </DropdownMenuItem>
@@ -880,7 +880,7 @@ const Dashboard = () => {
 
                   {/* Preview de archivo seleccionado */}
                   {selectedFile && (
-                    <div className="mt-4 p-3 bg-gray-100 rounded-lg flex items-center justify-between">
+                    <div className="mt-4 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Paperclip className="h-4 w-4" />
                         <span className="text-sm">{selectedFile.name}</span>
@@ -898,9 +898,9 @@ const Dashboard = () => {
 
                   {/* Opciones de encuesta */}
                   {showPollOptions && (
-                    <div className="mt-4 p-4 border border-gray-200 rounded-lg space-y-3">
+                    <div className="mt-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium">Opciones de encuesta</span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">Opciones de encuesta</span>
                         <Button type="button" variant="ghost" size="sm" onClick={togglePoll}>✕</Button>
                       </div>
                       {pollOptions.map((option, index) => (
@@ -910,7 +910,7 @@ const Dashboard = () => {
                             placeholder={`Opción ${index + 1}`}
                             value={option}
                             onChange={(e) => updatePollOption(index, e.target.value)}
-                            className="flex-1 px-3 py-2 border border-gray-300 rounded-md text-sm"
+                            className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                           />
                           {pollOptions.length > 2 && (
                             <Button
@@ -934,17 +934,17 @@ const Dashboard = () => {
 
                   {/* Mood/Estado seleccionado */}
                   {selectedMood && (
-                    <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg flex items-center justify-between">
+                    <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <span className="text-lg">{selectedMood.emoji}</span>
-                        <span className="text-sm font-medium text-blue-800">se siente {selectedMood.label}</span>
+                        <span className="text-sm font-medium text-blue-800 dark:text-blue-300">se siente {selectedMood.label}</span>
                       </div>
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
                         onClick={removeMood}
-                        className="text-blue-600 hover:text-blue-800"
+                        className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-200"
                       >
                         ✕
                       </Button>
@@ -953,9 +953,9 @@ const Dashboard = () => {
 
                   {/* Selector de mood/estado */}
                   {showMoodPicker && (
-                    <div className="mt-4 p-4 border border-gray-200 rounded-lg space-y-3">
+                    <div className="mt-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="font-medium">¿Cómo te sientes?</span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">¿Cómo te sientes?</span>
                         <Button type="button" variant="ghost" size="sm" onClick={() => setShowMoodPicker(false)}>✕</Button>
                       </div>
                       <div className="grid grid-cols-2 gap-2">
@@ -976,7 +976,7 @@ const Dashboard = () => {
                           <button
                             key={mood.label}
                             type="button"
-                            className="flex items-center gap-2 p-2 hover:bg-gray-100 rounded transition-colors text-left"
+                            className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded transition-colors text-left"
                             onClick={() => selectMood(mood)}
                           >
                             <span className="text-lg">{mood.emoji}</span>
@@ -1003,7 +1003,7 @@ const Dashboard = () => {
                         size="icon" 
                         onClick={() => document.getElementById('image-upload')?.click()}
                         title="Adjuntar imagen"
-                        className={selectedImage ? "text-blue-600 bg-blue-50" : ""}
+                        className={`hover:bg-gray-50 dark:hover:bg-gray-700/30 ${selectedImage ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
                       >
                         <ImageIcon className="h-5 w-5" />
                       </Button>
@@ -1021,7 +1021,7 @@ const Dashboard = () => {
                         size="icon" 
                         onClick={() => document.getElementById('file-upload')?.click()}
                         title="Adjuntar archivo"
-                        className={selectedFile ? "text-blue-600 bg-blue-50" : ""}
+                        className={`hover:bg-gray-50 dark:hover:bg-gray-700/30 ${selectedFile ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
                       >
                         <Paperclip className="h-5 w-5" />
                       </Button>
@@ -1032,7 +1032,7 @@ const Dashboard = () => {
                         size="icon" 
                         onClick={() => setShowMoodPicker(!showMoodPicker)}
                         title="Agregar estado de ánimo"
-                        className={showMoodPicker || selectedMood ? "text-blue-600 bg-blue-50" : ""}
+                        className={`hover:bg-gray-50 dark:hover:bg-gray-700/30 ${showMoodPicker || selectedMood ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
                       >
                         <Smile className="h-5 w-5" />
                       </Button>
@@ -1043,7 +1043,7 @@ const Dashboard = () => {
                         size="icon" 
                         onClick={togglePoll}
                         title="Crear encuesta"
-                        className={showPollOptions ? "text-blue-600 bg-blue-50" : ""}
+                        className={`hover:bg-gray-50 dark:hover:bg-gray-700/30 ${showPollOptions ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
                       >
                         <BarChart2 className="h-5 w-5" />
                       </Button>
@@ -1057,11 +1057,6 @@ const Dashboard = () => {
                     </Button>
                 </div>
                 </form>
-                <DialogClose asChild>
-                  <button className="absolute right-4 top-4 text-gray-400 hover:text-gray-700" aria-label="Cerrar">
-                    ×
-                  </button>
-                </DialogClose>
               </DialogContent>
             </Dialog>
 
@@ -1069,7 +1064,7 @@ const Dashboard = () => {
             <div className="space-y-6">
               {loadingPosts ? (
                 Array.from({ length: 3 }).map((_, i) => (
-                  <Card key={i} className="bg-white rounded-xl border border-gray-100 shadow-sm">
+                  <Card key={i} className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
                   <CardHeader className="pb-3">
                       <div className="flex items-center space-x-3">
                         <Skeleton className="h-10 w-10 rounded-full" />
@@ -1089,7 +1084,7 @@ const Dashboard = () => {
                 <div className="text-center text-gray-400">No hay publicaciones aún.</div>
               ) : (
                 posts.map((post) => (
-                  <Card key={post._id} className="bg-white rounded-xl border border-gray-100 shadow-sm">
+                  <Card key={post._id} className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
                     <CardHeader className="pb-3 flex flex-row items-start justify-between">
                       <div className="flex items-center space-x-3">
                         <Avatar className="h-10 w-10">
@@ -1098,13 +1093,13 @@ const Dashboard = () => {
                         </Avatar>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-center gap-2">
-                            <span className="font-semibold text-gray-900 truncate">{post.author?.firstName} {post.author?.lastName}</span>
+                            <span className="font-semibold text-gray-900 dark:text-gray-100 truncate">{post.author?.firstName} {post.author?.lastName}</span>
                             <span className="text-xs text-gray-400">· {new Date(post.createdAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' })}</span>
                           </div>
                           {post.mood && (
                             <div className="flex items-center gap-1 mt-1">
                               <span className="text-sm">{post.mood.emoji}</span>
-                              <span className="text-xs text-gray-600">se siente {post.mood.label}</span>
+                              <span className="text-xs text-gray-600 dark:text-gray-400">se siente {post.mood.label}</span>
                             </div>
                           )}
                         </div>
@@ -1112,7 +1107,7 @@ const Dashboard = () => {
                       {/* Menú de opciones */}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <button className="p-2 rounded-full hover:bg-gray-100 text-gray-500">
+                          <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400">
                             <MoreHorizontal className="h-5 w-5" />
                           </button>
                         </DropdownMenuTrigger>
@@ -1187,7 +1182,7 @@ const Dashboard = () => {
                       )}
                       
                       <div 
-                        className="mb-2 text-gray-900 text-base prose prose-sm max-w-none [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ml-4 [&_ol]:ml-4 [&_a]:text-blue-500 [&_a]:underline"
+                        className="mb-2 text-gray-900 dark:text-gray-100 text-base prose prose-sm max-w-none [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ml-4 [&_ol]:ml-4 [&_a]:text-blue-500 [&_a]:underline"
                         dangerouslySetInnerHTML={{ __html: post.content }}
                       />
                       {/* Imagen si existe */}
@@ -1201,8 +1196,8 @@ const Dashboard = () => {
                         variant="ghost" 
                         size="sm" 
                         onClick={() => handleLikePost(post._id)}
-                        className={`text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg ${
-                          post.likes.includes(user?._id) ? 'text-red-600 bg-red-50' : ''
+                        className={`text-gray-600 dark:text-gray-400 hover:text-red-600 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg ${
+                          post.likes.includes(user?._id) ? 'text-red-600 bg-red-50 dark:bg-gray-700/30' : ''
                         }`}
                       >
                         <Heart className={`h-4 w-4 mr-2 ${post.likes.includes(user?._id) ? 'fill-current' : ''}`} />
@@ -1213,7 +1208,7 @@ const Dashboard = () => {
                         size="sm" 
                         onClick={() => !post.commentsDisabled && toggleComments(post._id)}
                         disabled={post.commentsDisabled}
-                        className={`text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg ${
+                        className={`text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg ${
                           post.commentsDisabled ? 'opacity-50 cursor-not-allowed' : ''
                         }`}
                         title={post.commentsDisabled ? 'Los comentarios están desactivados' : ''}
@@ -1228,7 +1223,7 @@ const Dashboard = () => {
                         variant="ghost" 
                         size="sm" 
                         onClick={() => handleSharePost(post)}
-                        className="text-gray-600 hover:text-green-600 hover:bg-green-50 rounded-lg"
+                        className="text-gray-600 dark:text-gray-400 hover:text-green-600 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg"
                       >
                         <Share className="h-4 w-4 mr-2" />
                         Compartir
@@ -1237,7 +1232,7 @@ const Dashboard = () => {
 
                     {/* Sección de Comentarios */}
                     {showComments[post._id] && !post.commentsDisabled && (
-                      <div className="mt-4 border-t border-gray-100 pt-4">
+                      <div className="mt-4 border-t border-gray-100 dark:border-gray-700 pt-4">
                         {/* Lista de comentarios existentes */}
                         {post.comments.length > 0 && (
                           <div className="space-y-3 mb-4">
@@ -1250,15 +1245,15 @@ const Dashboard = () => {
                                   </AvatarFallback>
                                 </Avatar>
                                 <div className="flex-1 min-w-0">
-                                  <div className="bg-gray-50 rounded-lg px-3 py-2">
-                                    <div className="font-medium text-sm text-gray-900">
+                                  <div className="bg-gray-50 dark:bg-gray-700/50 rounded-lg px-3 py-2">
+                                    <div className="font-medium text-sm text-gray-900 dark:text-gray-100">
                                       {comment.author.firstName} {comment.author.lastName}
                                     </div>
-                                    <div className="text-sm text-gray-700 mt-1">
+                                    <div className="text-sm text-gray-700 dark:text-gray-300 mt-1">
                                       {comment.text}
                                     </div>
                                   </div>
-                                  <div className="text-xs text-gray-500 mt-1 ml-3">
+                                  <div className="text-xs text-gray-500 dark:text-gray-400 mt-1 ml-3">
                                     {new Date(comment.createdAt).toLocaleDateString('es-ES', {
                                       day: 'numeric',
                                       month: 'short',
@@ -1320,14 +1315,14 @@ const Dashboard = () => {
           {/* Columna Derecha - Widgets */}
           <div className="lg:col-span-3 space-y-6">
             {/* Widget Completa tu Perfil */}
-            <Card>
+            <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-2">
-                <CardTitle className="text-center text-base font-semibold">Completa tu Perfil</CardTitle>
+                <CardTitle className="text-center text-base font-semibold text-gray-900 dark:text-gray-100">Completa tu Perfil</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-col items-center gap-4">
                 <div className="relative flex flex-col items-center w-full">
                   <SemiCircularProgress value={percent} size={180} strokeWidth={14} color="#2563eb">
-                    <span className="text-sm text-gray-400 font-medium">Completado</span>
+                    <span className="text-sm text-gray-400 dark:text-gray-400 font-medium">Completado</span>
                   </SemiCircularProgress>
                 </div>
                 <ul className="w-full flex flex-col gap-0 relative pl-2 pr-4 mb-2 mt-2">
@@ -1335,7 +1330,7 @@ const Dashboard = () => {
                     <li key={idx} className="flex items-center gap-3 min-h-[28px] relative">
                       {/* Stepper vertical line */}
                       {idx < profileSteps.length - 1 && (
-                        <span className="absolute left-2 top-6 w-px h-[24px] bg-gray-200 z-0" />
+                        <span className="absolute left-2 top-6 w-px h-[24px] bg-gray-200 dark:bg-gray-600 z-0" />
                       )}
                       {/* Step icon */}
                       <span className="relative z-10 flex items-center justify-center h-5 w-5">
@@ -1345,7 +1340,7 @@ const Dashboard = () => {
                             <path d="M6 10.5L9 13.5L14 8.5" stroke="#2563eb" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         ) : (
-                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="dark:opacity-60">
                             <circle cx="10" cy="10" r="9" stroke="#d1d5db" strokeWidth="2" fill="none" />
                           </svg>
                         )}
@@ -1354,11 +1349,11 @@ const Dashboard = () => {
                       <span className={
                         step.complete
                           ? "font-semibold text-[#2563eb] flex-1 text-base"
-                          : "text-gray-400 flex-1 text-base"
+                          : "text-gray-400 dark:text-gray-500 flex-1 text-base"
                       }>
                         {step.label}
                       </span>
-                      <span className={step.complete ? "font-semibold text-[#2563eb] text-xs" : "text-gray-400 text-xs"}>
+                      <span className={step.complete ? "font-semibold text-[#2563eb] text-xs" : "text-gray-400 dark:text-gray-500 text-xs"}>
                         {step.done}/{step.total}
                       </span>
                     </li>
@@ -1370,56 +1365,56 @@ const Dashboard = () => {
               </CardContent>
             </Card>
             {/* Empresas Widget */}
-            <Card className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center justify-between">
                   <div className="flex items-center">
                     <Building className="h-5 w-5 mr-2 text-purple-500" />
                     Empresas
                   </div>
-                  <Button variant="ghost" size="sm" className="text-xs text-gray-500 hover:text-purple-600">
+                  <Button variant="ghost" size="sm" className="text-xs text-gray-500 dark:text-gray-400 hover:text-purple-600">
                     Ver todas
                   </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {companies.map((company, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
-                    <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100">
+                  <div key={index} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
+                    <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700/50">
                       <img src={company.logo} alt={company.name} className="w-full h-full object-cover" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{company.name}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{company.name}</p>
                       <div className="flex items-center space-x-2">
-                        <span className="text-xs text-gray-500">{company.employees} empleados</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{company.employees} empleados</span>
                         <span className="text-xs text-gray-400">•</span>
-                        <span className="text-xs text-gray-500">{company.industry}</span>
+                        <span className="text-xs text-gray-500 dark:text-gray-400">{company.industry}</span>
                       </div>
                     </div>
                   </div>
                 ))}
-                <Button variant="outline" size="sm" className="w-full mt-3 border-purple-200 text-purple-600 hover:bg-purple-50">
+                <Button variant="outline" size="sm" className="w-full mt-3 border-purple-200 dark:border-gray-600 text-purple-600 dark:text-purple-400 hover:bg-gray-50 dark:hover:bg-gray-700/30">
                   <Building className="h-4 w-4 mr-2" />
                   Explorar Empresas
                 </Button>
               </CardContent>
             </Card>
             {/* Colaboradores Widget */}
-            <Card className="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-shadow">
+            <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900 flex items-center justify-between">
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center justify-between">
                   <div className="flex items-center">
                     <UserPlus className="h-5 w-5 mr-2 text-green-500" />
                     Colaboradores
                   </div>
-                  <Button variant="ghost" size="sm" className="text-xs text-gray-500 hover:text-green-600">
+                  <Button variant="ghost" size="sm" className="text-xs text-gray-500 dark:text-gray-400 hover:text-green-600">
                     Ver todos
                   </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 {collaborators.map((collaborator, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 cursor-pointer">
+                  <div key={index} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
                     <div className="relative">
                       <Avatar className="h-10 w-10">
                         <AvatarImage src={collaborator.avatar} />
@@ -1430,12 +1425,12 @@ const Dashboard = () => {
                       }`}></div>
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">{collaborator.name}</p>
-                      <p className="text-xs text-gray-500 truncate">{collaborator.role}</p>
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{collaborator.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{collaborator.role}</p>
                     </div>
                   </div>
                 ))}
-                <Button variant="outline" size="sm" className="w-full mt-3 border-green-200 text-green-600 hover:bg-green-50">
+                <Button variant="outline" size="sm" className="w-full mt-3 border-green-200 dark:border-gray-600 text-green-600 dark:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700/30">
                   <UserPlus className="h-4 w-4 mr-2" />
                   Invitar Colaboradores
                 </Button>
@@ -1446,9 +1441,9 @@ const Dashboard = () => {
       </div>
       {/* Modal de edición de post */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
-        <DialogContent>
+        <DialogContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <DialogHeader>
-            <DialogTitle>Editar publicación</DialogTitle>
+            <DialogTitle className="text-gray-900 dark:text-gray-100">Editar publicación</DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSaveEdit} className="space-y-4">
             <div className="flex items-center gap-3 mb-2">
@@ -1457,8 +1452,8 @@ const Dashboard = () => {
                 <AvatarFallback>{user?.firstName?.[0]}{user?.lastName?.[0]}</AvatarFallback>
               </Avatar>
               <div>
-                <div className="font-semibold text-gray-900">{user?.firstName} {user?.lastName}</div>
-                <div className="flex items-center gap-1 text-xs text-gray-500 bg-gray-100 rounded px-2 py-1 mt-1">
+                <div className="font-semibold text-gray-900 dark:text-gray-100">{user?.firstName} {user?.lastName}</div>
+                <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700/50 rounded px-2 py-1 mt-1">
                   Editando publicación
                 </div>
               </div>

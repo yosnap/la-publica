@@ -155,7 +155,7 @@ const Profile = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header del Perfil */}
-      <Card className="shadow-sm border-0 bg-white overflow-hidden">
+      <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50 overflow-hidden">
         {/* Cover Photo */}
         <div
           className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative"
@@ -168,7 +168,7 @@ const Profile = () => {
           <Button
             variant="secondary"
             size="sm"
-            className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+            className="absolute top-4 right-4 bg-white dark:bg-gray-800/50/20 backdrop-blur-sm text-white hover:bg-white dark:bg-gray-800/50/30"
             onClick={() => navigate('/editar-perfil')}
           >
             <Camera className="h-4 w-4 mr-2" />
@@ -197,11 +197,11 @@ const Profile = () => {
 
           <div className="text-center space-y-3 mb-6">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">{user.firstName} {user.lastName}</h1>
-              <p className="text-gray-600 text-lg">{user.bio}</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{user.firstName} {user.lastName}</h1>
+              <p className="text-gray-600 dark:text-gray-400 text-lg">{user.bio}</p>
             </div>
             {/* Línea con username, calendario y fecha */}
-            <div className="flex justify-center items-center gap-x-2 text-sm text-gray-500">
+            <div className="flex justify-center items-center gap-x-2 text-sm text-gray-500 dark:text-gray-400">
               <span>@{user.username}</span>
               <span>•</span>
               <Calendar className="h-4 w-4 mr-1 inline" />
@@ -220,7 +220,7 @@ const Profile = () => {
                   className="group"
                 >
                   <span className="flex items-center justify-center rounded-full bg-gray-200 group-hover:bg-[#1877F3] transition-colors w-10 h-10">
-                    <Facebook className="h-5 w-5 text-gray-600 group-hover:text-white transition-colors" />
+                    <Facebook className="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-white transition-colors" />
                   </span>
                 </a>
               )}
@@ -233,7 +233,7 @@ const Profile = () => {
                   className="group"
                 >
                   <span className="flex items-center justify-center rounded-full bg-gray-200 group-hover:bg-[#FF0000] transition-colors w-10 h-10">
-                    <Youtube className="h-5 w-5 text-gray-600 group-hover:text-white transition-colors" />
+                    <Youtube className="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-white transition-colors" />
                   </span>
                 </a>
               )}
@@ -246,7 +246,7 @@ const Profile = () => {
                   className="group"
                 >
                   <span className="flex items-center justify-center rounded-full bg-gray-200 group-hover:bg-[#1DA1F2] transition-colors w-10 h-10">
-                    <Twitter className="h-5 w-5 text-gray-600 group-hover:text-white transition-colors" />
+                    <Twitter className="h-5 w-5 text-gray-600 dark:text-gray-400 group-hover:text-white transition-colors" />
                   </span>
                 </a>
               )}
@@ -271,8 +271,8 @@ const Profile = () => {
           <div className="grid grid-cols-4 gap-4 text-center border-t pt-6">
             {userStats.map((stat, index) => (
               <div key={index}>
-                <div className="text-2xl font-bold text-gray-900">{stat.value}</div>
-                <div className="text-sm text-gray-600">{stat.label}</div>
+                <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -281,7 +281,7 @@ const Profile = () => {
 
       {/* Contenido con Tabs */}
       <Tabs defaultValue="posts" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 bg-white border border-gray-200">
+        <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800/50 border">
           <TabsTrigger value="posts" className="data-[state=active]:bg-primary data-[state=active]:text-white">
             Posts
           </TabsTrigger>
@@ -303,7 +303,7 @@ const Profile = () => {
             <div>No hay publicaciones aún.</div>
           ) : (
             userPosts.map((post) => (
-              <Card key={post._id} className="shadow-sm border-0 bg-white">
+              <Card key={post._id} className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
                     <Avatar className="h-10 w-10">
@@ -313,21 +313,21 @@ const Profile = () => {
                     </Avatar>
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-2">
-                        <span className="font-semibold text-gray-900">{user.firstName} {user.lastName}</span>
-                        <span className="text-gray-500 text-sm">{new Date(post.createdAt).toLocaleString()}</span>
+                        <span className="font-semibold text-gray-900 dark:text-gray-100">{user.firstName} {user.lastName}</span>
+                        <span className="text-gray-500 dark:text-gray-400 text-sm">{new Date(post.createdAt).toLocaleString()}</span>
                       </div>
                       {post.mood && (
                         <div className="flex items-center gap-1 mb-2">
                           <span className="text-sm">{post.mood.emoji}</span>
-                          <span className="text-xs text-gray-600">se siente {post.mood.label}</span>
+                          <span className="text-xs text-gray-600 dark:text-gray-400">se siente {post.mood.label}</span>
                         </div>
                       )}
                       <div 
-                        className="text-gray-800 mb-4 prose prose-sm max-w-none [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ml-4 [&_ol]:ml-4 [&_a]:text-blue-500 [&_a]:underline"
+                        className="text-gray-800 dark:text-gray-200 mb-4 prose prose-sm max-w-none [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ml-4 [&_ol]:ml-4 [&_a]:text-blue-500 [&_a]:underline"
                         dangerouslySetInnerHTML={{ __html: post.content }}
                       />
                       {/* TODO: Mostrar likes y comentarios reales */}
-                      <div className="flex gap-4 text-sm text-gray-500">
+                      <div className="flex gap-4 text-sm text-gray-500 dark:text-gray-400">
                         <span>{post.likes.length} me gusta</span>
                         <span>{post.comments.length} comentarios</span>
                       </div>
@@ -341,7 +341,7 @@ const Profile = () => {
 
         <TabsContent value="about" className="space-y-6">
           {/* Información Personal */}
-          <Card className="shadow-sm border-0 bg-white">
+          <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
             <CardHeader className="flex flex-row items-center justify-between">
               <h3 className="text-lg font-semibold">Información Personal</h3>
               <Button variant="ghost" size="icon" onClick={() => navigate('/editar-perfil')} title="Editar información personal">
@@ -350,18 +350,18 @@ const Profile = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-                <div className="text-gray-500">Nombre</div>
-                <div className="font-medium text-gray-900">{user.firstName}</div>
-                <div className="text-gray-500">Apellidos</div>
-                <div className="font-medium text-gray-900">{user.lastName}</div>
-                <div className="text-gray-500">Nombre de usuario</div>
-                <div className="font-medium text-gray-900">{user.username}</div>
-                <div className="text-gray-500">Fecha de nacimiento</div>
-                <div className="font-medium text-gray-900">
+                <div className="text-gray-500 dark:text-gray-400">Nombre</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">{user.firstName}</div>
+                <div className="text-gray-500 dark:text-gray-400">Apellidos</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">{user.lastName}</div>
+                <div className="text-gray-500 dark:text-gray-400">Nombre de usuario</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">{user.username}</div>
+                <div className="text-gray-500 dark:text-gray-400">Fecha de nacimiento</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
                   {user.birthDate ? new Date(user.birthDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}
                 </div>
-                <div className="text-gray-500">Género</div>
-                <div className="font-medium text-gray-900">
+                <div className="text-gray-500 dark:text-gray-400">Género</div>
+                <div className="font-medium text-gray-900 dark:text-gray-100">
                   {user.gender === 'male' && 'Masculino'}
                   {user.gender === 'female' && 'Femenino'}
                   {user.gender === 'other' && 'Otro'}
@@ -373,7 +373,7 @@ const Profile = () => {
           </Card>
 
           {/* Biografía */}
-          <Card className="shadow-sm border-0 bg-white">
+          <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
             <CardHeader className="flex flex-row items-center justify-between">
               <h3 className="text-lg font-semibold">Biografía</h3>
               <Button variant="ghost" size="icon" onClick={() => navigate('/editar-perfil')} title="Editar biografía">
@@ -381,12 +381,12 @@ const Profile = () => {
               </Button>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-900 whitespace-pre-line min-h-[48px]">{user.bio || <span className="text-gray-400">Sin biografía</span>}</p>
+              <p className="text-gray-900 dark:text-gray-100 whitespace-pre-line min-h-[48px]">{user.bio || <span className="text-gray-400">Sin biografía</span>}</p>
             </CardContent>
           </Card>
 
           {/* Habilidades */}
-          <Card className="shadow-sm border-0 bg-white">
+          <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
             <CardHeader className="flex flex-row items-center justify-between">
               <h3 className="text-lg font-semibold">Habilidades</h3>
               <Button variant="ghost" size="icon" onClick={() => navigate('/editar-perfil')} title="Editar habilidades">
@@ -407,7 +407,7 @@ const Profile = () => {
           </Card>
 
           {/* Experiencia */}
-          <Card className="shadow-sm border-0 bg-white">
+          <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
             <CardHeader className="flex flex-row items-center justify-between">
               <h3 className="text-lg font-semibold">Experiencia</h3>
               <Button variant="ghost" size="icon" onClick={() => navigate('/editar-perfil')} title="Editar experiencia">
@@ -418,7 +418,7 @@ const Profile = () => {
               {(user.workExperience && user.workExperience.length > 0) ? user.workExperience.map((exp: WorkExperience, idx: number) => (
                 <div key={idx} className="border-b last:border-b-0 pb-3 last:pb-0">
                   <p className="font-medium">{exp.jobTitle}</p>
-                  <p className="text-sm text-gray-600">{exp.company} • {exp.startDate ? new Date(exp.startDate).getFullYear() : ''}{exp.endDate ? ` - ${new Date(exp.endDate).getFullYear()}` : exp.isCurrentJob ? ' - Presente' : ''}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{exp.company} • {exp.startDate ? new Date(exp.startDate).getFullYear() : ''}{exp.endDate ? ` - ${new Date(exp.endDate).getFullYear()}` : exp.isCurrentJob ? ' - Presente' : ''}</p>
                   {exp.description && <p className="text-gray-700 text-sm mt-1">{exp.description}</p>}
                 </div>
               )) : <span className="text-gray-400">Sin experiencia laboral</span>}
@@ -430,11 +430,11 @@ const Profile = () => {
           {loadingGroups ? (
             <div className="text-center py-12">Cargando grupos...</div>
           ) : userGroups.length === 0 ? (
-            <Card className="shadow-sm border-0 bg-white">
+            <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
               <CardContent className="p-12 text-center">
                 <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes grupos aún</h3>
-                <p className="text-gray-500 mb-4">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No tienes grupos aún</h3>
+                <p className="text-gray-500 dark:text-gray-400 mb-4">
                   Únete a grupos existentes o crea tu propio grupo para conectar con personas que comparten tus intereses.
                 </p>
                 <Button onClick={() => navigate('/groups')} className="bg-primary hover:bg-primary/90">
@@ -444,7 +444,7 @@ const Profile = () => {
             </Card>
           ) : (
             userGroups.map((group) => (
-              <Card key={group._id} className="shadow-sm border-0 bg-white">
+              <Card key={group._id} className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
                 <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-4">
@@ -458,10 +458,10 @@ const Profile = () => {
                         )}
                       </div>
                       <div>
-                        <h3 className="font-semibold text-gray-900">{group.name}</h3>
-                        <p className="text-sm text-gray-600">{group.memberCount} miembros</p>
+                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{group.name}</h3>
+                        <p className="text-sm text-gray-600 dark:text-gray-400">{group.memberCount} miembros</p>
                         {group.location && (
-                          <p className="text-xs text-gray-500 flex items-center mt-1">
+                          <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center mt-1">
                             <MapPin className="h-3 w-3 mr-1" />
                             {group.location}
                           </p>
@@ -474,7 +474,7 @@ const Profile = () => {
                         className={
                           group.userRole === "admin" ? "bg-yellow-100 text-yellow-800" :
                           group.userRole === "moderator" ? "bg-blue-100 text-blue-800" :
-                          "bg-gray-100 text-gray-800"
+                          "bg-gray-100 text-gray-800 dark:text-gray-200"
                         }
                       >
                         {group.userRole === "admin" ? "Admin" : 
@@ -508,13 +508,13 @@ const Profile = () => {
         <TabsContent value="achievements" className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {achievements.map((achievement, index) => (
-              <Card key={index} className="shadow-sm border-0 bg-white">
+              <Card key={index} className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
                     <div className="text-3xl">{achievement.icon}</div>
                     <div>
-                      <h3 className="font-semibold text-gray-900 mb-1">{achievement.title}</h3>
-                      <p className="text-sm text-gray-600">{achievement.description}</p>
+                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{achievement.title}</h3>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{achievement.description}</p>
                     </div>
                   </div>
                 </CardContent>
