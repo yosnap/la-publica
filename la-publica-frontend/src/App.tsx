@@ -21,6 +21,8 @@ import NotFound from "./pages/NotFound";
 import PrivateRoute from "./components/auth/PrivateRoute";
 import Register from "./pages/Register";
 import CompleteProfile from "./pages/CompleteProfile";
+import GroupCategories from "./pages/admin/GroupCategories";
+import GroupDetail from "./pages/GroupDetail";
 
 const queryClient = new QueryClient();
 
@@ -55,6 +57,7 @@ const App = () => (
                   <Route path="perfil" element={<Profile />} />
                   <Route path="editar-perfil" element={<CompleteProfile />} />
                   <Route path="groups" element={<Groups />} />
+                  <Route path="groups/:id" element={<GroupDetail />} />
                   <Route path="messages" element={<Messages />} />
                   <Route path="forums" element={<Forums />} />
                   <Route path="companies" element={<Companies />} />
@@ -63,6 +66,7 @@ const App = () => (
                   <Route path="consulting" element={<Consulting />} />
                   <Route path="links" element={<Links />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="admin/group-categories" element={<GroupCategories />} />
                 </Route>
               </Route>
               <Route path="*" element={<NotFound />} />

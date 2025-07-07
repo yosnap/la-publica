@@ -9,6 +9,7 @@ import { useEffect, useState } from "react";
 import apiClient from "@/api/client";
 import { getImageUrl } from '@/utils/getImageUrl';
 import { fetchPosts, Post as PostType } from "@/api/posts";
+import { fetchUserGroups, Group } from "@/api/groups";
 
 const getSocialUrl = (url?: string) => {
   if (!url) return undefined;
@@ -27,6 +28,7 @@ interface WorkExperience {
 }
 
 interface User {
+  _id: string;
   firstName: string;
   lastName: string;
   username: string;
@@ -57,6 +59,8 @@ const Profile = () => {
 
   const [userPosts, setUserPosts] = useState<PostType[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [userGroups, setUserGroups] = useState<Group[]>([]);
+  const [loadingGroups, setLoadingGroups] = useState(true);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -89,6 +93,23 @@ const Profile = () => {
       .finally(() => setLoadingPosts(false));
   }, [user]);
 
+  useEffect(() => {
+    const loadUserGroups = async () => {
+      try {
+        setLoadingGroups(true);
+        const response = await fetchUserGroups();
+        if (response.success) {
+          setUserGroups(response.data);
+        }
+      } catch (error) {
+        console.error('Error loading user groups:', error);
+      } finally {
+        setLoadingGroups(false);
+      }
+    };
+    loadUserGroups();
+  }, []);
+
   if (loading) {
     return <div className="text-center py-12">Cargando perfil...</div>;
   }
@@ -100,10 +121,10 @@ const Profile = () => {
   }
 
   const userStats = [
-    { label: "Posts", value: "127" },
+    { label: "Posts", value: userPosts.length.toString() },
     { label: "Seguidores", value: "1.2K" },
     { label: "Siguiendo", value: "234" },
-    { label: "Grupos", value: "12" }
+    { label: "Grupos", value: userGroups.length.toString() }
   ];
 
   const recentPosts = [
@@ -124,11 +145,6 @@ const Profile = () => {
     }
   ];
 
-  const userGroups = [
-    { name: "Desarrolladores React", members: 234, role: "Admin" },
-    { name: "Marketing Digital", members: 156, role: "Miembro" },
-    { name: "Emprendedores Tech", members: 89, role: "Moderador" }
-  ];
 
   const achievements = [
     { title: "Miembro Fundador", description: "Uno de los primeros 100 miembros", icon: "🏆" },
@@ -411,34 +427,72 @@ const Profile = () => {
         </TabsContent>
 
         <TabsContent value="groups" className="space-y-4">
-          {userGroups.map((group, index) => (
-            <Card key={index} className="shadow-sm border-0 bg-white">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <Users className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{group.name}</h3>
-                      <p className="text-sm text-gray-600">{group.members} miembros</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-3">
-                    <Badge 
-                      variant={group.role === "Admin" ? "default" : "secondary"}
-                      className={group.role === "Admin" ? "bg-primary" : ""}
-                    >
-                      {group.role}
-                    </Badge>
-                    <Button variant="outline" size="sm">
-                      Ver Grupo
-                    </Button>
-                  </div>
-                </div>
+          {loadingGroups ? (
+            <div className="text-center py-12">Cargando grupos...</div>
+          ) : userGroups.length === 0 ? (
+            <Card className="shadow-sm border-0 bg-white">
+              <CardContent className="p-12 text-center">
+                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes grupos aún</h3>
+                <p className="text-gray-500 mb-4">
+                  Únete a grupos existentes o crea tu propio grupo para conectar con personas que comparten tus intereses.
+                </p>
+                <Button onClick={() => navigate('/groups')} className="bg-primary hover:bg-primary/90">
+                  Explorar Grupos
+                </Button>
               </CardContent>
             </Card>
-          ))}
+          ) : (
+            userGroups.map((group) => (
+              <Card key={group._id} className="shadow-sm border-0 bg-white">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+                        {group.image ? (
+                          <img src={getImageUrl(group.image)} alt={group.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600">
+                            <Users className="h-6 w-6 text-white" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">{group.name}</h3>
+                        <p className="text-sm text-gray-600">{group.memberCount} miembros</p>
+                        {group.location && (
+                          <p className="text-xs text-gray-500 flex items-center mt-1">
+                            <MapPin className="h-3 w-3 mr-1" />
+                            {group.location}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <Badge 
+                        variant={group.userRole === "admin" ? "default" : "secondary"}
+                        className={
+                          group.userRole === "admin" ? "bg-yellow-100 text-yellow-800" :
+                          group.userRole === "moderator" ? "bg-blue-100 text-blue-800" :
+                          "bg-gray-100 text-gray-800"
+                        }
+                      >
+                        {group.userRole === "admin" ? "Admin" : 
+                         group.userRole === "moderator" ? "Moderador" : "Miembro"}
+                      </Badge>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => navigate(`/groups/${group._id}`)}
+                      >
+                        Ver Grupo
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+          ))
+          )}
         </TabsContent>
 
         <TabsContent value="achievements" className="space-y-4">

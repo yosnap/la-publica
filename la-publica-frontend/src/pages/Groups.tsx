@@ -1,84 +1,148 @@
-import { Users, Plus, Search, Settings, Crown, Shield } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Users, Plus, Search, Settings, Crown, Shield, Globe, Lock } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from "@/components/ui/skeleton";
 import { PageWrapper } from "@/components/PageWrapper";
+import { CreateGroupModal } from "@/components/groups/CreateGroupModal";
+import { toast } from "sonner";
+import { 
+  fetchGroups, 
+  fetchUserGroups, 
+  fetchGroupCategories, 
+  joinGroup, 
+  leaveGroup,
+  type Group, 
+  type GroupCategory 
+} from "@/api/groups";
+import { getImageUrl } from "@/utils/getImageUrl";
 
 const Groups = () => {
-  const myGroups = [
-    {
-      id: 1,
-      name: "Desarrolladores React",
-      description: "Comunidad de desarrolladores especializados en React y tecnologías frontend",
-      members: 234,
-      posts: 45,
-      role: "Admin",
-      image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=200&h=200&fit=crop",
-      isPrivate: false,
-      lastActivity: "hace 2 horas"
-    },
-    {
-      id: 2,
-      name: "Marketing Digital",
-      description: "Estrategias, herramientas y tendencias en marketing digital",
-      members: 156,
-      posts: 23,
-      role: "Moderador",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=200&h=200&fit=crop",
-      isPrivate: true,
-      lastActivity: "hace 1 día"
-    },
-    {
-      id: 3,
-      name: "Emprendedores Tech",
-      description: "Red de emprendedores en el sector tecnológico",
-      members: 89,
-      posts: 12,
-      role: "Miembro",
-      image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=200&h=200&fit=crop",
-      isPrivate: false,
-      lastActivity: "hace 3 días"
-    }
-  ];
+  const navigate = useNavigate();
+  const [myGroups, setMyGroups] = useState<Group[]>([]);
+  const [discoverGroups, setDiscoverGroups] = useState<Group[]>([]);
+  const [categories, setCategories] = useState<GroupCategory[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingDiscover, setLoadingDiscover] = useState(true);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [joiningGroups, setJoiningGroups] = useState<Set<string>>(new Set());
 
-  const discoverGroups = [
-    {
-      id: 4,
-      name: "UX/UI Designers",
-      description: "Comunidad de diseñadores de experiencia e interfaz de usuario",
-      members: 312,
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=200&h=200&fit=crop",
-      isPrivate: false,
-      trending: true
-    },
-    {
-      id: 5,
-      name: "Data Science Hub",
-      description: "Análisis de datos, machine learning e inteligencia artificial",
-      members: 445,
-      image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=200&h=200&fit=crop",
-      isPrivate: false,
-      trending: false
-    },
-    {
-      id: 6,
-      name: "Freelancers Unidos",
-      description: "Red de profesionales independientes y freelancers",
-      members: 178,
-      image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=200&h=200&fit=crop",
-      isPrivate: true,
-      trending: true
+  // Cargar datos iniciales
+  useEffect(() => {
+    loadMyGroups();
+    loadDiscoverGroups();
+    loadCategories();
+  }, []);
+
+  // Cargar grupos del usuario
+  const loadMyGroups = async () => {
+    try {
+      setLoading(true);
+      const response = await fetchUserGroups();
+      if (response.success) {
+        setMyGroups(response.data);
+      }
+    } catch (error) {
+      console.error("Error loading user groups:", error);
+      toast.error("Error al cargar tus grupos");
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
+
+  // Cargar grupos para descubrir
+  const loadDiscoverGroups = async () => {
+    try {
+      setLoadingDiscover(true);
+      const params = {
+        search: searchTerm || undefined,
+        category: selectedCategory !== "all" ? selectedCategory : undefined,
+        page: 1,
+        limit: 20,
+      };
+      const response = await fetchGroups(params);
+      if (response.success) {
+        setDiscoverGroups(response.data);
+      }
+    } catch (error) {
+      console.error("Error loading discover groups:", error);
+      toast.error("Error al cargar grupos");
+    } finally {
+      setLoadingDiscover(false);
+    }
+  };
+
+  // Cargar categorías
+  const loadCategories = async () => {
+    try {
+      const response = await fetchGroupCategories();
+      if (response.success) {
+        setCategories(response.data);
+      }
+    } catch (error) {
+      console.error("Error loading categories:", error);
+    }
+  };
+
+  // Unirse a un grupo
+  const handleJoinGroup = async (groupId: string) => {
+    try {
+      setJoiningGroups(prev => new Set(prev).add(groupId));
+      const response = await joinGroup(groupId);
+      if (response.success) {
+        toast.success("Te has unido al grupo exitosamente");
+        // Actualizar las listas
+        loadMyGroups();
+        loadDiscoverGroups();
+      }
+    } catch (error: any) {
+      console.error("Error joining group:", error);
+      toast.error(error.response?.data?.message || "Error al unirse al grupo");
+    } finally {
+      setJoiningGroups(prev => {
+        const next = new Set(prev);
+        next.delete(groupId);
+        return next;
+      });
+    }
+  };
+
+  // Salir de un grupo
+  const handleLeaveGroup = async (groupId: string) => {
+    if (!confirm("¿Estás seguro de que quieres salir de este grupo?")) return;
+    
+    try {
+      const response = await leaveGroup(groupId);
+      if (response.success) {
+        toast.success("Has salido del grupo");
+        loadMyGroups();
+        loadDiscoverGroups();
+      }
+    } catch (error: any) {
+      console.error("Error leaving group:", error);
+      toast.error(error.response?.data?.message || "Error al salir del grupo");
+    }
+  };
+
+  // Filtrar grupos por búsqueda
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      loadDiscoverGroups();
+    }, 300);
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, selectedCategory]);
 
   const getRoleIcon = (role: string) => {
     switch (role) {
-      case "Admin":
+      case "admin":
         return <Crown className="h-4 w-4 text-yellow-500" />;
-      case "Moderador":
+      case "moderator":
         return <Shield className="h-4 w-4 text-blue-500" />;
       default:
         return null;
@@ -87,12 +151,25 @@ const Groups = () => {
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case "Admin":
+      case "admin":
         return "bg-yellow-100 text-yellow-800";
-      case "Moderador":
+      case "moderator":
         return "bg-blue-100 text-blue-800";
       default:
         return "bg-gray-100 text-gray-800";
+    }
+  };
+
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case "admin":
+        return "Admin";
+      case "moderator":
+        return "Moderador";
+      case "member":
+        return "Miembro";
+      default:
+        return "Miembro";
     }
   };
 
@@ -105,10 +182,12 @@ const Groups = () => {
             <h1 className="text-2xl font-bold text-gray-900">Grupos</h1>
             <p className="text-gray-600">Conecta con comunidades que comparten tus intereses</p>
           </div>
-          <Button className="bg-primary hover:bg-primary/90">
-            <Plus className="h-4 w-4 mr-2" />
-            Crear Grupo
-          </Button>
+          <CreateGroupModal onGroupCreated={() => { loadMyGroups(); loadDiscoverGroups(); }}>
+            <Button className="bg-primary hover:bg-primary/90">
+              <Plus className="h-4 w-4 mr-2" />
+              Crear Grupo
+            </Button>
+          </CreateGroupModal>
         </div>
 
         {/* Búsqueda */}
@@ -117,6 +196,8 @@ const Groups = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Buscar grupos por nombre, descripción o categoría..."
                 className="pl-10 bg-gray-50 border-0 focus:bg-white focus:ring-2 focus:ring-primary/20"
               />
@@ -142,13 +223,52 @@ const Groups = () => {
           </TabsList>
 
           <TabsContent value="my-groups" className="space-y-4">
-            {myGroups.map((group) => (
-              <Card key={group.id} className="shadow-sm border-0 bg-white hover:shadow-md transition-shadow">
+            {loading ? (
+              // Skeleton loading
+              Array.from({ length: 3 }).map((_, index) => (
+                <Card key={index} className="shadow-sm border-0 bg-white">
+                  <CardContent className="p-6">
+                    <div className="flex items-center space-x-4">
+                      <Skeleton className="w-16 h-16 rounded-xl" />
+                      <div className="flex-1 space-y-2">
+                        <Skeleton className="h-4 w-1/3" />
+                        <Skeleton className="h-3 w-2/3" />
+                        <Skeleton className="h-3 w-1/4" />
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            ) : myGroups.length === 0 ? (
+              <Card className="shadow-sm border-0 bg-white">
+                <CardContent className="p-12 text-center">
+                  <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No tienes grupos aún</h3>
+                  <p className="text-gray-500 mb-4">
+                    Únete a grupos existentes o crea tu propio grupo para conectar con personas que comparten tus intereses.
+                  </p>
+                  <CreateGroupModal onGroupCreated={() => { loadMyGroups(); loadDiscoverGroups(); }}>
+                    <Button className="bg-primary hover:bg-primary/90">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Crear tu primer grupo
+                    </Button>
+                  </CreateGroupModal>
+                </CardContent>
+              </Card>
+            ) : (
+              myGroups.map((group) => (
+                <Card key={group._id} className="shadow-sm border-0 bg-white hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center space-y-4 lg:space-y-0 lg:space-x-6">
                     {/* Imagen del grupo */}
                     <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
-                      <img src={group.image} alt={group.name} className="w-full h-full object-cover" />
+                      {group.image ? (
+                        <img src={getImageUrl(group.image)} alt={group.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600">
+                          <Users className="h-8 w-8 text-white" />
+                        </div>
+                      )}
                     </div>
 
                     {/* Información del grupo */}
@@ -157,12 +277,15 @@ const Groups = () => {
                         <div>
                           <div className="flex items-center space-x-2 mb-1">
                             <h3 className="text-lg font-semibold text-gray-900 truncate">{group.name}</h3>
-                            {group.isPrivate && (
-                              <Badge variant="secondary" className="text-xs">Privado</Badge>
+                            {group.privacy === "private" && (
+                              <Badge variant="secondary" className="text-xs flex items-center">
+                                <Lock className="h-3 w-3 mr-1" />
+                                Privado
+                              </Badge>
                             )}
-                            {getRoleIcon(group.role) && (
+                            {group.userRole && getRoleIcon(group.userRole) && (
                               <div className="flex items-center">
-                                {getRoleIcon(group.role)}
+                                {getRoleIcon(group.userRole)}
                               </div>
                             )}
                           </div>
@@ -170,22 +293,38 @@ const Groups = () => {
                           <div className="flex items-center space-x-4 text-sm text-gray-500">
                             <div className="flex items-center">
                               <Users className="h-4 w-4 mr-1" />
-                              {group.members} miembros
+                              {group.memberCount} miembros
                             </div>
                             <span>•</span>
-                            <span>{group.posts} posts</span>
-                            <span>•</span>
-                            <span>{group.lastActivity}</span>
+                            <span>{group.postCount} posts</span>
+                            {group.category && typeof group.category === 'object' && (
+                              <>
+                                <span>•</span>
+                                <span className="flex items-center">
+                                  <div 
+                                    className="w-2 h-2 rounded-full mr-1"
+                                    style={{ backgroundColor: group.category.color }}
+                                  />
+                                  {group.category.name}
+                                </span>
+                              </>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center space-x-2 flex-shrink-0">
-                          <Badge className={getRoleBadgeColor(group.role)}>
-                            {group.role}
-                          </Badge>
-                          <Button variant="outline" size="sm">
+                          {group.userRole && (
+                            <Badge className={getRoleBadgeColor(group.userRole)}>
+                              {getRoleLabel(group.userRole)}
+                            </Badge>
+                          )}
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => navigate(`/groups/${group._id}`)}
+                          >
                             Ver Grupo
                           </Button>
-                          {(group.role === "Admin" || group.role === "Moderador") && (
+                          {group.userRole && (group.userRole === "admin" || group.userRole === "moderator") && (
                             <Button variant="ghost" size="sm">
                               <Settings className="h-4 w-4" />
                             </Button>
@@ -196,74 +335,156 @@ const Groups = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            ))
+            )}
           </TabsContent>
 
           <TabsContent value="discover" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {discoverGroups.map((group) => (
-                <Card key={group.id} className="shadow-sm border-0 bg-white hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-start space-x-4">
-                      <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
-                        <img src={group.image} alt={group.name} className="w-full h-full object-cover" />
+            {loadingDiscover ? (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <Card key={index} className="shadow-sm border-0 bg-white">
+                    <CardContent className="p-6">
+                      <div className="flex items-start space-x-4">
+                        <Skeleton className="w-16 h-16 rounded-xl" />
+                        <div className="flex-1 space-y-2">
+                          <Skeleton className="h-4 w-2/3" />
+                          <Skeleton className="h-3 w-1/2" />
+                          <Skeleton className="h-3 w-full" />
+                          <div className="flex space-x-2">
+                            <Skeleton className="h-8 w-20" />
+                            <Skeleton className="h-8 w-24" />
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between mb-2">
-                          <div>
-                            <div className="flex items-center space-x-2 mb-1">
-                              <h3 className="font-semibold text-gray-900 truncate">{group.name}</h3>
-                              {group.trending && (
-                                <Badge className="bg-orange-100 text-orange-800 text-xs">Trending</Badge>
-                              )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {discoverGroups.length === 0 ? (
+                  <div className="col-span-full">
+                    <Card className="shadow-sm border-0 bg-white">
+                      <CardContent className="p-12 text-center">
+                        <Search className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                        <h3 className="text-lg font-medium text-gray-900 mb-2">
+                          {searchTerm ? "No se encontraron grupos" : "No hay grupos disponibles"}
+                        </h3>
+                        <p className="text-gray-500">
+                          {searchTerm 
+                            ? "Intenta con otros términos de búsqueda o categorías diferentes."
+                            : "Sé el primero en crear un grupo para esta comunidad."
+                          }
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                ) : (
+                  discoverGroups.map((group) => (
+                    <Card key={group._id} className="shadow-sm border-0 bg-white hover:shadow-md transition-shadow">
+                      <CardContent className="p-6">
+                        <div className="flex items-start space-x-4">
+                          <div className="w-16 h-16 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+                            {group.image ? (
+                              <img src={getImageUrl(group.image)} alt={group.name} className="w-full h-full object-cover" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600">
+                                <Users className="h-8 w-8 text-white" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between mb-2">
+                              <div>
+                                <div className="flex items-center space-x-2 mb-1">
+                                  <h3 className="font-semibold text-gray-900 truncate">{group.name}</h3>
+                                  {group.privacy === "private" && (
+                                    <Badge variant="secondary" className="text-xs flex items-center">
+                                      <Lock className="h-3 w-3 mr-1" />
+                                      Privado
+                                    </Badge>
+                                  )}
+                                </div>
+                                <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
+                                  <Users className="h-4 w-4" />
+                                  <span>{group.memberCount} miembros</span>
+                                  {group.category && typeof group.category === 'object' && (
+                                    <>
+                                      <span>•</span>
+                                      <span className="flex items-center">
+                                        <div 
+                                          className="w-2 h-2 rounded-full mr-1"
+                                          style={{ backgroundColor: group.category.color }}
+                                        />
+                                        {group.category.name}
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex items-center space-x-2 text-sm text-gray-500 mb-2">
-                              <Users className="h-4 w-4" />
-                              <span>{group.members} miembros</span>
-                              {group.isPrivate && (
-                                <>
-                                  <span>•</span>
-                                  <Badge variant="secondary" className="text-xs">Privado</Badge>
-                                </>
-                              )}
+                            <p className="text-gray-600 text-sm line-clamp-2 mb-4">{group.description}</p>
+                            <div className="flex items-center space-x-2">
+                              <Button 
+                                size="sm" 
+                                className="bg-primary hover:bg-primary/90"
+                                onClick={() => handleJoinGroup(group._id)}
+                                disabled={joiningGroups.has(group._id)}
+                              >
+                                {joiningGroups.has(group._id) ? "Uniéndose..." : "Unirse"}
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                onClick={() => navigate(`/groups/${group._id}`)}
+                              >
+                                Ver Detalles
+                              </Button>
                             </div>
                           </div>
                         </div>
-                        <p className="text-gray-600 text-sm line-clamp-2 mb-4">{group.description}</p>
-                        <div className="flex items-center space-x-2">
-                          <Button size="sm" className="bg-primary hover:bg-primary/90">
-                            Unirse
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            Ver Detalles
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
+            )}
 
             {/* Categorías Populares */}
-            <Card className="shadow-sm border-0 bg-white mt-8">
-              <CardHeader>
-                <h3 className="text-lg font-semibold text-gray-900">Categorías Populares</h3>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-                  {["Tecnología", "Marketing", "Diseño", "Negocios", "Freelance", "Startups"].map((category) => (
+            {categories.length > 0 && (
+              <Card className="shadow-sm border-0 bg-white mt-8">
+                <CardHeader>
+                  <h3 className="text-lg font-semibold text-gray-900">Categorías</h3>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
                     <Button
-                      key={category}
-                      variant="outline"
-                      className="text-sm hover:bg-primary hover:text-white transition-colors"
+                      variant={selectedCategory === "all" ? "default" : "outline"}
+                      className="text-sm transition-colors"
+                      onClick={() => setSelectedCategory("all")}
                     >
-                      {category}
+                      Todas
                     </Button>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    {categories.map((category) => (
+                      <Button
+                        key={category._id}
+                        variant={selectedCategory === category._id ? "default" : "outline"}
+                        className="text-sm hover:bg-primary hover:text-white transition-colors"
+                        onClick={() => setSelectedCategory(category._id)}
+                        style={selectedCategory === category._id ? {} : { borderColor: category.color }}
+                      >
+                        <div 
+                          className="w-2 h-2 rounded-full mr-2"
+                          style={{ backgroundColor: category.color }}
+                        />
+                        {category.name}
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </TabsContent>
         </Tabs>
       </div>

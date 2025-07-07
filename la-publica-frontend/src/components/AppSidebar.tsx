@@ -1,4 +1,5 @@
-import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -13,6 +14,7 @@ import {
   SidebarFooter,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import apiClient from "@/api/client";
 
 const menuItems = [
   {
@@ -85,8 +87,33 @@ const quickActions = [
   },
 ];
 
+const adminItems = [
+  {
+    title: "Categorías de Grupos",
+    url: "/admin/group-categories",
+    icon: Tag,
+  },
+];
+
 export function AppSidebar() {
   const location = useLocation();
+  const [user, setUser] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      try {
+        const response = await apiClient.get('/users/profile');
+        if (response.data.success) {
+          setUser(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching user profile:", error);
+      }
+    };
+    fetchUserProfile();
+  }, []);
+
+  const isAdmin = user?.role === 'admin';
 
   return (
     <Sidebar className="border-r border-gray-200 bg-white" collapsible="icon">
@@ -181,6 +208,40 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Sección de Administración - Solo para admins */}
+        {isAdmin && (
+          <SidebarGroup className="mt-6">
+            <SidebarGroupLabel className="text-gray-500 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
+              <div className="flex items-center space-x-1">
+                <Shield className="h-3 w-3" />
+                <span>Administración</span>
+              </div>
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {adminItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      asChild 
+                      className={`${
+                        location.pathname === item.url 
+                          ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90' 
+                          : 'hover:bg-gray-100 text-gray-700'
+                      } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:justify-center`}
+                      tooltip={item.title}
+                    >
+                      <Link to={item.url} className="flex items-center space-x-3 px-3 py-2">
+                        <item.icon className="h-5 w-5 flex-shrink-0" />
+                        <span className="font-medium group-data-[collapsible=icon]:hidden">{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         <SidebarGroup className="mt-6">
           <SidebarGroupLabel className="text-gray-500 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
