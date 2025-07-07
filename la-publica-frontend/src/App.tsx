@@ -23,6 +23,7 @@ import Register from "./pages/Register";
 import CompleteProfile from "./pages/CompleteProfile";
 import GroupCategories from "./pages/admin/GroupCategories";
 import GroupDetail from "./pages/GroupDetail";
+import GroupAdmin from "./pages/GroupAdmin";
 
 const queryClient = new QueryClient();
 
@@ -58,6 +59,7 @@ const App = () => (
                   <Route path="editar-perfil" element={<CompleteProfile />} />
                   <Route path="groups" element={<Groups />} />
                   <Route path="groups/:id" element={<GroupDetail />} />
+                  <Route path="groups/:id/admin" element={<GroupAdmin />} />
                   <Route path="messages" element={<Messages />} />
                   <Route path="forums" element={<Forums />} />
                   <Route path="companies" element={<Companies />} />

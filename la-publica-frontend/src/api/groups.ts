@@ -101,9 +101,33 @@ export const leaveGroup = async (id: string) => {
   return response.data;
 };
 
+// Actualizar información del grupo
+export const updateGroup = async (id: string, groupData: Partial<CreateGroupData>) => {
+  const response = await apiClient.put(`/groups/${id}`, groupData);
+  return response.data;
+};
+
 // Actualizar rol de un miembro
 export const updateMemberRole = async (groupId: string, memberId: string, role: string) => {
   const response = await apiClient.patch(`/groups/${groupId}/members/${memberId}/role`, { role });
+  return response.data;
+};
+
+// Remover miembro del grupo
+export const removeMember = async (groupId: string, memberId: string) => {
+  const response = await apiClient.delete(`/groups/${groupId}/members/${memberId}`);
+  return response.data;
+};
+
+// Obtener estadísticas del grupo
+export const getGroupStats = async (groupId: string) => {
+  const response = await apiClient.get(`/groups/${groupId}/stats`);
+  return response.data;
+};
+
+// Transferir propiedad del grupo
+export const transferOwnership = async (groupId: string, newOwnerId: string) => {
+  const response = await apiClient.post(`/groups/${groupId}/transfer-ownership`, { newOwnerId });
   return response.data;
 };
 

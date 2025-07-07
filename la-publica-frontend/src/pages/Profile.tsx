@@ -487,6 +487,16 @@ const Profile = () => {
                       >
                         Ver Grupo
                       </Button>
+                      {group.userRole === "admin" && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => navigate(`/groups/${group._id}/admin`)}
+                          title="Administrar grupo"
+                        >
+                          <Settings className="h-4 w-4" />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>

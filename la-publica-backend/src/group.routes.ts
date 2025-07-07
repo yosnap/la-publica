@@ -7,6 +7,10 @@ import {
   joinGroup, 
   leaveGroup, 
   updateMemberRole, 
+  updateGroup,
+  removeMember,
+  getGroupStats,
+  transferOwnership,
   deleteGroup 
 } from './group.controller';
 import {
@@ -46,8 +50,20 @@ router.post('/:id/join', authenticate, joinGroup);
 // Salir de un grupo
 router.post('/:id/leave', authenticate, leaveGroup);
 
+// Actualizar información del grupo (solo admin)
+router.put('/:id', authenticate, updateGroup);
+
 // Actualizar rol de un miembro (solo admin)
 router.patch('/:id/members/:memberId/role', authenticate, updateMemberRole);
+
+// Remover miembro del grupo (solo admin)
+router.delete('/:id/members/:memberId', authenticate, removeMember);
+
+// Obtener estadísticas del grupo (solo admin/moderador)
+router.get('/:id/stats', authenticate, getGroupStats);
+
+// Transferir propiedad del grupo (solo creador)
+router.post('/:id/transfer-ownership', authenticate, transferOwnership);
 
 // Eliminar un grupo (solo creador)
 router.delete('/:id', authenticate, deleteGroup);

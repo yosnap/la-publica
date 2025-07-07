@@ -259,7 +259,11 @@ const GroupDetail = () => {
                 ) : (
                   <>
                     {group.userRole === "admin" && (
-                      <Button variant="secondary" className="bg-white/20 text-white hover:bg-white/30">
+                      <Button 
+                        variant="secondary" 
+                        className="bg-white/20 text-white hover:bg-white/30"
+                        onClick={() => navigate(`/groups/${id}/admin`)}
+                      >
                         <Settings className="h-4 w-4 mr-2" />
                         Administrar
                       </Button>
