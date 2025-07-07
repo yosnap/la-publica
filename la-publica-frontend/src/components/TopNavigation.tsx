@@ -36,6 +36,13 @@ export function TopNavigation() {
     fetchProfile();
   }, []);
 
+  const handleLogout = () => {
+    // Eliminar el token del localStorage
+    localStorage.removeItem('authToken');
+    // Redirigir al login
+    navigate('/login');
+  };
+
   return (
     <header className="bg-white border-b border-gray-200 px-4 py-3 md:px-6">
       <div className="flex items-center justify-between">
@@ -116,7 +123,7 @@ export function TopNavigation() {
                   <span>Ayuda</span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="hover:bg-gray-50 rounded-lg cursor-pointer text-red-600 focus:text-red-600">
+                <DropdownMenuItem onClick={handleLogout} className="hover:bg-gray-50 rounded-lg cursor-pointer text-red-600 focus:text-red-600">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Cerrar Sesión</span>
                 </DropdownMenuItem>

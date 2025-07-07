@@ -430,7 +430,7 @@ const CompleteProfile = () => {
                         <SectionTabs activeSection={activeSection} onSectionChange={setActiveSection} />
                         <div className="mt-6">
                           {activeSection === "general" && (
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={formKey + '-general'}>
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={`${formKey}-general`}>
                               {error && (
                                 <Alert variant="destructive" className="relative pr-10">
                                   <button
@@ -445,7 +445,7 @@ const CompleteProfile = () => {
                                   <AlertDescription>{error}</AlertDescription>
                                 </Alert>
                               )}
-                              <GeneralInformationSection skills={skills} setSkills={setSkills} />
+                              <GeneralInformationSection key="general-section" skills={skills} setSkills={setSkills} />
                               <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
                                 <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isLoading}>
                                   Cancelar
@@ -457,8 +457,8 @@ const CompleteProfile = () => {
                             </form>
                           )}
                           {activeSection === "work" && (
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={formKey + '-work'}>
-                              <WorkExperienceSection />
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={`${formKey}-work`}>
+                              <WorkExperienceSection key="work-section" />
                               <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
                                 <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isLoading}>
                                   Cancelar
@@ -470,8 +470,8 @@ const CompleteProfile = () => {
                             </form>
                           )}
                           {activeSection === "social" && (
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={formKey + '-social'}>
-                              <SocialLinksSection />
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={`${formKey}-social`}>
+                              <SocialLinksSection key="social-section" />
                               <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
                                 <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isLoading}>
                                   Cancelar
@@ -483,8 +483,8 @@ const CompleteProfile = () => {
                             </form>
                           )}
                           {activeSection === "biography" && (
-                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={formKey + '-biography'}>
-                              <BiographySection />
+                            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={`${formKey}-biography`}>
+                              <BiographySection key="biography-section" />
                               <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
                                 <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isLoading}>
                                   Cancelar

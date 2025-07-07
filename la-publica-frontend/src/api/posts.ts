@@ -15,9 +15,12 @@ export const fetchUserFeed = async (page = 1, limit = 10) => {
 };
 
 // Create a new post
-export const createPost = async (content: string) => {
-  // TODO: Add support for mentions, hashtags, categories, scheduling
-  const response = await apiClient.post('/posts', { content });
+export const createPost = async (content: string, image?: string, mood?: {emoji: string, label: string}) => {
+  const response = await apiClient.post('/posts', { 
+    content,
+    ...(image && { image }),
+    ...(mood && { mood })
+  });
   return response.data;
 };
 
@@ -42,6 +45,18 @@ export const commentOnPost = async (id: string, text: string) => {
 // Actualizar un post existente
 export const updatePost = async (id: string, content: string) => {
   const response = await apiClient.put(`/posts/${id}`, { content });
+  return response.data;
+};
+
+// Desactivar/activar comentarios en un post
+export const togglePostComments = async (id: string) => {
+  const response = await apiClient.patch(`/posts/${id}/toggle-comments`);
+  return response.data;
+};
+
+// Fijar/desfijar post en el feed
+export const togglePostPin = async (id: string) => {
+  const response = await apiClient.patch(`/posts/${id}/toggle-pin`);
   return response.data;
 };
 

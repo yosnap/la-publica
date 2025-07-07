@@ -300,10 +300,16 @@ const Profile = () => {
                         <span className="font-semibold text-gray-900">{user.firstName} {user.lastName}</span>
                         <span className="text-gray-500 text-sm">{new Date(post.createdAt).toLocaleString()}</span>
                       </div>
-                      <p className="text-gray-800 mb-4">
-                        {/* TODO: Resaltar menciones y hashtags */}
-                        {post.content}
-                      </p>
+                      {post.mood && (
+                        <div className="flex items-center gap-1 mb-2">
+                          <span className="text-sm">{post.mood.emoji}</span>
+                          <span className="text-xs text-gray-600">se siente {post.mood.label}</span>
+                        </div>
+                      )}
+                      <div 
+                        className="text-gray-800 mb-4 prose prose-sm max-w-none [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ml-4 [&_ol]:ml-4 [&_a]:text-blue-500 [&_a]:underline"
+                        dangerouslySetInnerHTML={{ __html: post.content }}
+                      />
                       {/* TODO: Mostrar likes y comentarios reales */}
                       <div className="flex gap-4 text-sm text-gray-500">
                         <span>{post.likes.length} me gusta</span>
