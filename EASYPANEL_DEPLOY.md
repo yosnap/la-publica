@@ -52,9 +52,14 @@ STRIPE_PUBLIC_KEY=pk_live_tu-clave-stripe
 
 ### 2. Variables de Entorno
 
+En EasyPanel, configura estas variables como **Build Arguments** (no como Environment Variables):
+
 ```env
 VITE_API_URL=https://tu-dominio-backend.com/api
+VITE_PUBLIC_URL=https://tu-dominio-backend.com
 ```
+
+**IMPORTANTE**: En EasyPanel, las variables de Vite deben configurarse como "Build Arguments" porque se necesitan en tiempo de compilación, no en runtime.
 
 ### 3. Configuración de Red
 - Puerto expuesto: 80

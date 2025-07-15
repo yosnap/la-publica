@@ -3,6 +3,10 @@ FROM node:18-alpine AS builder
 
 WORKDIR /app
 
+# Accept build arguments for environment variables
+ARG VITE_API_URL
+ARG VITE_PUBLIC_URL
+
 # Copy package files
 COPY package*.json ./
 
@@ -11,6 +15,10 @@ RUN npm ci
 
 # Copy source code
 COPY . .
+
+# Set environment variables for build
+ENV VITE_API_URL=$VITE_API_URL
+ENV VITE_PUBLIC_URL=$VITE_PUBLIC_URL
 
 # Build the application
 RUN npm run build
