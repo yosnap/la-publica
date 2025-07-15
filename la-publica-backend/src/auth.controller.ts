@@ -4,6 +4,8 @@ import { registerUserSchema, validate, loginSchema } from './utils/validation';
 import { PasswordService } from './utils/helpers';
 import { JWTService } from './utils/jwt';
 import { UserRole } from './types';
+import crypto from 'crypto';
+import EmailService from './services/email.service';
 
 // Registro de usuario
 export const register = async (req: Request, res: Response, next: NextFunction) => {
@@ -136,11 +138,184 @@ export const logoutUser = async (req: Request, res: Response) => {
   });
 };
 
-// Forgot password (básico, solo respuesta simulada)
+// Forgot password - Enviar email con token de reset
 export const forgotPassword = async (req: Request, res: Response) => {
-  // En un sistema real, aquí se enviaría un email con instrucciones
-  return res.json({
-    success: true,
-    message: 'Si el email existe, se enviaron instrucciones para recuperar la contraseña'
-  });
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email es requerido'
+      });
+    }
+
+    // Buscar usuario por email
+    const user = await User.findOne({ email: email.toLowerCase() });
+    
+    // Siempre devolver la misma respuesta por seguridad
+    const response = {
+      success: true,
+      message: 'Si el email existe, se enviaron instrucciones para recuperar la contraseña'
+    };
+
+    if (!user) {
+      return res.json(response);
+    }
+
+    // Generar token de reset
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const resetTokenExpiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hora
+
+    // Guardar token en la base de datos
+    user.resetPasswordToken = resetToken;
+    user.resetPasswordExpires = resetTokenExpiry;
+    await user.save();
+
+    // Enviar email
+    try {
+      await EmailService.sendPasswordResetEmail(user.email, resetToken);
+    } catch (emailError) {
+      console.error('Error sending reset email:', emailError);
+      // Limpiar token si no se pudo enviar el email
+      user.resetPasswordToken = undefined;
+      user.resetPasswordExpires = undefined;
+      await user.save();
+    }
+
+    return res.json(response);
+
+  } catch (error) {
+    console.error('Forgot password error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+};
+
+// Reset password - Cambiar contraseña con token
+export const resetPassword = async (req: Request, res: Response) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token y nueva contraseña son requeridos'
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message: 'La contraseña debe tener al menos 6 caracteres'
+      });
+    }
+
+    // Buscar usuario por token válido
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: new Date() }
+    }).select('+resetPasswordToken +resetPasswordExpires');
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token inválido o expirado'
+      });
+    }
+
+    // Cambiar contraseña
+    const hashedPassword = await PasswordService.hashPassword(newPassword);
+    user.password = hashedPassword;
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+    await user.save();
+
+    return res.json({
+      success: true,
+      message: 'Contraseña cambiada exitosamente'
+    });
+
+  } catch (error) {
+    console.error('Reset password error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
+};
+
+// Crear admin - Endpoint para crear administradores
+export const createAdmin = async (req: Request, res: Response) => {
+  try {
+    const { email, firstName, lastName, username } = req.body;
+
+    if (!email || !firstName || !lastName || !username) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email, nombre, apellido y username son requeridos'
+      });
+    }
+
+    // Verificar si el usuario ya existe
+    const existingUser = await User.findOne({ 
+      $or: [{ email: email.toLowerCase() }, { username }] 
+    });
+
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        message: 'El email o username ya están en uso'
+      });
+    }
+
+    // Generar contraseña temporal
+    const tempPassword = crypto.randomBytes(12).toString('hex');
+    const hashedPassword = await PasswordService.hashPassword(tempPassword);
+
+    // Crear usuario admin
+    const adminUser = new User({
+      email: email.toLowerCase(),
+      firstName,
+      lastName,
+      username,
+      password: hashedPassword,
+      role: 'admin',
+      isActive: true,
+      isEmailVerified: true
+    });
+
+    await adminUser.save();
+
+    // Enviar email con credenciales
+    try {
+      await EmailService.sendAdminCreatedEmail(email, tempPassword);
+    } catch (emailError) {
+      console.error('Error sending admin email:', emailError);
+      // No fallar si no se puede enviar el email
+    }
+
+    return res.status(201).json({
+      success: true,
+      message: 'Administrador creado exitosamente',
+      admin: {
+        id: adminUser._id,
+        email: adminUser.email,
+        firstName: adminUser.firstName,
+        lastName: adminUser.lastName,
+        username: adminUser.username,
+        role: adminUser.role
+      },
+      tempPassword: tempPassword // Solo para pruebas, en producción no devolver
+    });
+
+  } catch (error) {
+    console.error('Create admin error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error interno del servidor'
+    });
+  }
 }; 

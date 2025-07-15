@@ -35,6 +35,8 @@ export interface IUser extends Document {
     twitter?: string;
     youtube?: string;
   };
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   comparePassword(password: string): Promise<boolean>;
 }
 
@@ -77,6 +79,8 @@ const UserSchema = new Schema<IUser>(
     profilePicture: { type: String },
     coverPhoto: { type: String },
     socialLinks: socialLinksSchema,
+    resetPasswordToken: { type: String, select: false },
+    resetPasswordExpires: { type: Date, select: false },
   },
   {
     timestamps: true,

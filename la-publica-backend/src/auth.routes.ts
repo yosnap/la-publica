@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { register, login, refreshToken, logoutUser, forgotPassword } from './auth.controller';
+import { register, login, refreshToken, logoutUser, forgotPassword, resetPassword, createAdmin } from './auth.controller';
 
 const router = Router();
 
@@ -17,5 +17,11 @@ router.post('/logout', logoutUser);
 
 // Endpoint para recuperar contraseña
 router.post('/forgot', forgotPassword);
+
+// Endpoint para resetear contraseña
+router.post('/reset-password', resetPassword);
+
+// Endpoint para crear administrador (solo para uso interno/producción)
+router.post('/create-admin', createAdmin);
 
 export default router; 

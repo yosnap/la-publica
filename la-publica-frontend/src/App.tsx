@@ -20,6 +20,8 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import PrivateRoute from "./components/auth/PrivateRoute";
 import Register from "./pages/Register";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import CompleteProfile from "./pages/CompleteProfile";
 import GroupCategories from "./pages/admin/GroupCategories";
 import GroupDetail from "./pages/GroupDetail";
@@ -52,6 +54,8 @@ const App = () => (
             <Routes>
               <Route path="/login" element={<LoginRoute />} />
               <Route path="/register" element={<RegisterRoute />} />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route element={<PrivateRoute />}>
                 <Route path="/" element={<Layout />}>
                   <Route index element={<Dashboard />} />

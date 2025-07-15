@@ -17,7 +17,7 @@ NODE_ENV=production
 PORT=3000
 
 # Database (usando la conexión interna de EasyPanel)
-MONGODB_URI=mongodb://lapublica:Lapublica.8080!@lapublica_lapublica:27017/?tls=false
+MONGODB_URI=mongodb://usuario:password@servicio_mongodb:27017/basedatos?tls=false
 
 # JWT
 JWT_SECRET=tu-clave-secreta-muy-segura-cambiar-en-produccion
@@ -31,6 +31,11 @@ BACKEND_URL=https://tu-dominio-backend.com
 CLOUDINARY_CLOUD_NAME=tu-cloud-name
 CLOUDINARY_API_KEY=tu-api-key
 CLOUDINARY_API_SECRET=tu-api-secret
+
+# Email (requerido para reset de contraseña)
+EMAIL_SERVICE=gmail
+EMAIL_USER=tu-email@gmail.com
+EMAIL_PASS=tu-app-password
 
 # Stripe (opcional)
 STRIPE_SECRET_KEY=sk_live_tu-clave-stripe
@@ -70,10 +75,33 @@ VITE_PUBLIC_URL=https://tu-dominio-backend.com
 Si aún no tienes MongoDB configurado:
 
 1. Crear servicio MongoDB desde el marketplace de EasyPanel
-2. Configurar las credenciales:
-   - Username: `lapublica`
-   - Password: `Lapublica.8080!`
-   - Database: `lapublica`
+2. Configurar las credenciales según tu configuración
+3. Usar la URL de conexión interna en las variables de entorno
+
+## Nuevas Funcionalidades Implementadas
+
+### 1. Recuperación de Contraseña
+- **Frontend**: Páginas `/forgot-password` y `/reset-password`
+- **Backend**: Endpoints `/api/auth/forgot` y `/api/auth/reset-password`
+- **Requerimientos**: Configurar variables de EMAIL_* para envío de correos
+
+### 2. Creación de Administradores
+- **Endpoint**: `POST /api/auth/create-admin`
+- **Uso**: Para crear administradores en producción
+- **Cuerpo de la petición**:
+```json
+{
+  "email": "admin@lapublica.cat",
+  "firstName": "Nombre",
+  "lastName": "Apellido",
+  "username": "admin_username"
+}
+```
+
+### 3. Configuración de Email
+Para que funcione la recuperación de contraseña, debes configurar:
+- Gmail: Usar App Password (no la contraseña normal)
+- Otros servicios: Configurar según el proveedor
 
 ## Pasos de Despliegue
 
