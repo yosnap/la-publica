@@ -31,15 +31,26 @@ const io = new Server(server, {
 
 const PORT = process.env.PORT || 5050;
 
+// Configuración CORS para producción
+const corsOrigins = process.env.FRONTEND_URL 
+  ? [process.env.FRONTEND_URL, 'http://localhost:8080', 'http://localhost:8081'] 
+  : true;
+
 // CORS debe ser el primer middleware
 app.use(cors({
-  origin: true,
+  origin: corsOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['Content-Type', 'Authorization'],
+}));
+// Handler explícito para preflight
+app.options('*', cors({
+  origin: corsOrigins,
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
-// Handler explícito para preflight
-app.options('*', cors());
 
 // Ahora el resto de middlewares
 // Rate limiting
