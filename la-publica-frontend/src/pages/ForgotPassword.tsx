@@ -55,112 +55,136 @@ const ForgotPassword: React.FC = () => {
 
   if (isSubmitted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-              <CheckCircle className="w-8 h-8 text-green-600" />
+      <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          {/* Logo y título */}
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-[#4F8FF7] rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <span className="text-white font-bold text-2xl">LP</span>
             </div>
-            <CardTitle className="text-2xl font-bold text-gray-900">
-              Email enviado
-            </CardTitle>
-            <CardDescription className="text-gray-600">
-              Hemos enviado las instrucciones a tu email
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <Alert>
-              <Mail className="h-4 w-4" />
-              <AlertDescription>
-                Si el email está registrado en nuestro sistema, recibirás un enlace para
-                restablecer tu contraseña. Revisa tu bandeja de entrada y carpeta de spam.
-              </AlertDescription>
-            </Alert>
-            
-            <div className="text-center space-y-4">
-              <p className="text-sm text-gray-600">
-                ¿No recibiste el email? Revisa tu carpeta de spam o intenta nuevamente en unos minutos.
-              </p>
+            <h1 className="text-2xl font-bold text-gray-900">Email enviado</h1>
+            <p className="text-gray-600 mt-2">Hemos enviado las instrucciones a tu email</p>
+          </div>
+
+          <Card className="shadow-lg border-0">
+            <CardHeader className="space-y-1 pb-6">
+              <CardTitle className="text-xl font-semibold text-center">Revisa tu email</CardTitle>
+              <CardDescription className="text-center">
+                Si el email está registrado, recibirás un enlace para restablecer tu contraseña
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <Alert>
+                <Mail className="h-4 w-4" />
+                <AlertDescription>
+                  Revisa tu bandeja de entrada y carpeta de spam. El enlace expirará en 1 hora.
+                </AlertDescription>
+              </Alert>
               
-              <div className="flex flex-col sm:flex-row gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => setIsSubmitted(false)}
-                  className="flex-1"
-                >
-                  Intentar nuevamente
-                </Button>
-                <Button asChild variant="default" className="flex-1">
-                  <Link to="/login">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Volver al login
-                  </Link>
-                </Button>
+              <div className="text-center space-y-4">
+                <p className="text-sm text-gray-600">
+                  ¿No recibiste el email? Revisa tu carpeta de spam o intenta nuevamente en unos minutos.
+                </p>
+                
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsSubmitted(false)}
+                    className="flex-1 h-11 rounded-xl border-gray-200 hover:bg-gray-50 transition-colors"
+                  >
+                    Intentar nuevamente
+                  </Button>
+                  <Button asChild className="flex-1 h-11 bg-[#4F8FF7] hover:bg-[#4F8FF7]/90 text-white rounded-xl font-medium transition-colors">
+                    <Link to="/login">
+                      <ArrowLeft className="w-4 h-4 mr-2" />
+                      Volver al login
+                    </Link>
+                  </Button>
+                </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center">
-          <div className="mx-auto mb-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-            <Mail className="w-8 h-8 text-blue-600" />
+    <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Logo y título */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 bg-[#4F8FF7] rounded-2xl flex items-center justify-center mx-auto mb-4">
+            <span className="text-white font-bold text-2xl">LP</span>
           </div>
-          <CardTitle className="text-2xl font-bold text-gray-900">
-            Recuperar contraseña
-          </CardTitle>
-          <CardDescription className="text-gray-600">
-            Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="tu@email.com"
-                disabled={isLoading}
-                {...register('email')}
-              />
-              {errors.email && (
-                <p className="text-sm text-red-600">{errors.email.message}</p>
+          <h1 className="text-2xl font-bold text-gray-900">Recuperar contraseña</h1>
+          <p className="text-gray-600 mt-2">Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña</p>
+        </div>
+
+        <Card className="shadow-lg border-0">
+          <CardHeader className="space-y-1 pb-6">
+            <CardTitle className="text-xl font-semibold text-center">Recuperar Contraseña</CardTitle>
+            <CardDescription className="text-center">
+              Te enviaremos un enlace para restablecer tu contraseña
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium text-gray-700">
+                  Correo electrónico
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="tu@email.com"
+                  disabled={isLoading}
+                  className="h-11 rounded-xl border-gray-200 focus:border-[#4F8FF7] focus:ring-[#4F8FF7]"
+                  {...register('email')}
+                />
+                {errors.email && (
+                  <p className="text-sm text-red-600">{errors.email.message}</p>
+                )}
+              </div>
+
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
               )}
+
+              <Button
+                type="submit"
+                className="w-full h-11 bg-[#4F8FF7] hover:bg-[#4F8FF7]/90 text-white rounded-xl font-medium transition-colors"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <div className="flex items-center space-x-2">
+                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <span>Enviando...</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center space-x-2">
+                    <Mail className="h-4 w-4" />
+                    <span>Enviar enlace de recuperación</span>
+                  </div>
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <Link
+                to="/login"
+                className="text-[#4F8FF7] hover:text-[#4F8FF7]/80 font-medium transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4 mr-1 inline" />
+                Volver al login
+              </Link>
             </div>
-
-            {error && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Enviando...' : 'Enviar enlace de recuperación'}
-            </Button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <Link
-              to="/login"
-              className="inline-flex items-center text-sm text-blue-600 hover:text-blue-500 font-medium"
-            >
-              <ArrowLeft className="w-4 h-4 mr-1" />
-              Volver al login
-            </Link>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
