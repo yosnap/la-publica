@@ -168,7 +168,7 @@ const Profile = () => {
           <Button
             variant="secondary"
             size="sm"
-            className="absolute top-4 right-4 bg-white dark:bg-gray-800/50/20 backdrop-blur-sm text-white hover:bg-white dark:bg-gray-800/50/30"
+            className="absolute top-4 right-4 bg-black/30 dark:bg-gray-900/50 backdrop-blur-sm text-white hover:bg-black/40 dark:hover:bg-gray-900/60 border-0"
             onClick={() => navigate('/editar-perfil')}
           >
             <Camera className="h-4 w-4 mr-2" />

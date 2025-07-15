@@ -426,7 +426,7 @@ const CompleteProfile = () => {
                   <FormProvider {...form} key={formKey}>
                     {/* El contenido cambia según la pestaña activa */}
                     {activeTab === 'edit' && (
-                      <>
+                      <div key={`edit-tab-${formKey}`}>
                         <SectionTabs activeSection={activeSection} onSectionChange={setActiveSection} />
                         <div className="mt-6">
                           {activeSection === "general" && (
@@ -496,7 +496,7 @@ const CompleteProfile = () => {
                             </form>
                           )}
                         </div>
-                      </>
+                      </div>
                     )}
 
                     {activeTab === "profile-photo" && (

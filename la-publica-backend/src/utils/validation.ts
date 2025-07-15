@@ -50,7 +50,7 @@ export const updateProfileSchema = z.object({
   location: z.string().max(100).optional().nullable(),
   phone: z.string().optional().nullable(),
   skills: z.array(z.string()).optional(),
-  gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']).optional(),
+  gender: z.enum(['male', 'female', 'other', 'prefer_not_to_say']).optional().nullable().or(z.literal('')),
   
   birthDay: z.string().optional(),
   birthMonth: z.string().optional(),

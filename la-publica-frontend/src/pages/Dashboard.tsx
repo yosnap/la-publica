@@ -115,25 +115,9 @@ const Dashboard = () => {
     fetchProfile();
   }, []);
 
-  // Calcular progreso de perfil
-  const profileFields = [
-    user?.firstName,
-    user?.lastName,
-    user?.email,
-    user?.profilePicture,
-    user?.bio,
-    user?.skills?.length,
-    user?.workExperience?.length,
-    user?.socialLinks?.facebook,
-    user?.socialLinks?.twitter,
-    user?.socialLinks?.youtube,
-    user?.birthDate,
-    user?.gender,
-    user?.phone,
-  ];
-  const completedFields = profileFields.filter(Boolean).length;
-  const totalFields = profileFields.length;
-  const profileProgress = Math.round((completedFields / totalFields) * 100);
+  // Calcular progreso de perfil (removido, se usa la lógica de profileSteps más abajo)
+  
+  // Debug removido - ya no es necesario
 
   const activities = [
     {
@@ -324,7 +308,7 @@ const Dashboard = () => {
   const profileSteps = [
     {
       label: "Información general",
-      complete: Boolean(user?.firstName && user?.lastName && user?.email && user?.bio && user?.gender && user?.birthDate),
+      complete: [user?.firstName, user?.lastName, user?.email, user?.bio, user?.gender, user?.birthDate].filter(Boolean).length >= 5, // Completo con al menos 5 de 6 campos
       total: 6,
       done: [user?.firstName, user?.lastName, user?.email, user?.bio, user?.gender, user?.birthDate].filter(Boolean).length,
     },
