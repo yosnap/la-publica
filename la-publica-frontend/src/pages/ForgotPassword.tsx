@@ -55,44 +55,44 @@ const ForgotPassword: React.FC = () => {
 
   if (isSubmitted) {
     return (
-      <div className=\"min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4\">
-        <Card className=\"w-full max-w-md\">
-          <CardHeader className=\"text-center\">
-            <div className=\"mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center\">
-              <CheckCircle className=\"w-8 h-8 text-green-600\" />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <div className="mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            <CardTitle className=\"text-2xl font-bold text-gray-900\">
+            <CardTitle className="text-2xl font-bold text-gray-900">
               Email enviado
             </CardTitle>
-            <CardDescription className=\"text-gray-600\">
+            <CardDescription className="text-gray-600">
               Hemos enviado las instrucciones a tu email
             </CardDescription>
           </CardHeader>
-          <CardContent className=\"space-y-6\">
+          <CardContent className="space-y-6">
             <Alert>
-              <Mail className=\"h-4 w-4\" />
+              <Mail className="h-4 w-4" />
               <AlertDescription>
                 Si el email está registrado en nuestro sistema, recibirás un enlace para
                 restablecer tu contraseña. Revisa tu bandeja de entrada y carpeta de spam.
               </AlertDescription>
             </Alert>
             
-            <div className=\"text-center space-y-4\">
-              <p className=\"text-sm text-gray-600\">
+            <div className="text-center space-y-4">
+              <p className="text-sm text-gray-600">
                 ¿No recibiste el email? Revisa tu carpeta de spam o intenta nuevamente en unos minutos.
               </p>
               
-              <div className=\"flex flex-col sm:flex-row gap-2\">
+              <div className="flex flex-col sm:flex-row gap-2">
                 <Button
-                  variant=\"outline\"
+                  variant="outline"
                   onClick={() => setIsSubmitted(false)}
-                  className=\"flex-1\"
+                  className="flex-1"
                 >
                   Intentar nuevamente
                 </Button>
-                <Button asChild variant=\"default\" className=\"flex-1\">
-                  <Link to=\"/login\">
-                    <ArrowLeft className=\"w-4 h-4 mr-2\" />
+                <Button asChild variant="default" className="flex-1">
+                  <Link to="/login">
+                    <ArrowLeft className="w-4 h-4 mr-2" />
                     Volver al login
                   </Link>
                 </Button>
@@ -105,57 +105,57 @@ const ForgotPassword: React.FC = () => {
   }
 
   return (
-    <div className=\"min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4\">
-      <Card className=\"w-full max-w-md\">
-        <CardHeader className=\"text-center\">
-          <div className=\"mx-auto mb-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center\">
-            <Mail className=\"w-8 h-8 text-blue-600\" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <div className="mx-auto mb-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
+            <Mail className="w-8 h-8 text-blue-600" />
           </div>
-          <CardTitle className=\"text-2xl font-bold text-gray-900\">
+          <CardTitle className="text-2xl font-bold text-gray-900">
             Recuperar contraseña
           </CardTitle>
-          <CardDescription className=\"text-gray-600\">
+          <CardDescription className="text-gray-600">
             Ingresa tu email y te enviaremos un enlace para restablecer tu contraseña
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)} className=\"space-y-4\">
-            <div className=\"space-y-2\">
-              <Label htmlFor=\"email\">Email</Label>
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
               <Input
-                id=\"email\"
-                type=\"email\"
-                placeholder=\"tu@email.com\"
+                id="email"
+                type="email"
+                placeholder="tu@email.com"
                 disabled={isLoading}
                 {...register('email')}
               />
               {errors.email && (
-                <p className=\"text-sm text-red-600\">{errors.email.message}</p>
+                <p className="text-sm text-red-600">{errors.email.message}</p>
               )}
             </div>
 
             {error && (
-              <Alert variant=\"destructive\">
-                <AlertCircle className=\"h-4 w-4\" />
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
             <Button
-              type=\"submit\"
-              className=\"w-full\"
+              type="submit"
+              className="w-full"
               disabled={isLoading}
             >
               {isLoading ? 'Enviando...' : 'Enviar enlace de recuperación'}
             </Button>
           </form>
 
-          <div className=\"mt-6 text-center\">
+          <div className="mt-6 text-center">
             <Link
-              to=\"/login\"
-              className=\"inline-flex items-center text-sm text-blue-600 hover:text-blue-500 font-medium\"
+              to="/login"
+              className="inline-flex items-center text-sm text-blue-600 hover:text-blue-500 font-medium"
             >
-              <ArrowLeft className=\"w-4 h-4 mr-1\" />
+              <ArrowLeft className="w-4 h-4 mr-1" />
               Volver al login
             </Link>
           </div>
