@@ -14,7 +14,6 @@ import database from './config/database'; // Importar la base de datos
 import usersRoutes from './users.routes';
 import postsRoutes from './post.routes';
 import searchRoutes from './search.routes';
-import adminRoutes from './admin.routes';
 import uploadRoutes from './upload.routes';
 import groupRoutes from './group.routes';
 import groupPostRoutes from './groupPost.routes';
@@ -76,8 +75,7 @@ app.use('/api/posts', postsRoutes);
 // Rutas de búsqueda
 app.use('/api/search', searchRoutes);
 
-// Rutas de administración
-app.use('/api/admin', adminRoutes);
+// Rutas de uploads
 app.use('/api/uploads', uploadRoutes);
 
 // Rutas de grupos
