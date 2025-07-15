@@ -1,31 +1,55 @@
+# Build stage
+FROM node:18-alpine AS builder
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+COPY tsconfig.json ./
+
+# Install all dependencies (including dev for build)
+RUN npm ci
+
+# Copy source code
+COPY . .
+
+# Build TypeScript
+RUN npm run build
+
+# Production stage
 FROM node:18-alpine
 
 WORKDIR /app
 
-# Copiar package files
-COPY package*.json ./
-COPY tsconfig.json ./
+# Install dumb-init for proper signal handling
+RUN apk add --no-cache dumb-init
 
-# Instalar dependencias
+# Copy package files and install production dependencies only
+COPY package*.json ./
 RUN npm ci --only=production
 
-# Copiar código fuente
-COPY src ./src
+# Copy built application from builder stage
+COPY --from=builder /app/dist ./dist
 
-# Build
-RUN npm run build
+# Copy any other necessary files
+COPY --from=builder /app/tsconfig.json ./
 
-# Crear directorio uploads
+# Create uploads directory
 RUN mkdir -p uploads
 
-# Exponer puerto
-EXPOSE 3000
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001 && \
+    chown -R nodejs:nodejs /app
 
-# Usuario no-root
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nodejs -u 1001
-RUN chown -R nodejs:nodejs /app
+# Switch to non-root user
 USER nodejs
 
-# Start
-CMD ["npm", "start"]
+# Expose port
+EXPOSE 3000
+
+# Use dumb-init to handle signals properly
+ENTRYPOINT ["dumb-init", "--"]
+
+# Start the application
+CMD ["node", "dist/server.js"]
