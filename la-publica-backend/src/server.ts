@@ -35,24 +35,65 @@ const io = new Server(server, {
 const PORT = process.env.PORT || 5050;
 
 // Configuración CORS para producción
-const corsOrigins = process.env.FRONTEND_URL 
-  ? [process.env.FRONTEND_URL, 'http://localhost:8080', 'http://localhost:8081'] 
-  : true;
+const corsOrigins = process.env.NODE_ENV === 'production'
+  ? [
+      'https://web.lapublica.cat',
+      'https://www.lapublica.cat',
+      'https://lapublica.cat'
+    ]
+  : [
+      'http://localhost:8080',
+      'http://localhost:8081', 
+      'http://localhost:5173',
+      'http://localhost:3000'
+    ];
 
 // CORS debe ser el primer middleware
 app.use(cors({
-  origin: corsOrigins,
+  origin: function (origin, callback) {
+    // Permitir requests sin origin (como apps móviles o Postman)
+    if (!origin) return callback(null, true);
+    
+    if (corsOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      console.log('CORS blocked origin:', origin);
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With',
+    'Accept',
+    'Origin'
+  ],
   exposedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200, // Para legacy browser support
+  preflightContinue: false
 }));
+
 // Handler explícito para preflight
 app.options('*', cors({
-  origin: corsOrigins,
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (corsOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error('Not allowed by CORS'));
+    }
+  },
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  allowedHeaders: [
+    'Content-Type', 
+    'Authorization', 
+    'X-Requested-With',
+    'Accept',
+    'Origin'
+  ]
 }));
 
 // Ahora el resto de middlewares
