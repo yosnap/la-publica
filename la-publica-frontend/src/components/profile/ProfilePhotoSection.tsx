@@ -76,7 +76,7 @@ export const ProfilePhotoSection: React.FC<ProfilePhotoSectionProps> = ({ profil
       const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
       const formData = new FormData();
       formData.append('image', croppedBlob, 'profile.jpg');
-      const res = await apiClient.post('/uploads/image', formData, {
+      const res = await apiClient.post('/api/uploads/image', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

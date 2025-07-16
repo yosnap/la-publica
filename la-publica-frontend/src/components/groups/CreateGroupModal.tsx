@@ -148,7 +148,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
     try {
       const formData = new FormData();
       formData.append('image', file);
-      const response = await apiClient.post('/uploads/image', formData, {
+      const response = await apiClient.post('/api/uploads/image', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.imageUrl;

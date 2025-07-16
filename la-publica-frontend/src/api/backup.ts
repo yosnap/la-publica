@@ -62,7 +62,7 @@ export interface ImportResult {
 
 // Exportar configuración de la plataforma
 export const exportConfiguration = async (): Promise<BackupConfiguration> => {
-  const response = await apiClient.get('/backup/export');
+  const response = await apiClient.get('/api/backup/export');
   return response.data;
 };
 
@@ -71,7 +71,7 @@ export const importConfiguration = async (
   configuration: BackupConfiguration,
   options: ImportOptions = {}
 ) => {
-  const response = await apiClient.post('/backup/import', {
+  const response = await apiClient.post('/api/backup/import', {
     configuration,
     options
   });
@@ -82,7 +82,7 @@ export const importConfiguration = async (
 export const validateConfiguration = async (
   configuration: BackupConfiguration
 ): Promise<{ success: boolean; data: ValidationResult }> => {
-  const response = await apiClient.post('/backup/validate', {
+  const response = await apiClient.post('/api/backup/validate', {
     configuration
   });
   return response.data;

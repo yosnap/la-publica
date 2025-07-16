@@ -107,13 +107,13 @@ export const createForum = async (data: {
   moderators?: string[];
   rules?: string[];
 }) => {
-  const response = await apiClient.post('/forums', data);
+  const response = await apiClient.post('/api/forums', data);
   return response.data;
 };
 
 // Actualizar un foro
 export const updateForum = async (id: string, data: Partial<Forum>) => {
-  const response = await apiClient.put(`/forums/${id}`, data);
+  const response = await apiClient.put(`/api/forums/${id}`, data);
   return response.data;
 };
 
@@ -161,7 +161,7 @@ export const createForumPost = async (data: {
   parentPostId?: string;
   tags?: string[];
 }) => {
-  const response = await apiClient.post('/forums/posts', data);
+  const response = await apiClient.post('/api/forums/posts', data);
   return response.data;
 };
 

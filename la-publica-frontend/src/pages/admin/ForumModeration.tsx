@@ -85,19 +85,19 @@ const ForumModeration = () => {
       setLoading(true);
       
       // Cargar estadísticas
-      const statsResponse = await apiClient.get('/forums/moderation/stats');
+      const statsResponse = await apiClient.get('/api/forums/moderation/stats');
       if (statsResponse.data.success) {
         setStats(statsResponse.data.data);
       }
 
       // Cargar posts pendientes
-      const pendingResponse = await apiClient.get('/forums/moderation/pending?status=pending');
+      const pendingResponse = await apiClient.get('/api/forums/moderation/pending?status=pending');
       if (pendingResponse.data.success) {
         setPendingPosts(pendingResponse.data.data);
       }
 
       // Cargar posts reportados
-      const reportsResponse = await apiClient.get('/forums/moderation/reports?status=pending');
+      const reportsResponse = await apiClient.get('/api/forums/moderation/reports?status=pending');
       if (reportsResponse.data.success) {
         setReportedPosts(reportsResponse.data.data);
       }

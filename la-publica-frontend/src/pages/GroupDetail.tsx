@@ -104,7 +104,7 @@ const GroupDetail = () => {
         
         // Obtener perfil completo del usuario
         import('@/api/client').then(({ default: apiClient }) => {
-          apiClient.get('/users/profile').then(response => {
+          apiClient.get('/api/users/profile').then(response => {
             if (response.data.success) {
               setUserProfile(response.data.data);
             }

@@ -108,7 +108,7 @@ const CompleteProfile = () => {
     const fetchProfile = async () => {
       setIsLoading(true);
       try {
-        const response = await apiClient.get('/users/profile');
+        const response = await apiClient.get('/api/users/profile');
         if (response.data.success) {
           const profile = response.data.data;
           // Mapeo correcto de imágenes, socialLinks y fecha de nacimiento
@@ -178,7 +178,7 @@ const CompleteProfile = () => {
     try {
       const formData = new FormData();
       formData.append('image', file);
-      const res = await apiClient.post('/uploads/image', formData, {
+      const res = await apiClient.post('/api/uploads/image', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -282,7 +282,7 @@ const CompleteProfile = () => {
 
       const finalPayload = cleanPayload(data);
 
-      const response = await apiClient.put('/users/profile', finalPayload);
+      const response = await apiClient.put('/api/users/profile', finalPayload);
 
       if (response.data.success) {
         toast.success("¡Perfil actualizado con éxito!", { id: toastId });
@@ -341,14 +341,14 @@ const CompleteProfile = () => {
       if (file) {
         const formData = new FormData();
         formData.append('image', file);
-        const res = await apiClient.post('/uploads/image', formData, {
+        const res = await apiClient.post('/api/uploads/image', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         imageUrl = res.data.imageUrl;
       }
       
       const payload = { coverPhoto: imageUrl || '' };
-      const response = await apiClient.put('/users/profile', payload);
+      const response = await apiClient.put('/api/users/profile', payload);
       
       if (response.data.success) {
         toast.success(file ? 'Foto de portada actualizada' : 'Foto de portada eliminada', { id: toastId });
@@ -370,7 +370,7 @@ const CompleteProfile = () => {
     setIsLoading(true);
     try {
       const payload = { profilePicture: url || '' };
-      const response = await apiClient.put('/users/profile', payload);
+      const response = await apiClient.put('/api/users/profile', payload);
       if (response.data.success) {
         toast.success(url ? 'Foto de perfil actualizada' : 'Foto de perfil eliminada', { id: toastId });
         const updatedProfile = response.data.data;

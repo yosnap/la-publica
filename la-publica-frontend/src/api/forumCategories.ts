@@ -13,13 +13,13 @@ export interface ForumCategory {
 
 // Obtener todas las categorías de foros
 export const fetchForumCategories = async () => {
-  const response = await apiClient.get('/forum-categories');
+  const response = await apiClient.get('/api/forum-categories');
   return response.data;
 };
 
 // Obtener una categoría por ID
 export const getForumCategoryById = async (id: string) => {
-  const response = await apiClient.get(`/forum-categories/${id}`);
+  const response = await apiClient.get(`/api/forum-categories/${id}`);
   return response.data;
 };
 
@@ -30,7 +30,7 @@ export const createForumCategory = async (data: {
   color?: string;
   icon?: string;
 }) => {
-  const response = await apiClient.post('/forum-categories', data);
+  const response = await apiClient.post('/api/forum-categories', data);
   return response.data;
 };
 
