@@ -112,7 +112,7 @@ const ForumModeration = () => {
 
   const handleApprovePost = async (postId: string) => {
     try {
-      await apiClient.post(`/forums/moderation/posts/${postId}/approve`);
+      await apiClient.post(`/api/forums/moderation/posts/${postId}/approve`);
       toast.success('Post aprobado exitosamente');
       loadData();
     } catch (error: any) {
@@ -127,7 +127,7 @@ const ForumModeration = () => {
     }
 
     try {
-      await apiClient.post(`/forums/moderation/posts/${selectedPost._id}/reject`, {
+      await apiClient.post(`/api/forums/moderation/posts/${selectedPost._id}/reject`, {
         reason: rejectReason
       });
       toast.success('Post rechazado exitosamente');
@@ -142,7 +142,7 @@ const ForumModeration = () => {
 
   const handleResolveReport = async (postId: string, reportId: string, action: 'resolve' | 'dismiss') => {
     try {
-      await apiClient.post(`/forums/moderation/posts/${postId}/reports/${reportId}/resolve`, {
+      await apiClient.post(`/api/forums/moderation/posts/${postId}/reports/${reportId}/resolve`, {
         action,
         reason: action === 'resolve' ? 'Contenido inapropiado removido' : 'Reporte sin fundamento'
       });
@@ -155,7 +155,7 @@ const ForumModeration = () => {
 
   const handleTogglePin = async (postId: string) => {
     try {
-      await apiClient.post(`/forums/moderation/posts/${postId}/toggle-pin`);
+      await apiClient.post(`/api/forums/moderation/posts/${postId}/toggle-pin`);
       toast.success('Estado de fijado actualizado');
       loadData();
     } catch (error: any) {
@@ -165,7 +165,7 @@ const ForumModeration = () => {
 
   const handleToggleLock = async (postId: string) => {
     try {
-      await apiClient.post(`/forums/moderation/posts/${postId}/toggle-lock`);
+      await apiClient.post(`/api/forums/moderation/posts/${postId}/toggle-lock`);
       toast.success('Estado de bloqueo actualizado');
       loadData();
     } catch (error: any) {

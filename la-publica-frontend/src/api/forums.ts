@@ -89,13 +89,13 @@ export const fetchForums = async (params?: {
   if (params?.page) searchParams.set('page', params.page.toString());
   if (params?.limit) searchParams.set('limit', params.limit.toString());
   
-  const response = await apiClient.get(`/forums?${searchParams.toString()}`);
+  const response = await apiClient.get(`/api/forums?${searchParams.toString()}`);
   return response.data;
 };
 
 // Obtener un foro por ID
 export const getForumById = async (id: string) => {
-  const response = await apiClient.get(`/forums/${id}`);
+  const response = await apiClient.get(`/api/forums/${id}`);
   return response.data;
 };
 
@@ -119,7 +119,7 @@ export const updateForum = async (id: string, data: Partial<Forum>) => {
 
 // Eliminar un foro (solo admin)
 export const deleteForum = async (id: string) => {
-  const response = await apiClient.delete(`/forums/${id}`);
+  const response = await apiClient.delete(`/api/forums/${id}`);
   return response.data;
 };
 
@@ -136,7 +136,7 @@ export const getForumPosts = async (forumId: string, params?: {
   if (params?.limit) searchParams.set('limit', params.limit.toString());
   if (params?.sortBy) searchParams.set('sortBy', params.sortBy);
   
-  const response = await apiClient.get(`/forums/${forumId}/posts?${searchParams.toString()}`);
+  const response = await apiClient.get(`/api/forums/${forumId}/posts?${searchParams.toString()}`);
   return response.data;
 };
 
@@ -149,7 +149,7 @@ export const getForumPostById = async (id: string, params?: {
   if (params?.page) searchParams.set('page', params.page.toString());
   if (params?.limit) searchParams.set('limit', params.limit.toString());
   
-  const response = await apiClient.get(`/forums/posts/${id}?${searchParams.toString()}`);
+  const response = await apiClient.get(`/api/forums/posts/${id}?${searchParams.toString()}`);
   return response.data;
 };
 
@@ -167,13 +167,13 @@ export const createForumPost = async (data: {
 
 // Dar like a un post
 export const likeForumPost = async (id: string) => {
-  const response = await apiClient.post(`/forums/posts/${id}/like`);
+  const response = await apiClient.post(`/api/forums/posts/${id}/like`);
   return response.data;
 };
 
 // Dar dislike a un post
 export const dislikeForumPost = async (id: string) => {
-  const response = await apiClient.post(`/forums/posts/${id}/dislike`);
+  const response = await apiClient.post(`/api/forums/posts/${id}/dislike`);
   return response.data;
 };
 
@@ -182,7 +182,7 @@ export const reportForumPost = async (id: string, data: {
   reason: 'spam' | 'inappropriate' | 'harassment' | 'misinformation' | 'copyright' | 'other';
   description?: string;
 }) => {
-  const response = await apiClient.post(`/forums/posts/${id}/report`, data);
+  const response = await apiClient.post(`/api/forums/posts/${id}/report`, data);
   return response.data;
 };
 
@@ -192,12 +192,12 @@ export const editForumPost = async (id: string, data: {
   content?: string;
   reason?: string;
 }) => {
-  const response = await apiClient.put(`/forums/posts/${id}`, data);
+  const response = await apiClient.put(`/api/forums/posts/${id}`, data);
   return response.data;
 };
 
 // Eliminar un post
 export const deleteForumPost = async (id: string) => {
-  const response = await apiClient.delete(`/forums/posts/${id}`);
+  const response = await apiClient.delete(`/api/forums/posts/${id}`);
   return response.data;
 };
