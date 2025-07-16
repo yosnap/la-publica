@@ -115,9 +115,9 @@ export const ProfilePhotoSection: React.FC<ProfilePhotoSectionProps> = ({ profil
       <CardContent>
       <Tabs.Root value={tab} onValueChange={(v: 'upload' | 'camera' | 'delete') => setTab(v)} className="w-full">
           <Tabs.List className="flex space-x-4 mb-4">
-            <Tabs.Trigger value="upload" className={tab === 'upload' ? 'font-bold' : ''}>Subir</Tabs.Trigger>
-            <Tabs.Trigger value="camera" className={tab === 'camera' ? 'font-bold' : ''}>Tomar foto</Tabs.Trigger>
-            <Tabs.Trigger value="delete" className={tab === 'delete' ? 'font-bold' : ''}>Eliminar</Tabs.Trigger>
+            <Tabs.Trigger key="upload" value="upload" className={tab === 'upload' ? 'font-bold' : ''}>Subir</Tabs.Trigger>
+            <Tabs.Trigger key="camera" value="camera" className={tab === 'camera' ? 'font-bold' : ''}>Tomar foto</Tabs.Trigger>
+            <Tabs.Trigger key="delete" value="delete" className={tab === 'delete' ? 'font-bold' : ''}>Eliminar</Tabs.Trigger>
           </Tabs.List>
           <Tabs.Content value="upload">
             <div

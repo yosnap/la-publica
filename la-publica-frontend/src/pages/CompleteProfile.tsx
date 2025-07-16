@@ -432,7 +432,7 @@ const CompleteProfile = () => {
                           {activeSection === "general" && (
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={`${formKey}-general`}>
                               {error && (
-                                <Alert variant="destructive" className="relative pr-10">
+                                <Alert variant="destructive" className="relative pr-10" key="error-alert">
                                   <button
                                     type="button"
                                     className="absolute top-2 right-2 p-1 text-red-700 hover:text-red-900"
@@ -446,7 +446,7 @@ const CompleteProfile = () => {
                                 </Alert>
                               )}
                               <GeneralInformationSection key="general-section" skills={skills} setSkills={setSkills} />
-                              <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
+                              <div className="flex justify-end gap-4 pt-8 border-t border-gray-200" key="general-buttons">
                                 <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isLoading}>
                                   Cancelar
                                 </Button>
@@ -459,7 +459,7 @@ const CompleteProfile = () => {
                           {activeSection === "work" && (
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={`${formKey}-work`}>
                               <WorkExperienceSection key="work-section" />
-                              <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
+                              <div className="flex justify-end gap-4 pt-8 border-t border-gray-200" key="work-buttons">
                                 <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isLoading}>
                                   Cancelar
                                 </Button>
@@ -472,7 +472,7 @@ const CompleteProfile = () => {
                           {activeSection === "social" && (
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={`${formKey}-social`}>
                               <SocialLinksSection key="social-section" />
-                              <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
+                              <div className="flex justify-end gap-4 pt-8 border-t border-gray-200" key="social-buttons">
                                 <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isLoading}>
                                   Cancelar
                                 </Button>
@@ -485,7 +485,7 @@ const CompleteProfile = () => {
                           {activeSection === "biography" && (
                             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" key={`${formKey}-biography`}>
                               <BiographySection key="biography-section" />
-                              <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
+                              <div className="flex justify-end gap-4 pt-8 border-t border-gray-200" key="biography-buttons">
                                 <Button type="button" variant="outline" onClick={() => window.history.back()} disabled={isLoading}>
                                   Cancelar
                                 </Button>
@@ -501,6 +501,7 @@ const CompleteProfile = () => {
 
                     {activeTab === "profile-photo" && (
                       <ProfilePhotoSection
+                        key="profile-photo-section"
                         profileImageUrl={getImageUrl(profilePictureUrl)}
                         onProfileImageChange={handleProfileImageChange}
                       />
@@ -508,6 +509,7 @@ const CompleteProfile = () => {
 
                     {activeTab === "cover-photo" && (
                       <CoverPhotoSection
+                        key="cover-photo-section"
                         coverImage={getImageUrl(coverPhotoUrl)}
                         onImageChange={handleCoverImageChange}
                         isLoading={isLoading}

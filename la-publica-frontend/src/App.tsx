@@ -24,8 +24,15 @@ import ForgotPassword from "./pages/ForgotPassword";
 import ResetPassword from "./pages/ResetPassword";
 import CompleteProfile from "./pages/CompleteProfile";
 import GroupCategories from "./pages/admin/GroupCategories";
+import ForumCategories from "./pages/admin/ForumCategories";
+import ForumModeration from "./pages/admin/ForumModeration";
+import PlatformBackup from "./pages/admin/PlatformBackup";
 import GroupDetail from "./pages/GroupDetail";
 import GroupAdmin from "./pages/GroupAdmin";
+import ForumDetail from "./pages/ForumDetail";
+import CreateForumPost from "./pages/CreateForumPost";
+import CreateForumPostGeneral from "./pages/CreateForumPostGeneral";
+import ForumPostDetail from "./pages/ForumPostDetail";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +73,10 @@ const App = () => (
                   <Route path="groups/:id/admin" element={<GroupAdmin />} />
                   <Route path="messages" element={<Messages />} />
                   <Route path="forums" element={<Forums />} />
+                  <Route path="forums/new-post" element={<CreateForumPostGeneral />} />
+                  <Route path="forums/:id" element={<ForumDetail />} />
+                  <Route path="forums/:forumId/new-post" element={<CreateForumPost />} />
+                  <Route path="forums/posts/:id" element={<ForumPostDetail />} />
                   <Route path="companies" element={<Companies />} />
                   <Route path="offers" element={<Offers />} />
                   <Route path="announcements" element={<Announcements />} />
@@ -73,6 +84,9 @@ const App = () => (
                   <Route path="links" element={<Links />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="admin/group-categories" element={<GroupCategories />} />
+                  <Route path="admin/forum-categories" element={<ForumCategories />} />
+                  <Route path="admin/forum-moderation" element={<ForumModeration />} />
+                  <Route path="admin/platform-backup" element={<PlatformBackup />} />
                 </Route>
               </Route>
               <Route path="*" element={<NotFound />} />

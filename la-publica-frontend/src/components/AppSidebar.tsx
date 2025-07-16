@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag, PanelLeftClose, PanelLeft, Moon, Sun } from "lucide-react";
+import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag, PanelLeftClose, PanelLeft, Moon, Sun, Database } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -96,6 +96,21 @@ const adminItems = [
     title: "Categorías de Grupos",
     url: "/admin/group-categories",
     icon: Tag,
+  },
+  {
+    title: "Categorías de Foros",
+    url: "/admin/forum-categories",
+    icon: MessageCircle,
+  },
+  {
+    title: "Moderación de Foros",
+    url: "/admin/forum-moderation",
+    icon: Shield,
+  },
+  {
+    title: "Respaldo de Configuración",
+    url: "/admin/platform-backup",
+    icon: Database,
   },
 ];
 

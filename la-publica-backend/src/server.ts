@@ -17,6 +17,9 @@ import searchRoutes from './search.routes';
 import uploadRoutes from './upload.routes';
 import groupRoutes from './group.routes';
 import groupPostRoutes from './groupPost.routes';
+import forumCategoryRoutes from './forumCategory.routes';
+import forumRoutes from './forum.routes';
+import backupRoutes from './backup.routes';
 import { errorHandler } from './middleware/errorHandler';
 import 'dotenv/config';
 
@@ -94,6 +97,15 @@ app.use('/api/groups', groupRoutes);
 
 // Rutas de posts de grupos
 app.use('/api/groups', groupPostRoutes);
+
+// Rutas de categorías de foros
+app.use('/api/forum-categories', forumCategoryRoutes);
+
+// Rutas de foros
+app.use('/api/forums', forumRoutes);
+
+// Rutas de backup/configuración
+app.use('/api/backup', backupRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
