@@ -25,7 +25,7 @@ export function TopNavigation() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await apiClient.get('/api/users/profile');
+        const response = await apiClient.get('/users/profile');
         if (response.data.success) {
           setUser(response.data.data);
         }
@@ -37,9 +37,9 @@ export function TopNavigation() {
   }, []);
 
   const handleLogout = () => {
-    // Eliminar el token del localStorage
+     // Eliminar el token del localStorage
     localStorage.removeItem('authToken');
-    // Redirigir al login
+     // Redirigir al login
     navigate('/login');
   };
 
@@ -52,7 +52,7 @@ export function TopNavigation() {
           </SidebarTrigger>
           
           <div className="relative max-w-md w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-4 w-4" />
+            <Search className="absolute left-3 top-1 /2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 h-4 w-4" />
             <Input
               placeholder="Buscar miembros, grupos, actividades..."
               className="pl-10 bg-gray-50 dark:bg-gray-700 border-0 focus:bg-white dark:focus:bg-gray-600 focus:ring-2 focus:ring-[#4F8FF7]/20 rounded-xl text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400"

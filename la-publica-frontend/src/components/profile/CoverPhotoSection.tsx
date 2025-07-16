@@ -17,7 +17,7 @@ export const CoverPhotoSection = ({ coverImage, isLoading, onImageChange }: Cove
     if (e.target.files && e.target.files[0]) {
       onImageChange(e.target.files[0]);
     }
-    // Limpiar el input para permitir volver a seleccionar el mismo archivo
+     // Limpiar el input para permitir volver a seleccionar el mismo archivo
     if (inputRef.current) inputRef.current.value = "";
   };
 

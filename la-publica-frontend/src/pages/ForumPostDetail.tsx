@@ -74,7 +74,7 @@ const ForumPostDetail = () => {
   const handleLike = async (postId: string) => {
     try {
       await likeForumPost(postId);
-      loadPost(); // Recargar para actualizar contadores
+      loadPost();  // Recargar para actualizar contadores
     } catch (error) {
       toast.error('Error al dar like');
     }
@@ -83,7 +83,7 @@ const ForumPostDetail = () => {
   const handleDislike = async (postId: string) => {
     try {
       await dislikeForumPost(postId);
-      loadPost(); // Recargar para actualizar contadores
+      loadPost();  // Recargar para actualizar contadores
     } catch (error) {
       toast.error('Error al dar dislike');
     }
@@ -108,7 +108,7 @@ const ForumPostDetail = () => {
         toast.success('Respuesta creada exitosamente');
         setReplyContent("");
         setShowReplyForm(false);
-        loadPost(); // Recargar para mostrar nueva respuesta
+        loadPost();  // Recargar para mostrar nueva respuesta
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || 'Error al crear la respuesta');
@@ -163,8 +163,8 @@ const ForumPostDetail = () => {
                 <div className="flex items-start space-x-4">
                   <Skeleton className="w-12 h-12 rounded-full" />
                   <div className="flex-1 space-y-2">
-                    <Skeleton className="h-6 w-3/4" />
-                    <Skeleton className="h-4 w-1/2" />
+                    <Skeleton className="h-6 w-3 /4" />
+                    <Skeleton className="h-4 w-1 /2" />
                   </div>
                 </div>
                 <Skeleton className="h-32 w-full" />
@@ -192,7 +192,7 @@ const ForumPostDetail = () => {
   return (
     <PageWrapper>
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => navigate(`/forums/${post.forum._id}`)}>
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -208,7 +208,7 @@ const ForumPostDetail = () => {
           </div>
         </div>
 
-        {/* Main Post */}
+        { /* Main Post */}
         <Card>
           <CardContent className="p-6">
             <div className="flex items-start justify-between mb-4">
@@ -259,12 +259,12 @@ const ForumPostDetail = () => {
               </DropdownMenu>
             </div>
 
-            {/* Content */}
+            { /* Content */}
             <div className="prose max-w-none mb-4">
               <div dangerouslySetInnerHTML={{ __html: post.content }} />
             </div>
 
-            {/* Tags */}
+            { /* Tags */}
             {post.tags && post.tags.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-4">
                 {post.tags.map((tag, index) => (
@@ -275,7 +275,7 @@ const ForumPostDetail = () => {
               </div>
             )}
 
-            {/* Actions */}
+            { /* Actions */}
             <div className="flex items-center justify-between pt-4 border-t">
               <div className="flex items-center gap-4">
                 <Button 
@@ -310,7 +310,7 @@ const ForumPostDetail = () => {
           </CardContent>
         </Card>
 
-        {/* Reply Form */}
+        { /* Reply Form */}
         {showReplyForm && !post.isLocked && (
           <Card>
             <CardHeader>
@@ -351,7 +351,7 @@ const ForumPostDetail = () => {
           </Card>
         )}
 
-        {/* Replies */}
+        { /* Replies */}
         {replies.length > 0 && (
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-gray-900">
@@ -409,7 +409,7 @@ const ForumPostDetail = () => {
           </div>
         )}
 
-        {/* Report Dialog */}
+        { /* Report Dialog */}
         <Dialog open={showReportDialog} onOpenChange={setShowReportDialog}>
           <DialogContent>
             <DialogHeader>

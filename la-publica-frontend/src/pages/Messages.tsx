@@ -124,7 +124,7 @@ const Messages = () => {
   return (
     <div className="max-w-7xl mx-auto h-[calc(100vh-200px)]">
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 h-full">
-        {/* Lista de Conversaciones */}
+        { /* Lista de Conversaciones */}
         <div className="lg:col-span-4 space-y-4">
           <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
             <CardHeader className="pb-3">
@@ -137,10 +137,10 @@ const Messages = () => {
             </CardHeader>
             <CardContent className="px-4 pb-4">
               <div className="relative mb-4">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Search className="absolute left-3 top-1 /2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
                 <Input
                   placeholder="Buscar conversaciones..."
-                  className="pl-10 bg-gray-50 dark:bg-gray-700/50 border-0 focus:bg-white dark:bg-gray-800/50 focus:ring-2 focus:ring-primary/20"
+                  className="pl-10 bg-gray-50 dark:bg-gray-700 /50 border-0 focus:bg-white dark:bg-gray-800/50 focus:ring-2 focus:ring-primary/20"
                 />
               </div>
             </CardContent>
@@ -191,10 +191,10 @@ const Messages = () => {
           </Card>
         </div>
 
-        {/* Chat Activo */}
+        { /* Chat Activo */}
         <div className="lg:col-span-8">
           <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50 h-full flex flex-col">
-            {/* Header del Chat */}
+            { /* Header del Chat */}
             <CardHeader className="border-b border-gray-100 dark:border-gray-700 pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -224,7 +224,7 @@ const Messages = () => {
               </div>
             </CardHeader>
 
-            {/* Mensajes */}
+            { /* Mensajes */}
             <CardContent className="flex-1 p-4 overflow-y-auto space-y-4 max-h-[400px]">
               {messages.map((message) => (
                 <div
@@ -258,7 +258,7 @@ const Messages = () => {
               ))}
             </CardContent>
 
-            {/* Input para nuevo mensaje */}
+            { /* Input para nuevo mensaje */}
             <div className="border-t border-gray-100 dark:border-gray-700 p-4">
               <div className="flex items-end space-x-2">
                 <Button variant="ghost" size="sm" className="mb-2">
@@ -269,7 +269,7 @@ const Messages = () => {
                     value={newMessage}
                     onChange={(e) => setNewMessage(e.target.value)}
                     placeholder="Escribe un mensaje..."
-                    className="min-h-[40px] max-h-[120px] resize-none border-0 bg-gray-50 dark:bg-gray-700/50 focus:bg-white dark:bg-gray-800/50 focus:ring-2 focus:ring-primary/20"
+                    className="min-h-[40px] max-h-[120px] resize-none border-0 bg-gray-50 dark:bg-gray-700 /50 focus:bg-white dark:bg-gray-800/50 focus:ring-2 focus:ring-primary/20"
                     onKeyPress={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();

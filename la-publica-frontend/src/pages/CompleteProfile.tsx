@@ -52,7 +52,7 @@ interface ProfileFormData {
   coverPhotoUrl?: string;
 }
 
-// Función getImageUrl ahora se importa desde utils
+ // Función getImageUrl ahora se importa desde utils
 
 const CompleteProfile = () => {
   const navigate = useNavigate();
@@ -61,7 +61,7 @@ const CompleteProfile = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   
-  // State for image previews and files
+   // State for image previews and files
   const [profileImagePreview, setProfileImagePreview] = useState<string | null>(null);
   const [coverImagePreview, setCoverImagePreview] =useState<string | null>(null);
   const [profileImageFile, setProfileImageFile] = useState<File | null>(null);
@@ -108,10 +108,10 @@ const CompleteProfile = () => {
     const fetchProfile = async () => {
       setIsLoading(true);
       try {
-        const response = await apiClient.get('/api/users/profile');
+        const response = await apiClient.get('/users/profile');
         if (response.data.success) {
           const profile = response.data.data;
-          // Mapeo correcto de imágenes, socialLinks y fecha de nacimiento
+           // Mapeo correcto de imágenes, socialLinks y fecha de nacimiento
           let birthDay = '', birthMonth = '', birthYear = '';
           if (profile.birthDate) {
             const date = new Date(profile.birthDate);
@@ -146,7 +146,7 @@ const CompleteProfile = () => {
           form.reset(formValues);
           setFormKey(prev => prev + 1);
 
-          // Clear previews on new data fetch
+           // Clear previews on new data fetch
           setProfileImagePreview(null);
           setCoverImagePreview(null);
           setProfileImageFile(null);
@@ -178,7 +178,7 @@ const CompleteProfile = () => {
     try {
       const formData = new FormData();
       formData.append('image', file);
-      const res = await apiClient.post('/api/uploads/image', formData, {
+      const res = await apiClient.post('/uploads/image', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -186,10 +186,10 @@ const CompleteProfile = () => {
         const imageUrl = res.data.imageUrl;
         if (imageType === 'profile') {
           form.setValue('profilePictureUrl', imageUrl, { shouldDirty: true });
-          await handleProfileImageChange(imageUrl); // Trigger auto-save
+          await handleProfileImageChange(imageUrl);  // Trigger auto-save
         } else {
           form.setValue('coverPhotoUrl', imageUrl, { shouldDirty: true });
-          await handleCoverImageChange(file); // Trigger auto-save
+          await handleCoverImageChange(file);  // Trigger auto-save
         }
         toast.success("Imagen subida con éxito", { id: toastId });
       } else {
@@ -208,11 +208,11 @@ const CompleteProfile = () => {
     setError(null);
 
     try {
-      // Helper function to clean the payload
+       // Helper function to clean the payload
       const cleanPayload = (payload) => {
         const cleaned = { ...payload };
 
-        // Convert empty strings to null for optional fields
+         // Convert empty strings to null for optional fields
         const optionalFields = ['bio', 'location', 'phone'];
         optionalFields.forEach(field => {
           if (cleaned[field] === '') {
@@ -220,13 +220,13 @@ const CompleteProfile = () => {
           }
         });
 
-        // Handle image URLs
+         // Handle image URLs
         cleaned.profilePicture = getImageUrl(cleaned.profilePictureUrl) || null;
         cleaned.coverPhoto = getImageUrl(cleaned.coverPhotoUrl) || null;
         delete cleaned.profilePictureUrl;
         delete cleaned.coverPhotoUrl;
 
-        // Clean social links
+         // Clean social links
         const isValidUrl = (url) => {
           if (!url || typeof url !== 'string') return false;
           try {
@@ -236,13 +236,13 @@ const CompleteProfile = () => {
             return false;
           }
         };
-        // Normalizar URLs: anteponer https:// si falta
+         // Normalizar URLs: anteponer https:// si falta
         const normalizeUrl = (url) => {
           if (!url || typeof url !== 'string') return url;
-          if (/^https?:\/\//i.test(url)) return url;
+          if ( /^https?:\/\//i.test(url)) return url;
           return 'https://' + url;
         };
-        // Priorizar los valores planos si existen
+         // Priorizar los valores planos si existen
         let fb = typeof cleaned.facebook !== 'undefined' ? cleaned.facebook : cleaned.socialLinks?.facebook;
         let tw = typeof cleaned.twitter !== 'undefined' ? cleaned.twitter : cleaned.socialLinks?.twitter;
         let yt = typeof cleaned.youtube !== 'undefined' ? cleaned.youtube : cleaned.socialLinks?.youtube;
@@ -253,7 +253,7 @@ const CompleteProfile = () => {
         cleaned.socialLinks.facebook = isValidUrl(fb) ? fb : (fb === '' ? null : undefined);
         cleaned.socialLinks.twitter = isValidUrl(tw) ? tw : (tw === '' ? null : undefined);
         cleaned.socialLinks.youtube = isValidUrl(yt) ? yt : (yt === '' ? null : undefined);
-        // Eliminar propiedades undefined
+         // Eliminar propiedades undefined
         Object.keys(cleaned.socialLinks).forEach(key => {
           if (typeof cleaned.socialLinks[key] === 'undefined') {
             delete cleaned.socialLinks[key];
@@ -263,7 +263,7 @@ const CompleteProfile = () => {
         delete cleaned.twitter;
         delete cleaned.youtube;
 
-        // Clean work experience dates
+         // Clean work experience dates
         if (cleaned.workExperience) {
           cleaned.workExperience = cleaned.workExperience.map(exp => ({
             ...exp,
@@ -272,7 +272,7 @@ const CompleteProfile = () => {
           }));
         }
 
-        // Handle birth date
+         // Handle birth date
         if (cleaned.birthDay) cleaned.birthDay = String(cleaned.birthDay);
         if (cleaned.birthMonth) cleaned.birthMonth = String(cleaned.birthMonth);
         if (cleaned.birthYear) cleaned.birthYear = String(cleaned.birthYear);
@@ -282,12 +282,12 @@ const CompleteProfile = () => {
 
       const finalPayload = cleanPayload(data);
 
-      const response = await apiClient.put('/api/users/profile', finalPayload);
+      const response = await apiClient.put('/users/profile', finalPayload);
 
       if (response.data.success) {
         toast.success("¡Perfil actualizado con éxito!", { id: toastId });
         const updatedProfile = response.data.data;
-        // Mapeo correcto de fecha de nacimiento tras guardar
+         // Mapeo correcto de fecha de nacimiento tras guardar
         let birthDay = '', birthMonth = '', birthYear = '';
         if (updatedProfile.birthDate) {
           const date = new Date(updatedProfile.birthDate);
@@ -331,7 +331,7 @@ const CompleteProfile = () => {
     }
   };
 
-  // Lógica de guardado automático para la foto de portada
+   // Lógica de guardado automático para la foto de portada
   const handleCoverImageChange = async (file: File | null) => {
     const toastId = toast.loading(file ? "Subiendo imagen..." : "Eliminando imagen...");
     setIsLoading(true);
@@ -341,14 +341,14 @@ const CompleteProfile = () => {
       if (file) {
         const formData = new FormData();
         formData.append('image', file);
-        const res = await apiClient.post('/api/uploads/image', formData, {
+        const res = await apiClient.post('/uploads/image', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         imageUrl = res.data.imageUrl;
       }
       
       const payload = { coverPhoto: imageUrl || '' };
-      const response = await apiClient.put('/api/users/profile', payload);
+      const response = await apiClient.put('/users/profile', payload);
       
       if (response.data.success) {
         toast.success(file ? 'Foto de portada actualizada' : 'Foto de portada eliminada', { id: toastId });
@@ -364,13 +364,13 @@ const CompleteProfile = () => {
 
   
 
-  // Lógica de guardado automático para la foto de perfil
+   // Lógica de guardado automático para la foto de perfil
   const handleProfileImageChange = async (url: string | null) => {
     const toastId = toast.loading(url ? "Actualizando foto..." : "Eliminando foto...");
     setIsLoading(true);
     try {
       const payload = { profilePicture: url || '' };
-      const response = await apiClient.put('/api/users/profile', payload);
+      const response = await apiClient.put('/users/profile', payload);
       if (response.data.success) {
         toast.success(url ? 'Foto de perfil actualizada' : 'Foto de perfil eliminada', { id: toastId });
         const updatedProfile = response.data.data;
@@ -424,7 +424,7 @@ const CompleteProfile = () => {
                   </div>
                 ) : (
                   <FormProvider {...form} key={formKey}>
-                    {/* El contenido cambia según la pestaña activa */}
+                    { /* El contenido cambia según la pestaña activa */}
                     {activeTab === 'edit' && (
                       <div key={`edit-tab-${formKey}`}>
                         <SectionTabs activeSection={activeSection} onSectionChange={setActiveSection} />

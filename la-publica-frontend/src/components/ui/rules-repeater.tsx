@@ -100,17 +100,17 @@ export const RulesRepeater = ({
               onDragOver={(e) => handleDragOver(e, index)}
               onDragEnd={handleDragEnd}
             >
-              {/* Drag handle */}
+              { /* Drag handle */}
               <div className="cursor-move text-gray-400 hover:text-gray-600">
                 <GripVertical className="h-4 w-4" />
               </div>
 
-              {/* Rule number */}
+              { /* Rule number */}
               <div className="flex-shrink-0 w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center text-sm font-medium text-gray-600">
                 {index + 1}
               </div>
 
-              {/* Rule input */}
+              { /* Rule input */}
               <Input
                 value={rule}
                 onChange={(e) => updateRule(index, e.target.value)}
@@ -119,7 +119,7 @@ export const RulesRepeater = ({
                 className="flex-1 border-0 focus:ring-0 focus:border-0 px-0"
               />
 
-              {/* Remove button */}
+              { /* Remove button */}
               <Button
                 type="button"
                 variant="ghost"

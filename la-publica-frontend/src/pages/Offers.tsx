@@ -112,7 +112,7 @@ export default function Offers() {
   return (
     <PageWrapper>
       <div className="space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Ofertas de Trabajo</h1>
@@ -124,7 +124,7 @@ export default function Offers() {
           </Button>
         </div>
 
-        {/* Search and View Controls */}
+        { /* Search and View Controls */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex flex-col sm:flex-row gap-4 flex-1">
             <div className="flex-1">
@@ -158,7 +158,7 @@ export default function Offers() {
           </div>
         </div>
 
-        {/* Offers Grid/List */}
+        { /* Offers Grid/List */}
         <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
           {offers.map((offer) => (
             <OfferCard key={offer.id} offer={offer} isGrid={viewMode === "grid"} />

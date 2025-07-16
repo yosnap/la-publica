@@ -38,12 +38,12 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange,
   const [users, setUsers] = useState<User[]>([]);
   const [mentionSuggestions, setMentionSuggestions] = useState<User[]>([]);
 
-  // Load users once when component mounts
+   // Load users once when component mounts
   useEffect(() => {
     const loadUsers = async () => {
       try {
         const data = await fetchAllUsers();
-        // La API devuelve { success: true, data: Array }
+         // La API devuelve { success: true, data: Array }
         const usersList = data.data || data.users || (Array.isArray(data) ? data : []);
         setUsers(usersList);
       } catch (error) {

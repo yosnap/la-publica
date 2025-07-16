@@ -123,7 +123,7 @@ export function AppSidebar() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const response = await apiClient.get('/api/users/profile');
+        const response = await apiClient.get('/users/profile');
         if (response.data.success) {
           setUser(response.data.data);
         }
@@ -133,7 +133,7 @@ export function AppSidebar() {
     };
     fetchUserProfile();
 
-    // Cargar preferencia de modo oscuro
+     // Cargar preferencia de modo oscuro
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
     setIsDarkMode(savedDarkMode);
     if (savedDarkMode) {
@@ -252,7 +252,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Sección de Administración - Solo para admins */}
+        { /* Sección de Administración - Solo para admins */}
         {isAdmin && (
           <SidebarGroup className="mt-6">
             <SidebarGroupLabel className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">

@@ -108,7 +108,7 @@ const CreateForumPostGeneral = () => {
       <PageWrapper>
         <div className="max-w-4xl mx-auto">
           <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            <div className="h-8 bg-gray-200 rounded w-1 /3"></div>
             <div className="h-96 bg-gray-200 rounded"></div>
           </div>
         </div>
@@ -119,7 +119,7 @@ const CreateForumPostGeneral = () => {
   return (
     <PageWrapper>
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => navigate('/forums')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -131,11 +131,11 @@ const CreateForumPostGeneral = () => {
           </div>
         </div>
 
-        {/* Form */}
+        { /* Form */}
         <Card>
           <CardContent className="p-6">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Forum Selection */}
+              { /* Forum Selection */}
               <div>
                 <Label htmlFor="forum">Foro *</Label>
                 <Select value={formData.forumId} onValueChange={(value) => setFormData(prev => ({ ...prev, forumId: value }))}>
@@ -164,7 +164,7 @@ const CreateForumPostGeneral = () => {
                 )}
               </div>
 
-              {/* Title */}
+              { /* Title */}
               <div>
                 <Label htmlFor="title">Título del Post *</Label>
                 <Input
@@ -180,7 +180,7 @@ const CreateForumPostGeneral = () => {
                 </p>
               </div>
 
-              {/* Content */}
+              { /* Content */}
               <div>
                 <Label htmlFor="content">Contenido *</Label>
                 <div className="mt-1">
@@ -195,7 +195,7 @@ const CreateForumPostGeneral = () => {
                 </p>
               </div>
 
-              {/* Tags */}
+              { /* Tags */}
               <div>
                 <Label htmlFor="tags">Tags (opcional)</Label>
                 <div className="mt-1 space-y-2">
@@ -238,7 +238,7 @@ const CreateForumPostGeneral = () => {
                 </div>
               </div>
 
-              {/* Actions */}
+              { /* Actions */}
               <div className="flex justify-end gap-4 pt-4 border-t">
                 <Button 
                   type="button" 

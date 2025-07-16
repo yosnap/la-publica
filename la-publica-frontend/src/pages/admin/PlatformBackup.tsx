@@ -55,7 +55,7 @@ export default function PlatformBackup() {
       setExporting(true);
       const config = await exportConfiguration();
       
-      // Descargar automáticamente
+       // Descargar automáticamente
       downloadConfigurationFile(config);
       
       toast.success('Configuración exportada exitosamente');
@@ -82,7 +82,7 @@ export default function PlatformBackup() {
       const config = await readConfigurationFile(file);
       setConfiguration(config);
       
-      // Validar automáticamente
+       // Validar automáticamente
       const validationResult = await validateConfiguration(config);
       setValidation(validationResult.data);
       
@@ -113,7 +113,7 @@ export default function PlatformBackup() {
       
       toast.success('Configuración importada exitosamente');
       
-      // Limpiar estado
+       // Limpiar estado
       setSelectedFile(null);
       setConfiguration(null);
       setValidation(null);
@@ -141,7 +141,7 @@ export default function PlatformBackup() {
   return (
     <PageWrapper>
       <div className="space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Respaldo de Configuración</h1>
@@ -155,7 +155,7 @@ export default function PlatformBackup() {
           </Badge>
         </div>
 
-        {/* Export Section */}
+        { /* Export Section */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -199,7 +199,7 @@ export default function PlatformBackup() {
           </CardContent>
         </Card>
 
-        {/* Import Section */}
+        { /* Import Section */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -376,7 +376,7 @@ export default function PlatformBackup() {
           </CardContent>
         </Card>
 
-        {/* Import Results */}
+        { /* Import Results */}
         {importResult && (
           <Card>
             <CardHeader>
@@ -445,7 +445,7 @@ export default function PlatformBackup() {
           </Card>
         )}
 
-        {/* Preview Dialog */}
+        { /* Preview Dialog */}
         <Dialog open={showPreview} onOpenChange={setShowPreview}>
           <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
@@ -481,7 +481,7 @@ export default function PlatformBackup() {
           </DialogContent>
         </Dialog>
 
-        {/* Import Configuration Dialog */}
+        { /* Import Configuration Dialog */}
         <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
           <DialogContent>
             <DialogHeader>

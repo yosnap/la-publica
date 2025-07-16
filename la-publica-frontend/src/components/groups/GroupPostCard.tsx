@@ -73,7 +73,7 @@ export const GroupPostCard = ({
 
   const isAuthor = post.author._id === currentUserId;
   const canModerate = userGroupRole === 'admin' || userGroupRole === 'moderator';
-  const canEdit = isAuthor; // Solo el autor puede editar por ahora
+  const canEdit = isAuthor;  // Solo el autor puede editar por ahora
   const canDelete = isAuthor || canModerate;
 
   const handleToggleLike = async () => {
@@ -169,7 +169,7 @@ export const GroupPostCard = ({
     <Card className={`shadow-sm border-0 bg-white ${className}`}>
       <CardContent className="p-6">
         <div className="space-y-4">
-          {/* Header */}
+          { /* Header */}
           <div className="flex items-start justify-between">
             <div className="flex items-center space-x-3">
               <Avatar className="h-10 w-10">
@@ -202,7 +202,7 @@ export const GroupPostCard = ({
               </div>
             </div>
 
-            {/* Actions menu */}
+            { /* Actions menu */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm">
@@ -274,7 +274,7 @@ export const GroupPostCard = ({
             </DropdownMenu>
           </div>
 
-          {/* Content */}
+          { /* Content */}
           <div>
             <div 
               className="prose prose-sm max-w-none [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ml-4 [&_ol]:ml-4 [&_a]:text-blue-500 [&_a]:underline"
@@ -282,7 +282,7 @@ export const GroupPostCard = ({
             />
           </div>
 
-          {/* Images */}
+          { /* Images */}
           {post.images && post.images.length > 0 && (
             <div className={`grid gap-2 ${
               post.images.length === 1 ? 'grid-cols-1' :
@@ -300,13 +300,13 @@ export const GroupPostCard = ({
             </div>
           )}
 
-          {/* Interaction stats */}
+          { /* Interaction stats */}
           <div className="flex items-center space-x-4 text-sm text-gray-500 pt-2 border-t">
             <span>{likesCount} me gusta</span>
             <span>{comments.length} comentarios</span>
           </div>
 
-          {/* Action buttons */}
+          { /* Action buttons */}
           <div className="flex items-center space-x-6 pt-2 border-t">
             <Button
               variant="ghost"
@@ -341,10 +341,10 @@ export const GroupPostCard = ({
             </Button>
           </div>
 
-          {/* Comments section */}
+          { /* Comments section */}
           {showComments && (
             <div className="space-y-4 pt-4 border-t">
-              {/* Add comment */}
+              { /* Add comment */}
               {!post.commentsDisabled && (
                 <div className="flex space-x-3">
                   <Avatar className="h-8 w-8 flex-shrink-0">
@@ -371,7 +371,7 @@ export const GroupPostCard = ({
                 </div>
               )}
 
-              {/* Comments disabled message */}
+              { /* Comments disabled message */}
               {post.commentsDisabled && (
                 <div className="flex items-center justify-center py-4 text-gray-500 text-sm">
                   <MessageSquareOff className="h-4 w-4 mr-2" />
@@ -379,7 +379,7 @@ export const GroupPostCard = ({
                 </div>
               )}
 
-              {/* Comments list */}
+              { /* Comments list */}
               <div className="space-y-3">
                 {comments.map((comment) => (
                   <div key={comment._id} className="flex space-x-3">

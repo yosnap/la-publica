@@ -20,26 +20,26 @@ const Login = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError(null); // Limpiar errores anteriores
+    setError(null);  // Limpiar errores anteriores
 
     try {
-      // Recordar que nuestro backend espera un campo 'login' que puede ser email o username
-      const response = await apiClient.post('/api/auth/login', {
+       // Recordar que nuestro backend espera un campo 'login' que puede ser email o username
+      const response = await apiClient.post('/auth/login', {
         login: email, 
         password: password
       });
 
       if (response.data && response.data.success) {
-        // Guardar el token
+         // Guardar el token
         localStorage.setItem('authToken', response.data.token);
-        // Redirigir a la página principal (home)
+         // Redirigir a la página principal (home)
         navigate('/');
       } else {
-        // En caso de que la API devuelva success: false pero sin un error de status
+         // En caso de que la API devuelva success: false pero sin un error de status
         setError(response.data.message || 'Ocurrió un error inesperado.');
       }
     } catch (err) {
-      // Manejar errores de la petición (ej. 401, 500)
+       // Manejar errores de la petición (ej. 401, 500)
       if (axios.isAxiosError(err)) {
         const errorMessage = err.response?.data?.message || "Error al conectar con el servidor. Inténtalo más tarde.";
         setError(errorMessage);
@@ -54,7 +54,7 @@ const Login = () => {
   return (
     <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo y título */}
+        { /* Logo y título */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-[#4F8FF7] rounded-2xl flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-2xl">LP</span>
@@ -85,7 +85,7 @@ const Login = () => {
                 </Label>
                 <Input
                   id="email"
-                  type="text" // Cambiado a text para permitir usuarios
+                  type="text"  // Cambiado a text para permitir usuarios
                   placeholder="tu@email.com o tu_usuario"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -111,7 +111,7 @@ const Login = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-3 top-1 /2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -169,14 +169,14 @@ const Login = () => {
               </p>
             </div>
 
-            {/* Divisor */}
+            { /* Divisor */}
             <div className="mt-6 flex items-center">
               <div className="flex-1 border-t border-gray-200"></div>
               <span className="px-4 text-sm text-gray-500">O continúa con</span>
               <div className="flex-1 border-t border-gray-200"></div>
             </div>
 
-            {/* Botones de redes sociales */}
+            { /* Botones de redes sociales */}
             <div className="mt-6 grid grid-cols-2 gap-3">
               <Button
                 type="button"
@@ -217,7 +217,7 @@ const Login = () => {
           </CardContent>
         </Card>
 
-        {/* Footer */}
+        { /* Footer */}
         <div className="mt-8 text-center text-sm text-gray-500">
           <p>
             Al iniciar sesión, aceptas nuestros{" "}

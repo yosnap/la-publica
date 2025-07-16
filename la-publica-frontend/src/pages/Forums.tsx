@@ -30,13 +30,13 @@ export default function Forums() {
     try {
       setLoading(true);
       
-      // Cargar categorías
+       // Cargar categorías
       const categoriesResponse = await fetchForumCategories();
       if (categoriesResponse.success) {
         setCategories(categoriesResponse.data);
       }
 
-      // Cargar foros
+       // Cargar foros
       const forumsResponse = await fetchForums({
         categoryId: selectedCategory || undefined,
         search: searchTerm || undefined,
@@ -112,7 +112,7 @@ export default function Forums() {
   return (
     <PageWrapper>
       <div className="space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Foros de Discusión</h1>
@@ -127,10 +127,10 @@ export default function Forums() {
           </Button>
         </div>
 
-        {/* Search and Filters */}
+        { /* Search and Filters */}
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative max-w-md flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1 /2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               placeholder="Buscar en los foros..."
               value={searchTerm}
@@ -152,7 +152,7 @@ export default function Forums() {
           </select>
         </div>
 
-        {/* Forums List */}
+        { /* Forums List */}
         <div className="grid gap-4">
           <h2 className="text-lg font-semibold text-gray-900">
             {selectedCategory ? 'Foros Filtrados' : 'Todos los Foros'}

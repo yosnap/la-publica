@@ -77,14 +77,14 @@ export const CreateGroupPost = ({
       if (response.success) {
         toast.success("Post publicado exitosamente");
         
-        // Reset form
+         // Reset form
         setContent("");
         setImages([]);
         setSelectedMood(null);
         setPrivacy("members_only");
         setShowImageUpload(false);
         
-        // Notify parent component
+         // Notify parent component
         if (onPostCreated) {
           onPostCreated();
         }
@@ -98,7 +98,7 @@ export const CreateGroupPost = ({
   };
 
   const addImage = (imageUrl: string) => {
-    if (images.length < 5) { // Límite de 5 imágenes
+    if (images.length < 5) {  // Límite de 5 imágenes
       setImages(prev => [...prev, imageUrl]);
     } else {
       toast.error("Máximo 5 imágenes por post");
@@ -117,7 +117,7 @@ export const CreateGroupPost = ({
     <Card className={`shadow-sm border-0 bg-white ${className}`}>
       <CardContent className="p-6">
         <div className="space-y-4">
-          {/* Header with user info */}
+          { /* Header with user info */}
           <div className="flex items-center space-x-3">
             <Avatar className="h-10 w-10">
               <AvatarImage src={getImageUrl(userProfilePicture)} />
@@ -156,7 +156,7 @@ export const CreateGroupPost = ({
             </div>
           </div>
 
-          {/* Content editor */}
+          { /* Content editor */}
           <div>
             <RichTextEditor
               content={content}
@@ -166,7 +166,7 @@ export const CreateGroupPost = ({
             />
           </div>
 
-          {/* Images preview */}
+          { /* Images preview */}
           {images.length > 0 && (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2">
               {images.map((image, index) => (
@@ -189,7 +189,7 @@ export const CreateGroupPost = ({
             </div>
           )}
 
-          {/* Image upload section */}
+          { /* Image upload section */}
           {showImageUpload && (
             <div className="border-2 border-dashed border-gray-300 rounded-lg p-4">
               <ImageUpload
@@ -204,10 +204,10 @@ export const CreateGroupPost = ({
             </div>
           )}
 
-          {/* Action buttons and privacy */}
+          { /* Action buttons and privacy */}
           <div className="flex items-center justify-between pt-2 border-t">
             <div className="flex items-center space-x-3">
-              {/* Image button */}
+              { /* Image button */}
               <Button
                 variant="ghost"
                 size="sm"
@@ -218,7 +218,7 @@ export const CreateGroupPost = ({
                 Foto
               </Button>
 
-              {/* Mood selector */}
+              { /* Mood selector */}
               <Select
                 value={selectedMood?.label || ""}
                 onValueChange={(value) => {
@@ -244,7 +244,7 @@ export const CreateGroupPost = ({
                 </SelectContent>
               </Select>
 
-              {/* Privacy selector */}
+              { /* Privacy selector */}
               <Select value={privacy} onValueChange={(value: "public" | "members_only") => setPrivacy(value)}>
                 <SelectTrigger className="w-auto border-0 shadow-none hover:bg-gray-50 text-gray-600 hover:text-gray-700 p-2">
                   <div className="flex items-center">
@@ -271,7 +271,7 @@ export const CreateGroupPost = ({
               </Select>
             </div>
 
-            {/* Post button */}
+            { /* Post button */}
             <Button
               onClick={handleSubmit}
               disabled={!content.trim() || posting}

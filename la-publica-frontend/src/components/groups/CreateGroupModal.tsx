@@ -71,7 +71,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
 
   const privacy = watch("privacy");
 
-  // Cargar categorías al abrir el modal
+   // Cargar categorías al abrir el modal
   useEffect(() => {
     if (open) {
       fetchGroupCategories()
@@ -87,7 +87,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
     }
   }, [open]);
 
-  // Manejar selección de imagen principal
+   // Manejar selección de imagen principal
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -102,7 +102,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
     }
   };
 
-  // Manejar selección de imagen de portada
+   // Manejar selección de imagen de portada
   const handleCoverImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -117,7 +117,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
     }
   };
 
-  // Agregar tag
+   // Agregar tag
   const addTag = () => {
     if (newTag.trim() && !tags.includes(newTag.trim().toLowerCase()) && tags.length < 5) {
       setTags([...tags, newTag.trim().toLowerCase()]);
@@ -125,12 +125,12 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
     }
   };
 
-  // Eliminar tag
+   // Eliminar tag
   const removeTag = (index: number) => {
     setTags(tags.filter((_, i) => i !== index));
   };
 
-  // Agregar regla
+   // Agregar regla
   const addRule = () => {
     if (newRule.trim() && rules.length < 10) {
       setRules([...rules, newRule.trim()]);
@@ -138,17 +138,17 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
     }
   };
 
-  // Eliminar regla
+   // Eliminar regla
   const removeRule = (index: number) => {
     setRules(rules.filter((_, i) => i !== index));
   };
 
-  // Subir imagen
+   // Subir imagen
   const uploadImage = async (file: File): Promise<string | null> => {
     try {
       const formData = new FormData();
       formData.append('image', file);
-      const response = await apiClient.post('/api/uploads/image', formData, {
+      const response = await apiClient.post('/uploads/image', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
       return response.data.imageUrl;
@@ -158,14 +158,14 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
     }
   };
 
-  // Manejar envío del formulario
+   // Manejar envío del formulario
   const onSubmit = async (data: CreateGroupForm) => {
     setIsSubmitting(true);
     try {
       let imageUrl = null;
       let coverImageUrl = null;
 
-      // Subir imagen principal si existe
+       // Subir imagen principal si existe
       if (selectedImage) {
         imageUrl = await uploadImage(selectedImage);
         if (!imageUrl) {
@@ -174,7 +174,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
         }
       }
 
-      // Subir imagen de portada si existe
+       // Subir imagen de portada si existe
       if (selectedCoverImage) {
         coverImageUrl = await uploadImage(selectedCoverImage);
         if (!coverImageUrl) {
@@ -183,7 +183,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
         }
       }
 
-      // Crear el grupo
+       // Crear el grupo
       const groupData = {
         ...data,
         tags,
@@ -208,7 +208,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
     }
   };
 
-  // Cerrar modal y limpiar formulario
+   // Cerrar modal y limpiar formulario
   const handleClose = () => {
     setOpen(false);
     reset();
@@ -233,7 +233,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Información básica */}
+          { /* Información básica */}
           <div className="space-y-4">
             <div>
               <Label htmlFor="name">Nombre del grupo *</Label>
@@ -287,7 +287,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
             </div>
           </div>
 
-          {/* Privacidad */}
+          { /* Privacidad */}
           <div className="space-y-3">
             <Label>Privacidad</Label>
             <div className="flex items-center space-x-4">
@@ -320,7 +320,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
             </div>
           </div>
 
-          {/* Tags */}
+          { /* Tags */}
           <div className="space-y-3">
             <Label>Tags (máximo 5)</Label>
             <div className="flex space-x-2">
@@ -356,7 +356,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
             )}
           </div>
 
-          {/* Reglas */}
+          { /* Reglas */}
           <div className="space-y-3">
             <Label>Reglas del grupo (máximo 10)</Label>
             <div className="flex space-x-2">
@@ -390,7 +390,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
             )}
           </div>
 
-          {/* Información adicional */}
+          { /* Información adicional */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label htmlFor="location">Ubicación</Label>
@@ -415,7 +415,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
             </div>
           </div>
 
-          {/* Imágenes */}
+          { /* Imágenes */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <Label>Imagen del grupo</Label>
@@ -478,7 +478,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
             </div>
           </div>
 
-          {/* Botones */}
+          { /* Botones */}
           <div className="flex justify-end space-x-3 pt-4">
             <Button type="button" variant="outline" onClick={handleClose}>
               Cancelar

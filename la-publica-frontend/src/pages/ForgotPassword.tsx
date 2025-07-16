@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, Mail, AlertCircle, CheckCircle } from 'lucide-react';
-import axios from 'axios';
+import apiClient from '@/api/client';
 
 const forgotPasswordSchema = z.object({
   email: z.string().email('Email inválido').min(1, 'Email es requerido'),
@@ -35,7 +35,7 @@ const ForgotPassword: React.FC = () => {
     setError(null);
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/forgot`, {
+      const response = await apiClient.post('/auth/forgot', {
         email: data.email,
       });
 
@@ -57,7 +57,7 @@ const ForgotPassword: React.FC = () => {
     return (
       <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          {/* Logo y título */}
+          { /* Logo y título */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-[#4F8FF7] rounded-2xl flex items-center justify-center mx-auto mb-4">
               <span className="text-white font-bold text-2xl">LP</span>
@@ -112,7 +112,7 @@ const ForgotPassword: React.FC = () => {
   return (
     <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo y título */}
+        { /* Logo y título */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-[#4F8FF7] rounded-2xl flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-2xl">LP</span>

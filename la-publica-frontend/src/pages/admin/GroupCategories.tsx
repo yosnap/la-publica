@@ -150,7 +150,7 @@ const GroupCategories = () => {
   return (
     <PageWrapper>
       <div className="space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Categorías de Grupos</h1>
@@ -233,7 +233,7 @@ const GroupCategories = () => {
           </Dialog>
         </div>
 
-        {/* Lista de categorías */}
+        { /* Lista de categorías */}
         {loading ? (
           <div className="text-center py-8">Cargando categorías...</div>
         ) : (
@@ -242,7 +242,7 @@ const GroupCategories = () => {
               <Card key={category._id} className="shadow-sm">
                 <CardContent className="p-6">
                   {editingCategory?._id === category._id ? (
-                    // Modo edición
+                     // Modo edición
                     <div className="space-y-4">
                       <div className="grid grid-cols-2 gap-4">
                         <div>
@@ -284,7 +284,7 @@ const GroupCategories = () => {
                       </div>
                     </div>
                   ) : (
-                    // Modo vista
+                     // Modo vista
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-4">
                         <div

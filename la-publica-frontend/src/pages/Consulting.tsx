@@ -172,7 +172,7 @@ export default function Consulting() {
   return (
     <PageWrapper>
       <div className="space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="min-w-0 flex-1">
             <h1 className="text-2xl font-bold text-gray-900 break-words">Servicios de Asesoramiento</h1>
@@ -184,7 +184,7 @@ export default function Consulting() {
           </Button>
         </div>
 
-        {/* Search, Filters and View Controls */}
+        { /* Search, Filters and View Controls */}
         <div className="flex flex-col lg:flex-row gap-4 overflow-hidden">
           <div className="flex-1 min-w-0">
             <Input
@@ -232,14 +232,14 @@ export default function Consulting() {
           </div>
         </div>
 
-        {/* Consulting Services */}
+        { /* Consulting Services */}
         <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-6"}>
           {consultingServices.map((service) => (
             <ConsultingCard key={service.id} service={service} isGrid={viewMode === "grid"} />
           ))}
         </div>
 
-        {/* Load More */}
+        { /* Load More */}
         <div className="text-center">
           <Button variant="outline">Cargar más servicios</Button>
         </div>

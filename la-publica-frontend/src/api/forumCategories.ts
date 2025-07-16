@@ -11,36 +11,36 @@ export interface ForumCategory {
   updatedAt: string;
 }
 
-// Obtener todas las categorías de foros
+ // Obtener todas las categorías de foros
 export const fetchForumCategories = async () => {
-  const response = await apiClient.get('/api/forum-categories');
+  const response = await apiClient.get('/forum-categories');
   return response.data;
 };
 
-// Obtener una categoría por ID
+ // Obtener una categoría por ID
 export const getForumCategoryById = async (id: string) => {
-  const response = await apiClient.get(`/api/forum-categories/${id}`);
+  const response = await apiClient.get(`/forum-categories/${id}`);
   return response.data;
 };
 
-// Crear una nueva categoría (solo admin)
+ // Crear una nueva categoría (solo admin)
 export const createForumCategory = async (data: {
   name: string;
   description?: string;
   color?: string;
   icon?: string;
 }) => {
-  const response = await apiClient.post('/api/forum-categories', data);
+  const response = await apiClient.post('/forum-categories', data);
   return response.data;
 };
 
-// Actualizar una categoría (solo admin)
+ // Actualizar una categoría (solo admin)
 export const updateForumCategory = async (id: string, data: Partial<ForumCategory>) => {
   const response = await apiClient.put(`/forum-categories/${id}`, data);
   return response.data;
 };
 
-// Eliminar una categoría (solo admin)
+ // Eliminar una categoría (solo admin)
 export const deleteForumCategory = async (id: string) => {
   const response = await apiClient.delete(`/forum-categories/${id}`);
   return response.data;

@@ -8,7 +8,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
 import { AxiosError } from "axios";
 
-// Importar los nuevos componentes de sección
+ // Importar los nuevos componentes de sección
 import GeneralInformationSection from "@/components/profile/GeneralInformationSection";
 import BiographySection from "@/components/profile/BiographySection";
 import WorkExperienceSection from "@/components/profile/WorkExperienceSection";
@@ -17,7 +17,7 @@ import { ProfilePhotoSection } from "@/components/profile/ProfilePhotoSection";
 import SectionTabs from "@/components/profile/SectionTabs";
 import SocialLinksSection from "@/components/profile/SocialLinksSection";
 
-// La interfaz de datos del formulario sigue siendo la misma
+ // La interfaz de datos del formulario sigue siendo la misma
 export interface ProfileFormData {
   firstName: string;
   lastName: string;
@@ -49,14 +49,14 @@ export interface ProfileFormData {
   username: string;
 }
 
-// Props para los componentes de sección
+ // Props para los componentes de sección
 export interface ProfileSectionProps {
   form: UseFormReturn<ProfileFormData>;
 }
 
 type ProfileDataWithBirthDate = ProfileFormData & { birthDate?: string };
 
-// Esquema de validación con Zod
+ // Esquema de validación con Zod
 const profileSchema = z.object({
   firstName: z.string().min(1, "El nombre es requerido"),
   lastName: z.string().min(1, "El apellido es requerido"),
@@ -126,15 +126,15 @@ const EditProfile = () => {
     }
   });
   
-  // Log para depuración de defaultValues
+   // Log para depuración de defaultValues
   console.log('Default values:', form.getValues());
 
-  // La lógica para cargar y enviar datos permanece igual
+   // La lógica para cargar y enviar datos permanece igual
   useEffect(() => {
     const fetchProfile = async () => {
       setIsLoading(true);
       try {
-        const response = await apiClient.get('/api/users/profile');
+        const response = await apiClient.get('/users/profile');
         console.log('📥 Respuesta del backend:', response.data);
         if (response.data.success) {
           console.log('📋 Datos del usuario:', response.data.data);
@@ -175,9 +175,9 @@ const EditProfile = () => {
           youtube: profileData.socialLinks?.youtube || "",
         },
       };
-      // Eliminar birthDate del resetValues ya que no existe en el esquema del formulario
+       // Eliminar birthDate del resetValues ya que no existe en el esquema del formulario
       delete resetValues.birthDate;
-      // LOG para depuración
+       // LOG para depuración
       console.log('Valores para reset:', { birthDay, birthMonth, birthYear });
       form.reset(resetValues);
       setFormKey(prev => prev + 1);
@@ -189,7 +189,7 @@ const EditProfile = () => {
     setError(null);
     setSuccessMessage(null);
 
-    // Limpiar los campos de socialLinks para que solo se envíen si son URLs no vacías
+     // Limpiar los campos de socialLinks para que solo se envíen si son URLs no vacías
     const cleanedSocialLinks: Record<string, string> = {};
     if (data.socialLinks?.facebook?.trim()) cleanedSocialLinks.facebook = data.socialLinks.facebook.trim();
     if (data.socialLinks?.twitter?.trim()) cleanedSocialLinks.twitter = data.socialLinks.twitter.trim();
@@ -200,7 +200,7 @@ const EditProfile = () => {
       skills,
       gender: data.gender,
       workExperience: data.workExperience,
-      // birthDate fuera del payload
+       // birthDate fuera del payload
       birthDay: String(data.birthDay),
       birthMonth: String(data.birthMonth),
       birthYear: String(data.birthYear),
@@ -212,13 +212,13 @@ const EditProfile = () => {
       delete updatedProfile.socialLinks;
     }
 
-    // Eliminar birthDate si existe por error
+     // Eliminar birthDate si existe por error
     if ('birthDate' in updatedProfile) {
       delete (updatedProfile as Record<string, unknown>).birthDate;
     }
 
     try {
-      const response = await apiClient.put('/api/users/profile', updatedProfile);
+      const response = await apiClient.put('/users/profile', updatedProfile);
       if (response.data.success) {
         setSuccessMessage("¡Perfil actualizado con éxito!");
       }
@@ -239,7 +239,7 @@ const EditProfile = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         setProfileImage(e.target?.result as string);
-        // Aquí también deberíamos tener la lógica para subir la imagen al servidor
+         // Aquí también deberíamos tener la lógica para subir la imagen al servidor
         console.log("Imagen lista para subir (simulado)");
       };
       reader.readAsDataURL(file);
@@ -254,7 +254,7 @@ const EditProfile = () => {
           <p className="text-gray-600">Mantén tu información profesional al día</p>
         </div>
 
-        {/* Renderizar el formulario solo si profileData está disponible */}
+        { /* Renderizar el formulario solo si profileData está disponible */}
         {profileData && (
           <FormProvider {...form} key={formKey}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -272,7 +272,7 @@ const EditProfile = () => {
                   <AlertDescription>{successMessage}</AlertDescription>
                 </Alert>
               )}
-              {/* Componentes de sección refactorizados */}
+              { /* Componentes de sección refactorizados */}
               <ProfilePhotoSection
                 profileImageUrl={profileImage}
                 onProfileImageChange={(newImageUrl) => {

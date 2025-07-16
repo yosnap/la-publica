@@ -36,17 +36,17 @@ import ForumPostDetail from "./pages/ForumPostDetail";
 
 const queryClient = new QueryClient();
 
-// Componente para manejar la ruta de login
+ // Componente para manejar la ruta de login
 const LoginRoute = () => {
   const isAuthenticated = !!localStorage.getItem('authToken');
-  // Si el usuario ya está autenticado, lo redirigimos al dashboard
+   // Si el usuario ya está autenticado, lo redirigimos al dashboard
   return isAuthenticated ? <Navigate to="/" replace /> : <Login />;
 }
 
-// Componente para manejar la ruta de registro
+ // Componente para manejar la ruta de registro
 const RegisterRoute = () => {
   const isAuthenticated = !!localStorage.getItem('authToken');
-  // Si el usuario ya está autenticado, lo redirigimos al dashboard
+   // Si el usuario ya está autenticado, lo redirigimos al dashboard
   return isAuthenticated ? <Navigate to="/" replace /> : <Register />;
 }
 

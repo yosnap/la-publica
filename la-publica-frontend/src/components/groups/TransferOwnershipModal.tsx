@@ -39,7 +39,7 @@ export const TransferOwnershipModal = ({
   const [confirmationChecked, setConfirmationChecked] = useState(false);
   const [transferring, setTransferring] = useState(false);
 
-  // Solo admins pueden recibir la propiedad
+   // Solo admins pueden recibir la propiedad
   const eligibleMembers = group.members.filter(member => 
     member.role === 'admin' && member.user._id !== group.creator._id
   );
@@ -53,12 +53,12 @@ export const TransferOwnershipModal = ({
       setTransferring(true);
       await onTransfer(selectedMemberId);
       
-      // Reset and close
+       // Reset and close
       setSelectedMemberId("");
       setConfirmationChecked(false);
       onOpenChange(false);
     } catch (error) {
-      // Error handling is done in parent component
+       // Error handling is done in parent component
     } finally {
       setTransferring(false);
     }
@@ -84,7 +84,7 @@ export const TransferOwnershipModal = ({
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Warning */}
+          { /* Warning */}
           <div className="flex items-start space-x-3 p-4 bg-amber-50 border border-amber-200 rounded-lg">
             <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5" />
             <div className="text-sm text-amber-800">
@@ -97,7 +97,7 @@ export const TransferOwnershipModal = ({
             </div>
           </div>
 
-          {/* Current owner */}
+          { /* Current owner */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-2 block">
               Propietario actual
@@ -121,7 +121,7 @@ export const TransferOwnershipModal = ({
             </div>
           </div>
 
-          {/* Select new owner */}
+          { /* Select new owner */}
           <div>
             <label className="text-sm font-medium text-gray-700 mb-2 block">
               Nuevo propietario
@@ -167,7 +167,7 @@ export const TransferOwnershipModal = ({
             )}
           </div>
 
-          {/* Preview transfer */}
+          { /* Preview transfer */}
           {selectedMember && (
             <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <div className="flex items-center justify-center space-x-4 mb-3">
@@ -203,7 +203,7 @@ export const TransferOwnershipModal = ({
             </div>
           )}
 
-          {/* Confirmation checkbox */}
+          { /* Confirmation checkbox */}
           {selectedMember && (
             <div className="flex items-start space-x-3">
               <Checkbox

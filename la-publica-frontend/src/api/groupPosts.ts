@@ -1,6 +1,6 @@
 import apiClient from './client';
 
-// Tipos para posts de grupos
+ // Tipos para posts de grupos
 export interface GroupPost {
   _id: string;
   content: string;
@@ -100,13 +100,13 @@ export interface SingleGroupPostResponse {
   message?: string;
 }
 
-// Crear un post en un grupo
+ // Crear un post en un grupo
 export const createGroupPost = async (groupId: string, postData: CreateGroupPostData) => {
   const response = await apiClient.post(`/groups/${groupId}/posts`, postData);
   return response.data;
 };
 
-// Obtener posts de un grupo
+ // Obtener posts de un grupo
 export const fetchGroupPosts = async (
   groupId: string, 
   params?: {
@@ -119,13 +119,13 @@ export const fetchGroupPosts = async (
   return response.data;
 };
 
-// Obtener un post específico
+ // Obtener un post específico
 export const fetchGroupPostById = async (groupId: string, postId: string): Promise<SingleGroupPostResponse> => {
   const response = await apiClient.get(`/groups/${groupId}/posts/${postId}`);
   return response.data;
 };
 
-// Actualizar un post
+ // Actualizar un post
 export const updateGroupPost = async (
   groupId: string, 
   postId: string, 
@@ -135,19 +135,19 @@ export const updateGroupPost = async (
   return response.data;
 };
 
-// Eliminar un post
+ // Eliminar un post
 export const deleteGroupPost = async (groupId: string, postId: string) => {
   const response = await apiClient.delete(`/groups/${groupId}/posts/${postId}`);
   return response.data;
 };
 
-// Like/Unlike un post
+ // Like/Unlike un post
 export const toggleLikeGroupPost = async (groupId: string, postId: string) => {
   const response = await apiClient.post(`/groups/${groupId}/posts/${postId}/like`);
   return response.data;
 };
 
-// Agregar comentario
+ // Agregar comentario
 export const addCommentToGroupPost = async (
   groupId: string, 
   postId: string, 
@@ -157,7 +157,7 @@ export const addCommentToGroupPost = async (
   return response.data;
 };
 
-// Eliminar comentario
+ // Eliminar comentario
 export const deleteCommentFromGroupPost = async (
   groupId: string, 
   postId: string, 
@@ -167,13 +167,13 @@ export const deleteCommentFromGroupPost = async (
   return response.data;
 };
 
-// Fijar/Desfijar post (solo admin/moderador)
+ // Fijar/Desfijar post (solo admin/moderador)
 export const togglePinGroupPost = async (groupId: string, postId: string) => {
   const response = await apiClient.patch(`/groups/${groupId}/posts/${postId}/pin`);
   return response.data;
 };
 
-// Habilitar/Deshabilitar comentarios (solo admin/moderador)
+ // Habilitar/Deshabilitar comentarios (solo admin/moderador)
 export const toggleCommentsGroupPost = async (groupId: string, postId: string) => {
   const response = await apiClient.patch(`/groups/${groupId}/posts/${postId}/comments/toggle`);
   return response.data;

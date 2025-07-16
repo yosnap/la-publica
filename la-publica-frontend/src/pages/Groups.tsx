@@ -33,14 +33,14 @@ const Groups = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
   const [joiningGroups, setJoiningGroups] = useState<Set<string>>(new Set());
 
-  // Cargar datos iniciales
+   // Cargar datos iniciales
   useEffect(() => {
     loadMyGroups();
     loadDiscoverGroups();
     loadCategories();
   }, []);
 
-  // Cargar grupos del usuario
+   // Cargar grupos del usuario
   const loadMyGroups = async () => {
     try {
       setLoading(true);
@@ -56,7 +56,7 @@ const Groups = () => {
     }
   };
 
-  // Cargar grupos para descubrir
+   // Cargar grupos para descubrir
   const loadDiscoverGroups = async () => {
     try {
       setLoadingDiscover(true);
@@ -78,7 +78,7 @@ const Groups = () => {
     }
   };
 
-  // Cargar categorías
+   // Cargar categorías
   const loadCategories = async () => {
     try {
       const response = await fetchGroupCategories();
@@ -90,14 +90,14 @@ const Groups = () => {
     }
   };
 
-  // Unirse a un grupo
+   // Unirse a un grupo
   const handleJoinGroup = async (groupId: string) => {
     try {
       setJoiningGroups(prev => new Set(prev).add(groupId));
       const response = await joinGroup(groupId);
       if (response.success) {
         toast.success("Te has unido al grupo exitosamente");
-        // Actualizar las listas
+         // Actualizar las listas
         loadMyGroups();
         loadDiscoverGroups();
       }
@@ -113,7 +113,7 @@ const Groups = () => {
     }
   };
 
-  // Salir de un grupo
+   // Salir de un grupo
   const handleLeaveGroup = async (groupId: string) => {
     if (!confirm("¿Estás seguro de que quieres salir de este grupo?")) return;
     
@@ -130,7 +130,7 @@ const Groups = () => {
     }
   };
 
-  // Filtrar grupos por búsqueda
+   // Filtrar grupos por búsqueda
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       loadDiscoverGroups();
@@ -176,7 +176,7 @@ const Groups = () => {
   return (
     <PageWrapper>
       <div className="space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between space-y-4 sm:space-y-0">
           <div>
             <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Grupos</h1>
@@ -190,22 +190,22 @@ const Groups = () => {
           </CreateGroupModal>
         </div>
 
-        {/* Búsqueda */}
+        { /* Búsqueda */}
         <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
           <CardContent className="p-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-3 top-1 /2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
               <Input
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Buscar grupos por nombre, descripción o categoría..."
-                className="pl-10 bg-gray-50 dark:bg-gray-700/50 border-0 focus:bg-white dark:bg-gray-800/50 focus:ring-2 focus:ring-primary/20"
+                className="pl-10 bg-gray-50 dark:bg-gray-700 /50 border-0 focus:bg-white dark:bg-gray-800/50 focus:ring-2 focus:ring-primary/20"
               />
             </div>
           </CardContent>
         </Card>
 
-        {/* Tabs */}
+        { /* Tabs */}
         <Tabs defaultValue="my-groups" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2 bg-white dark:bg-gray-800/50 border">
             <TabsTrigger 
@@ -224,16 +224,16 @@ const Groups = () => {
 
           <TabsContent value="my-groups" className="space-y-4">
             {loading ? (
-              // Skeleton loading
+               // Skeleton loading
               Array.from({ length: 3 }).map((_, index) => (
                 <Card key={index} className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
                   <CardContent className="p-6">
                     <div className="flex items-center space-x-4">
                       <Skeleton className="w-16 h-16 rounded-xl" />
                       <div className="flex-1 space-y-2">
-                        <Skeleton className="h-4 w-1/3" />
-                        <Skeleton className="h-3 w-2/3" />
-                        <Skeleton className="h-3 w-1/4" />
+                        <Skeleton className="h-4 w-1 /3" />
+                        <Skeleton className="h-3 w-2 /3" />
+                        <Skeleton className="h-3 w-1 /4" />
                       </div>
                     </div>
                   </CardContent>
@@ -260,7 +260,7 @@ const Groups = () => {
                 <Card key={group._id} className="shadow-sm border-0 bg-white dark:bg-gray-800/50 hover:shadow-md transition-shadow">
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row lg:items-center space-y-4 lg:space-y-0 lg:space-x-6">
-                    {/* Imagen del grupo */}
+                    { /* Imagen del grupo */}
                     <div className="w-16 h-16 lg:w-20 lg:h-20 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
                       {group.image ? (
                         <img src={getImageUrl(group.image)} alt={group.name} className="w-full h-full object-cover" />
@@ -271,7 +271,7 @@ const Groups = () => {
                       )}
                     </div>
 
-                    {/* Información del grupo */}
+                    { /* Información del grupo */}
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between space-y-2 sm:space-y-0">
                         <div>
@@ -353,8 +353,8 @@ const Groups = () => {
                       <div className="flex items-start space-x-4">
                         <Skeleton className="w-16 h-16 rounded-xl" />
                         <div className="flex-1 space-y-2">
-                          <Skeleton className="h-4 w-2/3" />
-                          <Skeleton className="h-3 w-1/2" />
+                          <Skeleton className="h-4 w-2 /3" />
+                          <Skeleton className="h-3 w-1 /2" />
                           <Skeleton className="h-3 w-full" />
                           <div className="flex space-x-2">
                             <Skeleton className="h-8 w-20" />
@@ -456,7 +456,7 @@ const Groups = () => {
               </div>
             )}
 
-            {/* Categorías Populares */}
+            { /* Categorías Populares */}
             {categories.length > 0 && (
               <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50 mt-8">
                 <CardHeader>

@@ -37,7 +37,7 @@ const CreateForumPost = () => {
       if (response.success) {
         setForum(response.data);
         
-        // Verificar si el foro está bloqueado
+         // Verificar si el foro está bloqueado
         if (response.data.isLocked) {
           toast.error('Este foro está bloqueado para nuevos posts');
           navigate(`/forums/${forumId}`);
@@ -110,7 +110,7 @@ const CreateForumPost = () => {
       <PageWrapper>
         <div className="max-w-4xl mx-auto">
           <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-1/3"></div>
+            <div className="h-8 bg-gray-200 rounded w-1 /3"></div>
             <div className="h-96 bg-gray-200 rounded"></div>
           </div>
         </div>
@@ -134,7 +134,7 @@ const CreateForumPost = () => {
   return (
     <PageWrapper>
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => navigate(`/forums/${forumId}`)}>
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -148,7 +148,7 @@ const CreateForumPost = () => {
           </div>
         </div>
 
-        {/* Forum Rules Reminder */}
+        { /* Forum Rules Reminder */}
         {forum.rules && forum.rules.length > 0 && (
           <Card className="border-yellow-200 bg-yellow-50">
             <CardHeader>
@@ -174,11 +174,11 @@ const CreateForumPost = () => {
           </Card>
         )}
 
-        {/* Form */}
+        { /* Form */}
         <Card>
           <CardContent className="p-6">
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Title */}
+              { /* Title */}
               <div>
                 <Label htmlFor="title">Título del Post *</Label>
                 <Input
@@ -194,7 +194,7 @@ const CreateForumPost = () => {
                 </p>
               </div>
 
-              {/* Content */}
+              { /* Content */}
               <div>
                 <Label htmlFor="content">Contenido *</Label>
                 <div className="mt-1">
@@ -209,7 +209,7 @@ const CreateForumPost = () => {
                 </p>
               </div>
 
-              {/* Tags */}
+              { /* Tags */}
               <div>
                 <Label htmlFor="tags">Tags (opcional)</Label>
                 <div className="mt-1 space-y-2">
@@ -252,7 +252,7 @@ const CreateForumPost = () => {
                 </div>
               </div>
 
-              {/* Actions */}
+              { /* Actions */}
               <div className="flex justify-end gap-4 pt-4 border-t">
                 <Button 
                   type="button" 

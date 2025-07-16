@@ -60,35 +60,35 @@ export interface ImportResult {
   forums: { created: number; skipped: number; errors: number };
 }
 
-// Exportar configuración de la plataforma
+ // Exportar configuración de la plataforma
 export const exportConfiguration = async (): Promise<BackupConfiguration> => {
-  const response = await apiClient.get('/api/backup/export');
+  const response = await apiClient.get('/backup/export');
   return response.data;
 };
 
-// Importar configuración de la plataforma
+ // Importar configuración de la plataforma
 export const importConfiguration = async (
   configuration: BackupConfiguration,
   options: ImportOptions = {}
 ) => {
-  const response = await apiClient.post('/api/backup/import', {
+  const response = await apiClient.post('/backup/import', {
     configuration,
     options
   });
   return response.data;
 };
 
-// Validar archivo de configuración
+ // Validar archivo de configuración
 export const validateConfiguration = async (
   configuration: BackupConfiguration
 ): Promise<{ success: boolean; data: ValidationResult }> => {
-  const response = await apiClient.post('/api/backup/validate', {
+  const response = await apiClient.post('/backup/validate', {
     configuration
   });
   return response.data;
 };
 
-// Utility para descargar el archivo de configuración
+ // Utility para descargar el archivo de configuración
 export const downloadConfigurationFile = (configuration: BackupConfiguration, filename?: string) => {
   const dataStr = JSON.stringify(configuration, null, 2);
   const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -103,7 +103,7 @@ export const downloadConfigurationFile = (configuration: BackupConfiguration, fi
   URL.revokeObjectURL(url);
 };
 
-// Utility para leer archivo JSON
+ // Utility para leer archivo JSON
 export const readConfigurationFile = (file: File): Promise<BackupConfiguration> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();

@@ -29,7 +29,7 @@ const GeneralInformationSection = ({
         render={({ field }) => (
           <FormItem>
             <FormLabel>Nombre (requerido)</FormLabel>
-            <FormControl><Input placeholder="Tu nombre" {...field} /></FormControl>
+            <FormControl><Input placeholder="Tu nombre" {...field}  /></FormControl>
             <FormMessage />
           </FormItem>
         )}
@@ -42,7 +42,7 @@ const GeneralInformationSection = ({
         render={({ field }) => (
           <FormItem>
             <FormLabel>Apellido (requerido)</FormLabel>
-            <FormControl><Input placeholder="Tu apellido" {...field} /></FormControl>
+            <FormControl><Input placeholder="Tu apellido" {...field}  /></FormControl>
             <FormMessage />
           </FormItem>
         )}
@@ -55,7 +55,7 @@ const GeneralInformationSection = ({
         render={({ field }) => (
           <FormItem>
             <FormLabel>Apodo (requerido)</FormLabel>
-            <FormControl><Input placeholder="Tu apodo" {...field} /></FormControl>
+            <FormControl><Input placeholder="Tu apodo" {...field}  /></FormControl>
             <FormMessage />
           </FormItem>
         )}

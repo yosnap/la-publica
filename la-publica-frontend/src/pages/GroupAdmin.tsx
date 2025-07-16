@@ -79,7 +79,7 @@ const GroupAdmin = () => {
   const [editMode, setEditMode] = useState(false);
   const [showTransferModal, setShowTransferModal] = useState(false);
 
-  // Form state for editing group
+   // Form state for editing group
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -300,7 +300,7 @@ const GroupAdmin = () => {
   return (
     <PageWrapper>
       <div className="space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
             <Button 
@@ -337,7 +337,7 @@ const GroupAdmin = () => {
           </div>
         </div>
 
-        {/* Content */}
+        { /* Content */}
         <Tabs defaultValue="settings" className="space-y-6">
           <TabsList className="grid grid-cols-3 bg-white border">
             <TabsTrigger value="settings" className="data-[state=active]:bg-primary data-[state=active]:text-white">
@@ -358,7 +358,7 @@ const GroupAdmin = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 {editMode ? (
-                  // Edit form
+                   // Edit form
                   <div className="space-y-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
@@ -488,16 +488,16 @@ const GroupAdmin = () => {
                     />
                   </div>
                 ) : (
-                  // Read-only view
+                   // Read-only view
                   <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <h3 className="font-medium text-gray-900 mb-2">Información básica</h3>
                         <div className="space-y-2 text-sm">
-                          <div><span className="text-gray-500">Nombre:</span> {group.name}</div>
-                          <div><span className="text-gray-500">Categoría:</span> {typeof group.category === 'object' ? group.category.name : 'Sin categoría'}</div>
-                          <div><span className="text-gray-500">Privacidad:</span> {group.privacy === 'private' ? 'Privado' : 'Público'}</div>
-                          {group.location && <div><span className="text-gray-500">Ubicación:</span> {group.location}</div>}
+                          <div><span className="text-gray-500">Nombre:< /span> {group.name}</div>
+                          <div><span className="text-gray-500">Categoría:< /span> {typeof group.category === 'object' ? group.category.name : 'Sin categoría'}</div>
+                          <div><span className="text-gray-500">Privacidad:< /span> {group.privacy === 'private' ? 'Privado' : 'Público'}</div>
+                          {group.location && <div><span className="text-gray-500">Ubicación:< /span> {group.location}</div>}
                           {group.website && (
                             <div>
                               <span className="text-gray-500">Sitio web:</span>{" "}
@@ -511,9 +511,9 @@ const GroupAdmin = () => {
                       <div>
                         <h3 className="font-medium text-gray-900 mb-2">Estadísticas</h3>
                         <div className="space-y-2 text-sm">
-                          <div><span className="text-gray-500">Miembros:</span> {group.memberCount}</div>
-                          <div><span className="text-gray-500">Posts:</span> {group.postCount}</div>
-                          <div><span className="text-gray-500">Creado:</span> {new Date(group.createdAt).toLocaleDateString()}</div>
+                          <div><span className="text-gray-500">Miembros:< /span> {group.memberCount}</div>
+                          <div><span className="text-gray-500">Posts:< /span> {group.postCount}</div>
+                          <div><span className="text-gray-500">Creado:< /span> {new Date(group.createdAt).toLocaleDateString()}</div>
                         </div>
                       </div>
                     </div>
@@ -539,7 +539,7 @@ const GroupAdmin = () => {
                   </div>
                 )}
 
-                {/* Dangerous actions */}
+                { /* Dangerous actions */}
                 {isOwner && !editMode && (
                   <div className="border-t pt-6">
                     <h3 className="font-medium text-red-600 mb-4">Zona peligrosa</h3>
@@ -621,7 +621,7 @@ const GroupAdmin = () => {
                         </div>
                       </div>
                       
-                      {/* Actions for members (except creator) */}
+                      { /* Actions for members (except creator) */}
                       {group.creator._id !== member.user._id && (
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -751,7 +751,7 @@ const GroupAdmin = () => {
           </TabsContent>
         </Tabs>
 
-        {/* Transfer Ownership Modal */}
+        { /* Transfer Ownership Modal */}
         {group && (
           <TransferOwnershipModal
             open={showTransferModal}

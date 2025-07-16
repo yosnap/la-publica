@@ -43,7 +43,7 @@ const Settings = () => {
           </TabsTrigger>
         </TabsList>
 
-        {/* Configuración del Perfil */}
+        { /* Configuración del Perfil */}
         <TabsContent value="profile" className="space-y-6">
           <Card className="shadow-sm border-0 bg-white">
             <CardHeader>
@@ -112,7 +112,7 @@ const Settings = () => {
           </Card>
         </TabsContent>
 
-        {/* Configuración de Notificaciones */}
+        { /* Configuración de Notificaciones */}
         <TabsContent value="notifications" className="space-y-6">
           <Card className="shadow-sm border-0 bg-white">
             <CardHeader>
@@ -190,7 +190,7 @@ const Settings = () => {
           </Card>
         </TabsContent>
 
-        {/* Configuración de Privacidad */}
+        { /* Configuración de Privacidad */}
         <TabsContent value="privacy" className="space-y-6">
           <Card className="shadow-sm border-0 bg-white">
             <CardHeader>
@@ -264,7 +264,7 @@ const Settings = () => {
           </Card>
         </TabsContent>
 
-        {/* Configuración de Apariencia */}
+        { /* Configuración de Apariencia */}
         <TabsContent value="appearance" className="space-y-6">
           <Card className="shadow-sm border-0 bg-white">
             <CardHeader>
@@ -342,7 +342,7 @@ const Settings = () => {
           </Card>
         </TabsContent>
 
-        {/* Configuración de Cuenta */}
+        { /* Configuración de Cuenta */}
         <TabsContent value="account" className="space-y-6">
           <Card className="shadow-sm border-0 bg-white">
             <CardHeader>

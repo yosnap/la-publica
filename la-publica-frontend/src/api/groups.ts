@@ -1,6 +1,6 @@
 import apiClient from './client';
 
-// Tipos para grupos
+ // Tipos para grupos
 export interface Group {
   _id: string;
   name: string;
@@ -60,13 +60,13 @@ export interface GroupCategory {
   createdAt: string;
 }
 
-// Crear un nuevo grupo
+ // Crear un nuevo grupo
 export const createGroup = async (groupData: CreateGroupData) => {
   const response = await apiClient.post('/api/groups', groupData);
   return response.data;
 };
 
-// Obtener todos los grupos públicos
+ // Obtener todos los grupos públicos
 export const fetchGroups = async (params?: {
   category?: string;
   search?: string;
@@ -77,86 +77,86 @@ export const fetchGroups = async (params?: {
   return response.data;
 };
 
-// Obtener los grupos del usuario
+ // Obtener los grupos del usuario
 export const fetchUserGroups = async () => {
-  const response = await apiClient.get('/api/groups/me/groups');
+  const response = await apiClient.get('/groups/me/groups');
   return response.data;
 };
 
-// Obtener un grupo por ID
+ // Obtener un grupo por ID
 export const fetchGroupById = async (id: string) => {
   const response = await apiClient.get(`/groups/${id}`);
   return response.data;
 };
 
-// Unirse a un grupo
+ // Unirse a un grupo
 export const joinGroup = async (id: string) => {
   const response = await apiClient.post(`/groups/${id}/join`);
   return response.data;
 };
 
-// Salir de un grupo
+ // Salir de un grupo
 export const leaveGroup = async (id: string) => {
   const response = await apiClient.post(`/groups/${id}/leave`);
   return response.data;
 };
 
-// Actualizar información del grupo
+ // Actualizar información del grupo
 export const updateGroup = async (id: string, groupData: Partial<CreateGroupData>) => {
   const response = await apiClient.put(`/groups/${id}`, groupData);
   return response.data;
 };
 
-// Actualizar rol de un miembro
+ // Actualizar rol de un miembro
 export const updateMemberRole = async (groupId: string, memberId: string, role: string) => {
   const response = await apiClient.patch(`/groups/${groupId}/members/${memberId}/role`, { role });
   return response.data;
 };
 
-// Remover miembro del grupo
+ // Remover miembro del grupo
 export const removeMember = async (groupId: string, memberId: string) => {
   const response = await apiClient.delete(`/groups/${groupId}/members/${memberId}`);
   return response.data;
 };
 
-// Obtener estadísticas del grupo
+ // Obtener estadísticas del grupo
 export const getGroupStats = async (groupId: string) => {
   const response = await apiClient.get(`/groups/${groupId}/stats`);
   return response.data;
 };
 
-// Transferir propiedad del grupo
+ // Transferir propiedad del grupo
 export const transferOwnership = async (groupId: string, newOwnerId: string) => {
   const response = await apiClient.post(`/groups/${groupId}/transfer-ownership`, { newOwnerId });
   return response.data;
 };
 
-// Eliminar un grupo
+ // Eliminar un grupo
 export const deleteGroup = async (id: string) => {
   const response = await apiClient.delete(`/groups/${id}`);
   return response.data;
 };
 
-// === CATEGORÍAS DE GRUPOS ===
+ // === CATEGORÍAS DE GRUPOS ===
 
-// Obtener todas las categorías
+ // Obtener todas las categorías
 export const fetchGroupCategories = async () => {
-  const response = await apiClient.get('/api/groups/categories');
+  const response = await apiClient.get('/groups/categories');
   return response.data;
 };
 
-// Crear una nueva categoría (solo admin)
+ // Crear una nueva categoría (solo admin)
 export const createGroupCategory = async (categoryData: {
   name: string;
   description?: string;
   color?: string;
   icon?: string;
 }) => {
-  const response = await apiClient.post('/api/groups/categories', categoryData);
+  const response = await apiClient.post('/groups/categories', categoryData);
   return response.data;
 };
 
-// Actualizar una categoría (solo admin)
+ // Actualizar una categoría (solo admin)
 export const updateGroupCategory = async (id: string, categoryData: {
   name?: string;
   description?: string;
@@ -168,7 +168,7 @@ export const updateGroupCategory = async (id: string, categoryData: {
   return response.data;
 };
 
-// Eliminar una categoría (solo admin)
+ // Eliminar una categoría (solo admin)
 export const deleteGroupCategory = async (id: string) => {
   const response = await apiClient.delete(`/groups/categories/${id}`);
   return response.data;

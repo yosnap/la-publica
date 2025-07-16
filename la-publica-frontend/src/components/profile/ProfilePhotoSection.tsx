@@ -27,7 +27,7 @@ export const ProfilePhotoSection: React.FC<ProfilePhotoSectionProps> = ({ profil
   const webcamRef = useRef<Webcam>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Drag & drop
+   // Drag & drop
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
@@ -38,14 +38,14 @@ export const ProfilePhotoSection: React.FC<ProfilePhotoSectionProps> = ({ profil
     e.preventDefault();
   };
 
-  // File input
+   // File input
   const handleFileInput = (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       handleFile(e.target.files[0]);
     }
   };
 
-  // Tomar foto con webcam
+   // Tomar foto con webcam
   const handleTakePhoto = () => {
     if (webcamRef.current) {
       const imageSrc = webcamRef.current.getScreenshot();
@@ -53,7 +53,7 @@ export const ProfilePhotoSection: React.FC<ProfilePhotoSectionProps> = ({ profil
     }
   };
 
-  // Procesar archivo o imagen base64
+   // Procesar archivo o imagen base64
   const handleFile = (file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -63,12 +63,12 @@ export const ProfilePhotoSection: React.FC<ProfilePhotoSectionProps> = ({ profil
     reader.readAsDataURL(file);
   };
 
-  // Crop terminado
+   // Crop terminado
   const onCropComplete = (_: CropArea, croppedAreaPixels: CropArea) => {
     setCroppedAreaPixels(croppedAreaPixels);
   };
 
-  // Subir imagen recortada
+   // Subir imagen recortada
   const uploadCroppedImage = async () => {
     if (!imageSrc || !croppedAreaPixels) return;
     setCropping(true);
@@ -76,7 +76,7 @@ export const ProfilePhotoSection: React.FC<ProfilePhotoSectionProps> = ({ profil
       const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
       const formData = new FormData();
       formData.append('image', croppedBlob, 'profile.jpg');
-      const res = await apiClient.post('/api/uploads/image', formData, {
+      const res = await apiClient.post('/uploads/image', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -96,7 +96,7 @@ export const ProfilePhotoSection: React.FC<ProfilePhotoSectionProps> = ({ profil
     }
   };
 
-  // Eliminar foto
+   // Eliminar foto
   const handleDelete = () => {
     onProfileImageChange('');
     setImageSrc(null);
@@ -234,7 +234,7 @@ export const ProfilePhotoSection: React.FC<ProfilePhotoSectionProps> = ({ profil
   );
 };
 
-// Utilidad para recortar la imagen
+ // Utilidad para recortar la imagen
 function getCroppedImg(imageSrc: string, crop: CropArea): Promise<Blob> {
   return new Promise((resolve, reject) => {
     const image = new window.Image();

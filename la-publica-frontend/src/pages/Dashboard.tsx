@@ -32,7 +32,7 @@ import {
 import { toast } from "sonner";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 
-// Post type for dashboard feed
+ // Post type for dashboard feed
 export interface Post {
   _id: string;
   author: {
@@ -40,7 +40,7 @@ export interface Post {
     firstName: string;
     lastName: string;
     profilePicture?: string;
-    // Add more fields if needed
+     // Add more fields if needed
   };
   content: string;
   likes: string[];
@@ -82,7 +82,7 @@ const Dashboard = () => {
   const [modalOpen, setModalOpen] = useState(false);
   const [newPostContent, setNewPostContent] = useState("");
   const [posting, setPosting] = useState(false);
-  const [privacy, setPrivacy] = useState("public"); // Simulado
+  const [privacy, setPrivacy] = useState("public");  // Simulado
   const [editingPost, setEditingPost] = useState<Post | null>(null);
   const [editContent, setEditContent] = useState("");
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -91,7 +91,7 @@ const Dashboard = () => {
   const [commentText, setCommentText] = useState<Record<string, string>>({});
   const [submittingComment, setSubmittingComment] = useState<Record<string, boolean>>({});
   
-  // Estados para herramientas de posts
+   // Estados para herramientas de posts
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -104,7 +104,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await apiClient.get('/api/users/profile');
+        const response = await apiClient.get('/users/profile');
         if (response.data.success) {
           setUser(response.data.data);
         }
@@ -115,9 +115,9 @@ const Dashboard = () => {
     fetchProfile();
   }, []);
 
-  // Calcular progreso de perfil (removido, se usa la lógica de profileSteps más abajo)
+   // Calcular progreso de perfil (removido, se usa la lógica de profileSteps más abajo)
   
-  // Debug removido - ya no es necesario
+   // Debug removido - ya no es necesario
 
   const activities = [
     {
@@ -304,11 +304,11 @@ const Dashboard = () => {
     }
   ];
 
-  // Steps for profile completion (con subcampos)
+   // Steps for profile completion (con subcampos)
   const profileSteps = [
     {
       label: "Información general",
-      complete: [user?.firstName, user?.lastName, user?.email, user?.bio, user?.gender, user?.birthDate].filter(Boolean).length >= 5, // Completo con al menos 5 de 6 campos
+      complete: [user?.firstName, user?.lastName, user?.email, user?.bio, user?.gender, user?.birthDate].filter(Boolean).length >= 5,  // Completo con al menos 5 de 6 campos
       total: 6,
       done: [user?.firstName, user?.lastName, user?.email, user?.bio, user?.gender, user?.birthDate].filter(Boolean).length,
     },
@@ -341,7 +341,7 @@ const Dashboard = () => {
   const stepsTotal = profileSteps.length;
   const percent = Math.round((stepsCompleted / stepsTotal) * 100);
 
-  // Fetch posts on mount
+   // Fetch posts on mount
   useEffect(() => {
     setLoadingPosts(true);
     fetchUserFeed()
@@ -351,21 +351,21 @@ const Dashboard = () => {
       .finally(() => setLoadingPosts(false));
   }, []);
 
-  // Handle post creation
+   // Handle post creation
   const handleCreatePost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!postContent.trim()) return;
     setCreatingPost(true);
     try {
-      // TODO: Detect mentions, hashtags, categories, scheduling
+       // TODO: Detect mentions, hashtags, categories, scheduling
       await createPost(postContent);
       setPostContent("");
-      // Refresh posts after creation
+       // Refresh posts after creation
       setLoadingPosts(true);
       const res = await fetchUserFeed();
       setPosts(res.data || []);
     } catch (err) {
-      // TODO: Show error toast
+       // TODO: Show error toast
     } finally {
       setCreatingPost(false);
       setLoadingPosts(false);
@@ -386,17 +386,17 @@ const Dashboard = () => {
     try {
       let imageUrl = null;
       
-      // Subir imagen si existe
+       // Subir imagen si existe
       if (selectedImage) {
         const formData = new FormData();
         formData.append('image', selectedImage);
-        const uploadResponse = await apiClient.post('/api/uploads/image', formData, {
+        const uploadResponse = await apiClient.post('/uploads/image', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         imageUrl = uploadResponse.data.imageUrl;
       }
 
-      // Crear el post con contenido e imagen
+       // Crear el post con contenido e imagen
       const postData = {
         content: newPostContent,
         ...(imageUrl && { image: imageUrl }),
@@ -409,14 +409,14 @@ const Dashboard = () => {
         })
       };
 
-      console.log('Sending mood:', selectedMood); // Debug
+      console.log('Sending mood:', selectedMood);  // Debug
       await createPost(postData.content, imageUrl, selectedMood);
       
       clearPostForm();
       setModalOpen(false);
       toast.success("Post publicado exitosamente");
       
-      // Refresh posts after creation
+       // Refresh posts after creation
       setLoadingPosts(true);
       const res = await fetchUserFeed();
       setPosts(res.data || []);
@@ -428,12 +428,12 @@ const Dashboard = () => {
     }
   };
 
-  // Función para eliminar post
+   // Función para eliminar post
   const handleDeletePost = async (postId: string) => {
     if (!window.confirm("¿Seguro que quieres eliminar este post?")) return;
     try {
-      // Aquí deberías llamar a la API para eliminar el post
-      // await deletePost(postId);
+       // Aquí deberías llamar a la API para eliminar el post
+       // await deletePost(postId);
       setPosts(posts.filter(p => p._id !== postId));
       toast.success("Post eliminado correctamente");
     } catch (err) {
@@ -441,20 +441,20 @@ const Dashboard = () => {
     }
   };
 
-  // Función para abrir modal de edición
+   // Función para abrir modal de edición
   const handleEditPost = (post: Post) => {
     setEditingPost(post);
     setEditContent(post.content);
     setEditModalOpen(true);
   };
 
-  // Función para guardar edición
+   // Función para guardar edición
   const handleSaveEdit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPost || !editContent.trim()) return;
     setSavingEdit(true);
     try {
-      // Llamar a la API para actualizar el post
+       // Llamar a la API para actualizar el post
       const updated = await updatePost(editingPost._id, editContent);
       setPosts(posts.map(p => p._id === editingPost._id ? { ...p, ...updated.data } : p));
       toast.success("Post editado correctamente");
@@ -468,12 +468,12 @@ const Dashboard = () => {
     }
   };
 
-  // Función para manejar likes
+   // Función para manejar likes
   const handleLikePost = async (postId: string) => {
     try {
       const response = await toggleLikePost(postId);
       if (response.success) {
-        // Actualizar el post en el estado local
+         // Actualizar el post en el estado local
         setPosts(prevPosts => 
           prevPosts.map(post => 
             post._id === postId 
@@ -487,12 +487,12 @@ const Dashboard = () => {
     }
   };
 
-  // Función para toggle comentarios
+   // Función para toggle comentarios
   const toggleComments = (postId: string) => {
     setShowComments(prev => ({ ...prev, [postId]: !prev[postId] }));
   };
 
-  // Función para manejar comentarios
+   // Función para manejar comentarios
   const handleSubmitComment = async (postId: string) => {
     const text = commentText[postId]?.trim();
     if (!text) return;
@@ -502,7 +502,7 @@ const Dashboard = () => {
     try {
       const response = await commentOnPost(postId, text);
       if (response.success) {
-        // Actualizar el post en el estado local
+         // Actualizar el post en el estado local
         setPosts(prevPosts => 
           prevPosts.map(post => 
             post._id === postId 
@@ -510,7 +510,7 @@ const Dashboard = () => {
               : post
           )
         );
-        // Limpiar el campo de comentario
+         // Limpiar el campo de comentario
         setCommentText(prev => ({ ...prev, [postId]: "" }));
         toast.success("Comentario agregado");
       }
@@ -521,20 +521,20 @@ const Dashboard = () => {
     }
   };
 
-  // Función para manejar compartir
+   // Función para manejar compartir
   const handleSharePost = async (post: Post) => {
     if (navigator.share) {
       try {
         await navigator.share({
           title: `Post de ${post.author.firstName} ${post.author.lastName}`,
-          text: post.content.replace(/<[^>]*>/g, ''), // Remover HTML tags
+          text: post.content.replace( /<[^>]*>/g, ''), // Remover HTML tags
           url: window.location.href,
         });
       } catch (err) {
-        // Usuario canceló o error
+         // Usuario canceló o error
       }
     } else {
-      // Fallback: copiar al clipboard
+       // Fallback: copiar al clipboard
       try {
         await navigator.clipboard.writeText(window.location.href);
         toast.success("Enlace copiado al portapapeles");
@@ -544,11 +544,11 @@ const Dashboard = () => {
     }
   };
 
-  // Función para manejar selección de imagen
+   // Función para manejar selección de imagen
   const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+      if (file.size > 5 * 1024 * 1024) {  // 5MB limit
         toast.error("La imagen no puede ser mayor a 5MB");
         return;
       }
@@ -561,17 +561,17 @@ const Dashboard = () => {
     }
   };
 
-  // Función para remover imagen seleccionada
+   // Función para remover imagen seleccionada
   const removeSelectedImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
   };
 
-  // Función para manejar selección de archivo
+   // Función para manejar selección de archivo
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      if (file.size > 10 * 1024 * 1024) {  // 10MB limit
         toast.error("El archivo no puede ser mayor a 10MB");
         return;
       }
@@ -579,33 +579,33 @@ const Dashboard = () => {
     }
   };
 
-  // Función para remover archivo seleccionado
+   // Función para remover archivo seleccionado
   const removeSelectedFile = () => {
     setSelectedFile(null);
   };
 
-  // Función para agregar opción de encuesta
+   // Función para agregar opción de encuesta
   const addPollOption = () => {
     if (pollOptions.length < 4) {
       setPollOptions([...pollOptions, ""]);
     }
   };
 
-  // Función para remover opción de encuesta
+   // Función para remover opción de encuesta
   const removePollOption = (index: number) => {
     if (pollOptions.length > 2) {
       setPollOptions(pollOptions.filter((_, i) => i !== index));
     }
   };
 
-  // Función para actualizar opción de encuesta
+   // Función para actualizar opción de encuesta
   const updatePollOption = (index: number, value: string) => {
     const newOptions = [...pollOptions];
     newOptions[index] = value;
     setPollOptions(newOptions);
   };
 
-  // Función para toggle encuesta
+   // Función para toggle encuesta
   const togglePoll = () => {
     setShowPollOptions(!showPollOptions);
     if (!showPollOptions) {
@@ -613,23 +613,23 @@ const Dashboard = () => {
     }
   };
 
-  // Función para insertar mención
+   // Función para insertar mención
   const insertMention = () => {
     setNewPostContent(prev => prev + '@');
   };
 
-  // Función para seleccionar mood/estado
+   // Función para seleccionar mood/estado
   const selectMood = (mood: {emoji: string, label: string}) => {
     setSelectedMood(mood);
     setShowMoodPicker(false);
   };
 
-  // Función para remover mood seleccionado
+   // Función para remover mood seleccionado
   const removeMood = () => {
     setSelectedMood(null);
   };
 
-  // Función para limpiar formulario de post
+   // Función para limpiar formulario de post
   const clearPostForm = () => {
     setNewPostContent("");
     setSelectedImage(null);
@@ -641,7 +641,7 @@ const Dashboard = () => {
     setShowMoodPicker(false);
   };
 
-  // Función para desactivar/activar comentarios
+   // Función para desactivar/activar comentarios
   const handleToggleComments = async (postId: string) => {
     try {
       const response = await togglePostComments(postId);
@@ -660,7 +660,7 @@ const Dashboard = () => {
     }
   };
 
-  // Función para fijar/desfijar post
+   // Función para fijar/desfijar post
   const handleTogglePin = async (postId: string) => {
     try {
       const response = await togglePostPin(postId);
@@ -679,7 +679,7 @@ const Dashboard = () => {
         );
         toast.success(response.message);
         
-        // Reordenar posts para mostrar fijados al principio
+         // Reordenar posts para mostrar fijados al principio
         if (response.data.pinned) {
           setPosts(prevPosts => {
             const updatedPost = prevPosts.find(p => p._id === postId);
@@ -693,7 +693,7 @@ const Dashboard = () => {
     }
   };
 
-  // Función para verificar si el usuario es admin o moderador
+   // Función para verificar si el usuario es admin o moderador
   const isAdminOrModerator = () => {
     return user?.role === 'admin' || user?.role === 'moderator';
   };
@@ -702,9 +702,9 @@ const Dashboard = () => {
     <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* Columna Izquierda - Widgets */}
+          { /* Columna Izquierda - Widgets */}
           <div className="lg:col-span-3 space-y-6">
-            {/* Mis Grupos Widget */}
+            { /* Mis Grupos Widget */}
             <Card className="bg-white dark:bg-gray-800/50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 dark:text-gray-100 flex items-center justify-between">
@@ -736,7 +736,7 @@ const Dashboard = () => {
                 ))}
               </CardContent>
             </Card>
-            {/* Blog Widget */}
+            { /* Blog Widget */}
             <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
@@ -763,9 +763,9 @@ const Dashboard = () => {
             </Card>
           </div>
 
-          {/* Columna Central - Activity Feed */}
+          { /* Columna Central - Activity Feed */}
           <div className="lg:col-span-6 space-y-6">
-            {/* Header */}
+            { /* Header */}
             <div className="text-center">
               <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Activity Feed</h1>
               <div className="flex items-center justify-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
@@ -775,7 +775,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Crear Post (área en el feed) */}
+            { /* Crear Post (área en el feed) */}
             <Dialog open={modalOpen} onOpenChange={setModalOpen}>
               <DialogTrigger asChild>
                 <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm cursor-pointer hover:shadow-md transition-shadow mb-4">
@@ -814,11 +814,11 @@ const Dashboard = () => {
                           </span>
                         )}
                       </div>
-                      {/* Selector de privacidad */}
+                      { /* Selector de privacidad */}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700/50 rounded px-2 py-1 mt-1 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600">
-                            {privacy === "public" ? <Globe className="h-4 w-4 mr-1" /> : privacy === "friends" ? <UsersIcon className="h-4 w-4 mr-1" /> : <Lock className="h-4 w-4 mr-1" />}
+                            {privacy === "public" ? <Globe className="h-4 w-4 mr-1"  /> : privacy === "friends" ? <UsersIcon className="h-4 w-4 mr-1" /> : <Lock className="h-4 w-4 mr-1" />}
                             {privacy === "public" ? "Público" : privacy === "friends" ? "Solo amigos" : "Privado"}
                           </div>
                         </DropdownMenuTrigger>
@@ -846,7 +846,7 @@ const Dashboard = () => {
                     className="mb-2"
                   />
                   
-                  {/* Preview de imagen seleccionada */}
+                  { /* Preview de imagen seleccionada */}
                   {imagePreview && (
                     <div className="relative mt-4">
                       <img src={imagePreview} alt="Preview" className="max-h-64 rounded-lg object-cover" />
@@ -862,7 +862,7 @@ const Dashboard = () => {
                     </div>
                   )}
 
-                  {/* Preview de archivo seleccionado */}
+                  { /* Preview de archivo seleccionado */}
                   {selectedFile && (
                     <div className="mt-4 p-3 bg-gray-100 dark:bg-gray-700/50 rounded-lg flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -880,7 +880,7 @@ const Dashboard = () => {
                     </div>
                   )}
 
-                  {/* Opciones de encuesta */}
+                  { /* Opciones de encuesta */}
                   {showPollOptions && (
                     <div className="mt-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-3">
                       <div className="flex items-center justify-between">
@@ -916,7 +916,7 @@ const Dashboard = () => {
                     </div>
                   )}
 
-                  {/* Mood/Estado seleccionado */}
+                  { /* Mood/Estado seleccionado */}
                   {selectedMood && (
                     <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -935,7 +935,7 @@ const Dashboard = () => {
                     </div>
                   )}
 
-                  {/* Selector de mood/estado */}
+                  { /* Selector de mood/estado */}
                   {showMoodPicker && (
                     <div className="mt-4 p-4 border border-gray-200 dark:border-gray-700 rounded-lg space-y-3">
                       <div className="flex items-center justify-between">
@@ -973,7 +973,7 @@ const Dashboard = () => {
 
                   <div className="flex items-center justify-between mt-2">
                     <div className="flex gap-2">
-                      {/* Input oculto para imagen */}
+                      { /* Input oculto para imagen */}
                       <input
                         type="file"
                         accept="image/*"
@@ -987,12 +987,12 @@ const Dashboard = () => {
                         size="icon" 
                         onClick={() => document.getElementById('image-upload')?.click()}
                         title="Adjuntar imagen"
-                        className={`hover:bg-gray-50 dark:hover:bg-gray-700/30 ${selectedImage ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
+                        className={`hover:bg-gray-50 dark:hover:bg-gray-700 /30 ${selectedImage ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
                       >
                         <ImageIcon className="h-5 w-5" />
                       </Button>
 
-                      {/* Input oculto para archivo */}
+                      { /* Input oculto para archivo */}
                       <input
                         type="file"
                         onChange={handleFileSelect}
@@ -1005,7 +1005,7 @@ const Dashboard = () => {
                         size="icon" 
                         onClick={() => document.getElementById('file-upload')?.click()}
                         title="Adjuntar archivo"
-                        className={`hover:bg-gray-50 dark:hover:bg-gray-700/30 ${selectedFile ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
+                        className={`hover:bg-gray-50 dark:hover:bg-gray-700 /30 ${selectedFile ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
                       >
                         <Paperclip className="h-5 w-5" />
                       </Button>
@@ -1016,7 +1016,7 @@ const Dashboard = () => {
                         size="icon" 
                         onClick={() => setShowMoodPicker(!showMoodPicker)}
                         title="Agregar estado de ánimo"
-                        className={`hover:bg-gray-50 dark:hover:bg-gray-700/30 ${showMoodPicker || selectedMood ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
+                        className={`hover:bg-gray-50 dark:hover:bg-gray-700 /30 ${showMoodPicker || selectedMood ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
                       >
                         <Smile className="h-5 w-5" />
                       </Button>
@@ -1027,7 +1027,7 @@ const Dashboard = () => {
                         size="icon" 
                         onClick={togglePoll}
                         title="Crear encuesta"
-                        className={`hover:bg-gray-50 dark:hover:bg-gray-700/30 ${showPollOptions ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
+                        className={`hover:bg-gray-50 dark:hover:bg-gray-700 /30 ${showPollOptions ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
                       >
                         <BarChart2 className="h-5 w-5" />
                       </Button>
@@ -1044,7 +1044,7 @@ const Dashboard = () => {
               </DialogContent>
             </Dialog>
 
-            {/* Feed de Actividades */}
+            { /* Feed de Actividades */}
             <div className="space-y-6">
               {loadingPosts ? (
                 Array.from({ length: 3 }).map((_, i) => (
@@ -1088,7 +1088,7 @@ const Dashboard = () => {
                           )}
                         </div>
                       </div>
-                      {/* Menú de opciones */}
+                      { /* Menú de opciones */}
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400">
@@ -1096,7 +1096,7 @@ const Dashboard = () => {
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          {/* Si es el autor */}
+                          { /* Si es el autor */}
                           {user?._id === post.author._id && (
                             <>
                               <DropdownMenuItem onClick={() => handleEditPost(post)}>
@@ -1126,7 +1126,7 @@ const Dashboard = () => {
                               </DropdownMenuItem>
                             </>
                           )}
-                          {/* Si es admin y no es el autor */}
+                          { /* Si es admin y no es el autor */}
                           {user?.role === 'admin' && user._id !== post.author._id && (
                             <>
                               <DropdownMenuItem onClick={() => handleDeletePost(post._id)}>
@@ -1137,14 +1137,14 @@ const Dashboard = () => {
                               </DropdownMenuItem>
                             </>
                           )}
-                          {/* Si NO es el autor */}
+                          { /* Si NO es el autor */}
                           {user?._id !== post.author._id && user?.role !== 'admin' && (
                             <>
                               <DropdownMenuItem disabled>
                                 <Flag className="h-4 w-4 mr-2" /> Reportar
                               </DropdownMenuItem>
                               <DropdownMenuItem disabled>
-                                <Bell className="h-4 w-4 mr-2" /> Apagar/encender notificaciones
+                                <Bell className="h-4 w-4 mr-2"  /> Apagar/encender notificaciones
                               </DropdownMenuItem>
                             </>
                           )}
@@ -1152,7 +1152,7 @@ const Dashboard = () => {
                       </DropdownMenu>
                   </CardHeader>
                   <CardContent className="pt-0">
-                      {/* Indicador de post fijado */}
+                      { /* Indicador de post fijado */}
                       {post.pinned && (
                         <div className="flex items-center gap-2 mb-3 p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
                           <Pin className="h-4 w-4 text-yellow-600" />
@@ -1169,7 +1169,7 @@ const Dashboard = () => {
                         className="mb-2 text-gray-900 dark:text-gray-100 text-base prose prose-sm max-w-none [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ml-4 [&_ol]:ml-4 [&_a]:text-blue-500 [&_a]:underline"
                         dangerouslySetInnerHTML={{ __html: post.content }}
                       />
-                      {/* Imagen si existe */}
+                      { /* Imagen si existe */}
                       {post.image && (
                         <div className="mb-4">
                           <img src={post.image} alt="Imagen del post" className="w-full h-64 object-cover rounded-lg" />
@@ -1214,10 +1214,10 @@ const Dashboard = () => {
                       </Button>
                     </div>
 
-                    {/* Sección de Comentarios */}
+                    { /* Sección de Comentarios */}
                     {showComments[post._id] && !post.commentsDisabled && (
                       <div className="mt-4 border-t border-gray-100 dark:border-gray-700 pt-4">
-                        {/* Lista de comentarios existentes */}
+                        { /* Lista de comentarios existentes */}
                         {post.comments.length > 0 && (
                           <div className="space-y-3 mb-4">
                             {post.comments.map((comment) => (
@@ -1251,7 +1251,7 @@ const Dashboard = () => {
                           </div>
                         )}
 
-                        {/* Campo para nuevo comentario */}
+                        { /* Campo para nuevo comentario */}
                         <div className="flex space-x-3">
                           <Avatar className="h-8 w-8 flex-shrink-0">
                             <AvatarImage src={getImageUrl(user?.profilePicture)} />
@@ -1296,9 +1296,9 @@ const Dashboard = () => {
             </div>
           </div>
 
-          {/* Columna Derecha - Widgets */}
+          { /* Columna Derecha - Widgets */}
           <div className="lg:col-span-3 space-y-6">
-            {/* Widget Completa tu Perfil */}
+            { /* Widget Completa tu Perfil */}
             <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-2">
                 <CardTitle className="text-center text-base font-semibold text-gray-900 dark:text-gray-100">Completa tu Perfil</CardTitle>
@@ -1312,11 +1312,11 @@ const Dashboard = () => {
                 <ul className="w-full flex flex-col gap-0 relative pl-2 pr-4 mb-2 mt-2">
                   {profileSteps.map((step, idx) => (
                     <li key={idx} className="flex items-center gap-3 min-h-[28px] relative">
-                      {/* Stepper vertical line */}
+                      { /* Stepper vertical line */}
                       {idx < profileSteps.length - 1 && (
                         <span className="absolute left-2 top-6 w-px h-[24px] bg-gray-200 dark:bg-gray-600 z-0" />
                       )}
-                      {/* Step icon */}
+                      { /* Step icon */}
                       <span className="relative z-10 flex items-center justify-center h-5 w-5">
                         {step.complete ? (
                           <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
@@ -1329,7 +1329,7 @@ const Dashboard = () => {
                           </svg>
                         )}
                       </span>
-                      {/* Step label and count */}
+                      { /* Step label and count */}
                       <span className={
                         step.complete
                           ? "font-semibold text-[#2563eb] flex-1 text-base"
@@ -1348,7 +1348,7 @@ const Dashboard = () => {
                 </Button>
               </CardContent>
             </Card>
-            {/* Empresas Widget */}
+            { /* Empresas Widget */}
             <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center justify-between">
@@ -1383,7 +1383,7 @@ const Dashboard = () => {
                 </Button>
               </CardContent>
             </Card>
-            {/* Colaboradores Widget */}
+            { /* Colaboradores Widget */}
             <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center justify-between">
@@ -1423,7 +1423,7 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      {/* Modal de edición de post */}
+      { /* Modal de edición de post */}
       <Dialog open={editModalOpen} onOpenChange={setEditModalOpen}>
         <DialogContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <DialogHeader>

@@ -63,14 +63,14 @@ const CompanyProfile = ({ companyData }: CompanyProfileProps) => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header del Perfil de Empresa */}
+      { /* Header del Perfil de Empresa */}
       <Card className="shadow-sm border-0 bg-white overflow-hidden">
-        {/* Cover Photo */}
+        { /* Cover Photo */}
         <div className="h-48 bg-gradient-to-r from-blue-600 to-indigo-700 relative">
           <Button
             variant="secondary"
             size="sm"
-            className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+            className="absolute top-4 right-4 bg-white /20 backdrop-blur-sm text-white hover:bg-white/30"
           >
             <Camera className="h-4 w-4 mr-2" />
             Cambiar portada
@@ -78,7 +78,7 @@ const CompanyProfile = ({ companyData }: CompanyProfileProps) => {
         </div>
 
         <CardContent className="px-6 pb-6 pt-0 relative">
-          {/* Logo solapando la imagen de portada */}
+          { /* Logo solapando la imagen de portada */}
           <div className="flex justify-center -mt-16 mb-4">
             <div className="relative">
               <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
@@ -96,7 +96,7 @@ const CompanyProfile = ({ companyData }: CompanyProfileProps) => {
             </div>
           </div>
 
-          {/* Información de la Empresa Centrada */}
+          { /* Información de la Empresa Centrada */}
           <div className="text-center space-y-3 mb-6">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">{companyData.name}</h1>
@@ -123,7 +123,7 @@ const CompanyProfile = ({ companyData }: CompanyProfileProps) => {
               </div>
             </div>
 
-            {/* Botones de Acción */}
+            { /* Botones de Acción */}
             <div className="flex justify-center gap-3 pt-2">
               <Button size="sm">
                 <Phone className="h-4 w-4 mr-2" />
@@ -140,7 +140,7 @@ const CompanyProfile = ({ companyData }: CompanyProfileProps) => {
             </div>
           </div>
 
-          {/* Estadísticas en una fila horizontal */}
+          { /* Estadísticas en una fila horizontal */}
           <div className="grid grid-cols-4 gap-4 text-center border-t pt-6">
             {companyStats.map((stat, index) => (
               <div key={index}>
@@ -152,7 +152,7 @@ const CompanyProfile = ({ companyData }: CompanyProfileProps) => {
         </CardContent>
       </Card>
 
-      {/* Contenido con Tabs */}
+      { /* Contenido con Tabs */}
       <Tabs defaultValue="services" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 bg-white border">
           <TabsTrigger value="services" className="data-[state=active]:bg-primary data-[state=active]:text-white">
@@ -181,8 +181,8 @@ const CompanyProfile = ({ companyData }: CompanyProfileProps) => {
                     </div>
                     <p className="text-gray-600 mb-3">{service.description}</p>
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <span><strong>Precio:</strong> {service.price}</span>
-                      <span><strong>Duración:</strong> {service.duration}</span>
+                      <span><strong>Precio:< /strong> {service.price}</span>
+                      <span><strong>Duración:< /strong> {service.duration}</span>
                     </div>
                   </div>
                   <div className="flex space-x-2">

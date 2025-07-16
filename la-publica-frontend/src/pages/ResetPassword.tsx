@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ArrowLeft, Lock, AlertCircle, CheckCircle, Eye, EyeOff } from 'lucide-react';
-import axios from 'axios';
+import apiClient from '@/api/client';
 
 const resetPasswordSchema = z.object({
   newPassword: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres'),
@@ -56,7 +56,7 @@ const ResetPassword: React.FC = () => {
     setError(null);
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/reset-password`, {
+      const response = await apiClient.post('/auth/reset-password', {
         token,
         newPassword: data.newPassword,
       });
@@ -82,7 +82,7 @@ const ResetPassword: React.FC = () => {
     return (
       <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          {/* Logo y título */}
+          { /* Logo y título */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-[#4F8FF7] rounded-2xl flex items-center justify-center mx-auto mb-4">
               <span className="text-white font-bold text-2xl">LP</span>
@@ -125,7 +125,7 @@ const ResetPassword: React.FC = () => {
     return (
       <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          {/* Logo y título */}
+          { /* Logo y título */}
           <div className="text-center mb-8">
             <div className="w-16 h-16 bg-[#4F8FF7] rounded-2xl flex items-center justify-center mx-auto mb-4">
               <span className="text-white font-bold text-2xl">LP</span>
@@ -173,7 +173,7 @@ const ResetPassword: React.FC = () => {
   return (
     <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
-        {/* Logo y título */}
+        { /* Logo y título */}
         <div className="text-center mb-8">
           <div className="w-16 h-16 bg-[#4F8FF7] rounded-2xl flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-2xl">LP</span>
@@ -207,7 +207,7 @@ const ResetPassword: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-3 top-1 /2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4" />
@@ -237,7 +237,7 @@ const ResetPassword: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="absolute right-3 top-1 /2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="h-4 w-4" />

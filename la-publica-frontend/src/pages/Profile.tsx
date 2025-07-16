@@ -17,7 +17,7 @@ const getSocialUrl = (url?: string) => {
   return 'https://' + url;
 };
 
-// Definición mínima de tipos para el usuario
+ // Definición mínima de tipos para el usuario
 interface WorkExperience {
   jobTitle: string;
   company: string;
@@ -52,7 +52,7 @@ interface User {
 const Profile = () => {
   const navigate = useNavigate();
 
-  // Estado para los datos del usuario
+   // Estado para los datos del usuario
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +66,7 @@ const Profile = () => {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const response = await apiClient.get('/api/users/profile');
+        const response = await apiClient.get('/users/profile');
         if (response.data.success) {
           setUser(response.data.data);
         } else {
@@ -86,7 +86,7 @@ const Profile = () => {
     setLoadingPosts(true);
     fetchPosts()
       .then((res) => {
-        // Filtrar solo los posts del usuario autenticado
+         // Filtrar solo los posts del usuario autenticado
         const posts = (res.data || []).filter((p: PostType) => p.author?._id === user._id);
         setUserPosts(posts);
       })
@@ -154,9 +154,9 @@ const Profile = () => {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header del Perfil */}
+      { /* Header del Perfil */}
       <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50 overflow-hidden">
-        {/* Cover Photo */}
+        { /* Cover Photo */}
         <div
           className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative"
           style={{
@@ -168,7 +168,7 @@ const Profile = () => {
           <Button
             variant="secondary"
             size="sm"
-            className="absolute top-4 right-4 bg-black/30 dark:bg-gray-900/50 backdrop-blur-sm text-white hover:bg-black/40 dark:hover:bg-gray-900/60 border-0"
+            className="absolute top-4 right-4 bg-black /30 dark:bg-gray-900/50 backdrop-blur-sm text-white hover:bg-black/40 dark:hover:bg-gray-900/60 border-0"
             onClick={() => navigate('/editar-perfil')}
           >
             <Camera className="h-4 w-4 mr-2" />
@@ -177,7 +177,7 @@ const Profile = () => {
         </div>
 
         <CardContent className="px-6 pb-6 pt-0 relative">
-          {/* Avatar solapando la imagen de portada */}
+          { /* Avatar solapando la imagen de portada */}
           <div className="flex flex-col items-center -mt-16 mb-4">
             <div className="relative">
               <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
@@ -186,9 +186,9 @@ const Profile = () => {
                   {user.firstName?.[0]}{user.lastName?.[0]}
                 </AvatarFallback>
               </Avatar>
-              {/* Badge de rol */}
+              { /* Badge de rol */}
               {user.role && (
-                <span className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
+                <span className="absolute -bottom-4 left-1 /2 -translate-x-1/2 bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
                   {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
                 </span>
               )}
@@ -200,7 +200,7 @@ const Profile = () => {
               <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{user.firstName} {user.lastName}</h1>
               <p className="text-gray-600 dark:text-gray-400 text-lg">{user.bio}</p>
             </div>
-            {/* Línea con username, calendario y fecha */}
+            { /* Línea con username, calendario y fecha */}
             <div className="flex justify-center items-center gap-x-2 text-sm text-gray-500 dark:text-gray-400">
               <span>@{user.username}</span>
               <span>•</span>
@@ -209,7 +209,7 @@ const Profile = () => {
                 Se unió en {new Date(user.createdAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' }).toLowerCase()}
               </span>
             </div>
-            {/* Redes sociales */}
+            { /* Redes sociales */}
             <div className="flex justify-center gap-4 mt-2">
               {user.socialLinks?.facebook && (
                 <a
@@ -251,7 +251,7 @@ const Profile = () => {
                 </a>
               )}
             </div>
-            {/* Aquí puedes dejar los botones y redes sociales como ya tienes */}
+            { /* Aquí puedes dejar los botones y redes sociales como ya tienes */}
             <div className="flex justify-center gap-3 pt-2">
               <Button 
                 variant="outline" 
@@ -267,7 +267,7 @@ const Profile = () => {
               </Button>
             </div>
           </div>
-          {/* Estadísticas en una fila horizontal */}
+          { /* Estadísticas en una fila horizontal */}
           <div className="grid grid-cols-4 gap-4 text-center border-t pt-6">
             {userStats.map((stat, index) => (
               <div key={index}>
@@ -279,7 +279,7 @@ const Profile = () => {
         </CardContent>
       </Card>
 
-      {/* Contenido con Tabs */}
+      { /* Contenido con Tabs */}
       <Tabs defaultValue="posts" className="space-y-6">
         <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800/50 border">
           <TabsTrigger value="posts" className="data-[state=active]:bg-primary data-[state=active]:text-white">
@@ -307,7 +307,7 @@ const Profile = () => {
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
                     <Avatar className="h-10 w-10">
-                      {/* TODO: Mostrar avatar real del usuario */}
+                      { /* TODO: Mostrar avatar real del usuario */}
                       <AvatarImage src={getImageUrl(user.profilePicture)} />
                       <AvatarFallback>{user.firstName?.[0]}{user.lastName?.[0]}</AvatarFallback>
                     </Avatar>
@@ -326,7 +326,7 @@ const Profile = () => {
                         className="text-gray-800 dark:text-gray-200 mb-4 prose prose-sm max-w-none [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ml-4 [&_ol]:ml-4 [&_a]:text-blue-500 [&_a]:underline"
                         dangerouslySetInnerHTML={{ __html: post.content }}
                       />
-                      {/* TODO: Mostrar likes y comentarios reales */}
+                      { /* TODO: Mostrar likes y comentarios reales */}
                       <div className="flex gap-4 text-sm text-gray-500 dark:text-gray-400">
                         <span>{post.likes.length} me gusta</span>
                         <span>{post.comments.length} comentarios</span>
@@ -340,7 +340,7 @@ const Profile = () => {
         </TabsContent>
 
         <TabsContent value="about" className="space-y-6">
-          {/* Información Personal */}
+          { /* Información Personal */}
           <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
             <CardHeader className="flex flex-row items-center justify-between">
               <h3 className="text-lg font-semibold">Información Personal</h3>
@@ -372,7 +372,7 @@ const Profile = () => {
             </CardContent>
           </Card>
 
-          {/* Biografía */}
+          { /* Biografía */}
           <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
             <CardHeader className="flex flex-row items-center justify-between">
               <h3 className="text-lg font-semibold">Biografía</h3>
@@ -381,11 +381,11 @@ const Profile = () => {
               </Button>
             </CardHeader>
             <CardContent>
-              <p className="text-gray-900 dark:text-gray-100 whitespace-pre-line min-h-[48px]">{user.bio || <span className="text-gray-400">Sin biografía</span>}</p>
+              <p className="text-gray-900 dark:text-gray-100 whitespace-pre-line min-h-[48px]">{user.bio || <span className="text-gray-400">Sin biografía< /span>}</p>
             </CardContent>
           </Card>
 
-          {/* Habilidades */}
+          { /* Habilidades */}
           <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
             <CardHeader className="flex flex-row items-center justify-between">
               <h3 className="text-lg font-semibold">Habilidades</h3>
@@ -406,7 +406,7 @@ const Profile = () => {
             </CardContent>
           </Card>
 
-          {/* Experiencia */}
+          { /* Experiencia */}
           <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
             <CardHeader className="flex flex-row items-center justify-between">
               <h3 className="text-lg font-semibold">Experiencia</h3>

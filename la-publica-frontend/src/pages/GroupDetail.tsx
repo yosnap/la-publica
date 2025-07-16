@@ -95,16 +95,16 @@ const GroupDetail = () => {
 
   const loadUserProfile = async () => {
     try {
-      // Obtener perfil del usuario actual para tener su información
+       // Obtener perfil del usuario actual para tener su información
       const token = localStorage.getItem('authToken');
       if (token) {
-        // Extraer userId del token
+         // Extraer userId del token
         const payload = JSON.parse(atob(token.split('.')[1]));
         setCurrentUserId(payload.userId);
         
-        // Obtener perfil completo del usuario
+         // Obtener perfil completo del usuario
         import('@/api/client').then(({ default: apiClient }) => {
-          apiClient.get('/api/users/profile').then(response => {
+          apiClient.get('/users/profile').then(response => {
             if (response.data.success) {
               setUserProfile(response.data.data);
             }
@@ -145,7 +145,7 @@ const GroupDetail = () => {
       const response = await joinGroup(group._id);
       if (response.success) {
         toast.success("Te has unido al grupo exitosamente");
-        loadGroupDetails(); // Recargar para actualizar el estado
+        loadGroupDetails();  // Recargar para actualizar el estado
       }
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Error al unirse al grupo");
@@ -245,9 +245,9 @@ const GroupDetail = () => {
   return (
     <PageWrapper>
       <div className="space-y-6">
-        {/* Header del grupo */}
+        { /* Header del grupo */}
         <div className="relative">
-          {/* Imagen de portada */}
+          { /* Imagen de portada */}
           {group.coverImage ? (
             <div className="h-48 w-full rounded-xl overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600">
               <img 
@@ -260,10 +260,10 @@ const GroupDetail = () => {
             <div className="h-48 w-full rounded-xl bg-gradient-to-r from-blue-500 to-purple-600" />
           )}
           
-          {/* Información del grupo superpuesta */}
+          { /* Información del grupo superpuesta */}
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent rounded-b-xl p-6">
             <div className="flex items-end space-x-4">
-              {/* Imagen del grupo */}
+              { /* Imagen del grupo */}
               <div className="w-20 h-20 rounded-xl overflow-hidden bg-white border-4 border-white">
                 {group.image ? (
                   <img 
@@ -278,12 +278,12 @@ const GroupDetail = () => {
                 )}
               </div>
               
-              {/* Información básica */}
+              { /* Información básica */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2 mb-2">
                   <h1 className="text-2xl font-bold text-white truncate">{group.name}</h1>
                   {group.privacy === "private" && (
-                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                    <Badge variant="secondary" className="bg-white /20 text-white border-white/30">
                       <Lock className="h-3 w-3 mr-1" />
                       Privado
                     </Badge>
@@ -306,7 +306,7 @@ const GroupDetail = () => {
                 </div>
               </div>
               
-              {/* Acciones */}
+              { /* Acciones */}
               <div className="flex items-center space-x-2">
                 {!isMember ? (
                   <Button 
@@ -322,7 +322,7 @@ const GroupDetail = () => {
                     {group.userRole === "admin" && (
                       <Button 
                         variant="secondary" 
-                        className="bg-white/20 text-white hover:bg-white/30"
+                        className="bg-white /20 text-white hover:bg-white/30"
                         onClick={() => navigate(`/groups/${id}/admin`)}
                       >
                         <Settings className="h-4 w-4 mr-2" />
@@ -331,7 +331,7 @@ const GroupDetail = () => {
                     )}
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="secondary" className="bg-white/20 text-white hover:bg-white/30">
+                        <Button variant="secondary" className="bg-white /20 text-white hover:bg-white/30">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -349,9 +349,9 @@ const GroupDetail = () => {
           </div>
         </div>
 
-        {/* Contenido principal */}
+        { /* Contenido principal */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Contenido principal */}
+          { /* Contenido principal */}
           <div className="lg:col-span-2">
             <Tabs defaultValue="posts" className="space-y-6">
               <TabsList className="grid grid-cols-3 bg-white border">
@@ -367,7 +367,7 @@ const GroupDetail = () => {
               </TabsList>
 
               <TabsContent value="posts" className="space-y-6">
-                {/* Create post (only for members) */}
+                { /* Create post (only for members) */}
                 {isMember && userProfile && (
                   <CreateGroupPost
                     groupId={group._id}
@@ -379,7 +379,7 @@ const GroupDetail = () => {
                   />
                 )}
 
-                {/* Posts feed */}
+                { /* Posts feed */}
                 {loadingPosts ? (
                   <div className="space-y-4">
                     {Array.from({ length: 3 }).map((_, index) => (
@@ -395,7 +395,7 @@ const GroupDetail = () => {
                             </div>
                             <div className="space-y-2">
                               <div className="h-4 bg-gray-200 rounded"></div>
-                              <div className="h-4 bg-gray-200 rounded w-5/6"></div>
+                              <div className="h-4 bg-gray-200 rounded w-5 /6"></div>
                             </div>
                           </div>
                         </CardContent>
@@ -441,7 +441,7 @@ const GroupDetail = () => {
                   <CardContent className="space-y-4">
                     <p className="text-gray-700 leading-relaxed">{group.description}</p>
                     
-                    {/* Tags */}
+                    { /* Tags */}
                     {group.tags && group.tags.length > 0 && (
                       <div>
                         <h4 className="font-medium text-gray-900 mb-2">Tags</h4>
@@ -455,7 +455,7 @@ const GroupDetail = () => {
                       </div>
                     )}
 
-                    {/* Reglas */}
+                    { /* Reglas */}
                     {group.rules && group.rules.length > 0 && (
                       <div>
                         <h4 className="font-medium text-gray-900 mb-2">Reglas del Grupo</h4>
@@ -470,7 +470,7 @@ const GroupDetail = () => {
                       </div>
                     )}
 
-                    {/* Información adicional */}
+                    { /* Información adicional */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
                       {group.location && (
                         <div className="flex items-center space-x-2">
@@ -577,9 +577,9 @@ const GroupDetail = () => {
             </Tabs>
           </div>
 
-          {/* Sidebar */}
+          { /* Sidebar */}
           <div className="space-y-4">
-            {/* Información del creador */}
+            { /* Información del creador */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm">Creado por</CardTitle>
@@ -602,7 +602,7 @@ const GroupDetail = () => {
               </CardContent>
             </Card>
 
-            {/* Estadísticas rápidas */}
+            { /* Estadísticas rápidas */}
             <Card>
               <CardHeader>
                 <CardTitle className="text-sm">Estadísticas</CardTitle>

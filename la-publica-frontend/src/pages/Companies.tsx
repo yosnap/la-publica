@@ -159,7 +159,7 @@ export default function Companies() {
   return (
     <PageWrapper>
       <div className="space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Empresas y Colaboradores</h1>
@@ -171,7 +171,7 @@ export default function Companies() {
           </Button>
         </div>
 
-        {/* Search and View Controls */}
+        { /* Search and View Controls */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex flex-col sm:flex-row gap-4 flex-1">
             <div className="flex-1">
@@ -205,7 +205,7 @@ export default function Companies() {
           </div>
         </div>
 
-        {/* Companies Grid/List */}
+        { /* Companies Grid/List */}
         <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
           {filteredCompanies.length > 0 ? (
             filteredCompanies.map((company) => (
@@ -218,7 +218,7 @@ export default function Companies() {
           )}
         </div>
 
-        {/* Stats Section */}
+        { /* Stats Section */}
         <Card className="shadow-sm border-0 bg-white">
           <CardContent className="p-6">
             <h3 className="text-lg font-semibold text-gray-900 mb-4">Estadísticas de la Comunidad</h3>

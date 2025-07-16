@@ -46,7 +46,7 @@ export const SkillsSection = ({ skills, setSkills }: SkillsSectionProps) => {
         {skills.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {skills.map((skill) => (
-              <Badge key={skill} variant="secondary" className="bg-[#4F8FF7]/10 text-[#4F8FF7] border-[#4F8FF7]/20">
+              <Badge key={skill} variant="secondary" className="bg-[#4F8FF7] /10 text-[#4F8FF7] border-[#4F8FF7]/20">
                 {skill}
                 <span
                   role="button"

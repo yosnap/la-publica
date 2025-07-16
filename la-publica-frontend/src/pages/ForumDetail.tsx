@@ -82,7 +82,7 @@ const ForumDetail = () => {
   const handleLike = async (postId: string) => {
     try {
       await likeForumPost(postId);
-      loadPosts(); // Recargar para actualizar contadores
+      loadPosts();  // Recargar para actualizar contadores
     } catch (error) {
       toast.error('Error al dar like');
     }
@@ -91,7 +91,7 @@ const ForumDetail = () => {
   const handleDislike = async (postId: string) => {
     try {
       await dislikeForumPost(postId);
-      loadPosts(); // Recargar para actualizar contadores
+      loadPosts();  // Recargar para actualizar contadores
     } catch (error) {
       toast.error('Error al dar dislike');
     }
@@ -144,7 +144,7 @@ const ForumDetail = () => {
   return (
     <PageWrapper>
       <div className="space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div className="flex items-center gap-4">
           <Button variant="ghost" onClick={() => navigate('/forums')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -178,7 +178,7 @@ const ForumDetail = () => {
           )}
         </div>
 
-        {/* Forum Rules */}
+        { /* Forum Rules */}
         {forum.rules && forum.rules.length > 0 && (
           <Card>
             <CardHeader>
@@ -197,10 +197,10 @@ const ForumDetail = () => {
           </Card>
         )}
 
-        {/* Search and Sort */}
+        { /* Search and Sort */}
         <div className="flex flex-col sm:flex-row gap-4">
           <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1 /2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               placeholder="Buscar posts..."
               value={searchTerm}
@@ -221,7 +221,7 @@ const ForumDetail = () => {
           </select>
         </div>
 
-        {/* Posts */}
+        { /* Posts */}
         <div className="space-y-4">
           {postsLoading ? (
             [...Array(3)].map((_, i) => (
@@ -230,9 +230,9 @@ const ForumDetail = () => {
                   <div className="flex items-start space-x-4">
                     <Skeleton className="w-10 h-10 rounded-full" />
                     <div className="flex-1 space-y-2">
-                      <Skeleton className="h-6 w-3/4" />
+                      <Skeleton className="h-6 w-3 /4" />
                       <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-1/2" />
+                      <Skeleton className="h-4 w-1 /2" />
                     </div>
                   </div>
                 </CardContent>

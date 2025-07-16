@@ -10,7 +10,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 const PrivateRoute: React.FC = () => {
   const isAuthenticated = !!localStorage.getItem('authToken');
 
-  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+  return isAuthenticated ? <Outlet  /> : <Navigate to="/login" replace />;
 };
 
 export default PrivateRoute; 

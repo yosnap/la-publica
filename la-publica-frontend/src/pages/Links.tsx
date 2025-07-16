@@ -140,7 +140,7 @@ export default function Links() {
   return (
     <PageWrapper>
       <div className="space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="min-w-0 flex-1">
             <h1 className="text-2xl font-bold text-gray-900 break-words">Enlaces de Interés</h1>
@@ -152,7 +152,7 @@ export default function Links() {
           </Button>
         </div>
 
-        {/* Search and View Controls */}
+        { /* Search and View Controls */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex flex-col sm:flex-row gap-4 flex-1 min-w-0">
             <div className="flex-1 min-w-0">
@@ -186,7 +186,7 @@ export default function Links() {
           </div>
         </div>
 
-        {/* Links Grid/List */}
+        { /* Links Grid/List */}
         <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>
           {links.map((link) => (
             <LinkCard key={link.id} link={link} isGrid={viewMode === "grid"} />

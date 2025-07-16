@@ -84,20 +84,20 @@ const ForumModeration = () => {
     try {
       setLoading(true);
       
-      // Cargar estadísticas
-      const statsResponse = await apiClient.get('/api/forums/moderation/stats');
+       // Cargar estadísticas
+      const statsResponse = await apiClient.get('/forums/moderation/stats');
       if (statsResponse.data.success) {
         setStats(statsResponse.data.data);
       }
 
-      // Cargar posts pendientes
-      const pendingResponse = await apiClient.get('/api/forums/moderation/pending?status=pending');
+       // Cargar posts pendientes
+      const pendingResponse = await apiClient.get('/forums/moderation/pending?status=pending');
       if (pendingResponse.data.success) {
         setPendingPosts(pendingResponse.data.data);
       }
 
-      // Cargar posts reportados
-      const reportsResponse = await apiClient.get('/api/forums/moderation/reports?status=pending');
+       // Cargar posts reportados
+      const reportsResponse = await apiClient.get('/forums/moderation/reports?status=pending');
       if (reportsResponse.data.success) {
         setReportedPosts(reportsResponse.data.data);
       }
@@ -112,7 +112,7 @@ const ForumModeration = () => {
 
   const handleApprovePost = async (postId: string) => {
     try {
-      await apiClient.post(`/api/forums/moderation/posts/${postId}/approve`);
+      await apiClient.post(`/forums/moderation/posts/${postId}/approve`);
       toast.success('Post aprobado exitosamente');
       loadData();
     } catch (error: any) {
@@ -127,7 +127,7 @@ const ForumModeration = () => {
     }
 
     try {
-      await apiClient.post(`/api/forums/moderation/posts/${selectedPost._id}/reject`, {
+      await apiClient.post(`/forums/moderation/posts/${selectedPost._id}/reject`, {
         reason: rejectReason
       });
       toast.success('Post rechazado exitosamente');
@@ -142,7 +142,7 @@ const ForumModeration = () => {
 
   const handleResolveReport = async (postId: string, reportId: string, action: 'resolve' | 'dismiss') => {
     try {
-      await apiClient.post(`/api/forums/moderation/posts/${postId}/reports/${reportId}/resolve`, {
+      await apiClient.post(`/forums/moderation/posts/${postId}/reports/${reportId}/resolve`, {
         action,
         reason: action === 'resolve' ? 'Contenido inapropiado removido' : 'Reporte sin fundamento'
       });
@@ -155,7 +155,7 @@ const ForumModeration = () => {
 
   const handleTogglePin = async (postId: string) => {
     try {
-      await apiClient.post(`/api/forums/moderation/posts/${postId}/toggle-pin`);
+      await apiClient.post(`/forums/moderation/posts/${postId}/toggle-pin`);
       toast.success('Estado de fijado actualizado');
       loadData();
     } catch (error: any) {
@@ -165,7 +165,7 @@ const ForumModeration = () => {
 
   const handleToggleLock = async (postId: string) => {
     try {
-      await apiClient.post(`/api/forums/moderation/posts/${postId}/toggle-lock`);
+      await apiClient.post(`/forums/moderation/posts/${postId}/toggle-lock`);
       toast.success('Estado de bloqueo actualizado');
       loadData();
     } catch (error: any) {
@@ -203,7 +203,7 @@ const ForumModeration = () => {
   return (
     <PageWrapper title="Moderación de Foros">
       <div className="space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <Shield className="h-6 w-6 text-primary" />
@@ -212,7 +212,7 @@ const ForumModeration = () => {
           <p className="text-gray-600">Gestiona y modera el contenido de los foros</p>
         </div>
 
-        {/* Stats Cards */}
+        { /* Stats Cards */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <Card>
@@ -265,7 +265,7 @@ const ForumModeration = () => {
           </div>
         )}
 
-        {/* Tabs */}
+        { /* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
             <TabsTrigger value="overview">Resumen</TabsTrigger>
@@ -360,7 +360,7 @@ const ForumModeration = () => {
                           {post.forum.name}
                         </Badge>
                         <p className="text-gray-700 text-sm line-clamp-3">
-                          {post.content.replace(/<[^>]*>/g, '').substring(0, 200)}...
+                          {post.content.replace( /<[^>]*>/g, '').substring(0, 200)}...
                         </p>
                       </div>
                     </div>
@@ -437,13 +437,13 @@ const ForumModeration = () => {
                             {post.forum.name}
                           </Badge>
                           <p className="text-gray-700 text-sm line-clamp-2">
-                            {post.content.replace(/<[^>]*>/g, '').substring(0, 200)}...
+                            {post.content.replace( /<[^>]*>/g, '').substring(0, 200)}...
                           </p>
                         </div>
                       </div>
                     </div>
                     
-                    {/* Reports */}
+                    { /* Reports */}
                     <div className="border-t pt-4">
                       <h4 className="font-medium text-gray-900 mb-3">Reportes:</h4>
                       {post.reports?.map((report) => (
@@ -495,7 +495,7 @@ const ForumModeration = () => {
           </TabsContent>
         </Tabs>
 
-        {/* Reject Dialog */}
+        { /* Reject Dialog */}
         <Dialog open={showRejectDialog} onOpenChange={setShowRejectDialog}>
           <DialogContent>
             <DialogHeader>

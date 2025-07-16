@@ -30,8 +30,8 @@ export const ImageUpload = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Validaciones
-    if (file.size > 5 * 1024 * 1024) { // 5MB
+     // Validaciones
+    if (file.size > 5 * 1024 * 1024) {  // 5MB
       toast.error("El archivo es muy grande. Máximo 5MB.");
       return;
     }
@@ -41,14 +41,14 @@ export const ImageUpload = ({
       return;
     }
 
-    // Vista previa local
+     // Vista previa local
     const reader = new FileReader();
     reader.onload = (e) => {
       setPreview(e.target?.result as string);
     };
     reader.readAsDataURL(file);
 
-    // Upload a Cloudinary
+     // Upload a Cloudinary
     uploadToCloudinary(file);
   };
 
@@ -58,8 +58,8 @@ export const ImageUpload = ({
       
       const formData = new FormData();
       formData.append('file', file);
-      formData.append('upload_preset', 'ml_default'); // Usa tu upload preset
-      formData.append('cloud_name', 'dv7k5jjbv'); // Usa tu cloud name
+      formData.append('upload_preset', 'ml_default');  // Usa tu upload preset
+      formData.append('cloud_name', 'dv7k5jjbv');  // Usa tu cloud name
 
       const response = await fetch(
         'https://api.cloudinary.com/v1_1/dv7k5jjbv/image/upload',
@@ -121,7 +121,7 @@ export const ImageUpload = ({
         transition-colors
       `}>
         {currentImage ? (
-          // Imagen existente o preview
+           // Imagen existente o preview
           <div className="relative w-full h-full">
             <img
               src={currentImage}
@@ -165,7 +165,7 @@ export const ImageUpload = ({
             )}
           </div>
         ) : (
-          // Estado vacío
+           // Estado vacío
           <div
             className="w-full h-full flex flex-col items-center justify-center text-gray-500 p-6"
             onClick={() => !disabled && fileInputRef.current?.click()}

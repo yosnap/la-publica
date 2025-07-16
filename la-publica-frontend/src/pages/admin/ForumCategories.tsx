@@ -344,7 +344,7 @@ const ForumCategories = () => {
           ))}
         </div>
 
-        {/* Modal de Edición */}
+        { /* Modal de Edición */}
         <Dialog open={!!editingCategory} onOpenChange={closeEditModal}>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>

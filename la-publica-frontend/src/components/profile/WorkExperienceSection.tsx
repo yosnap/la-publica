@@ -20,7 +20,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
-// Definición de tipo para experiencia laboral
+ // Definición de tipo para experiencia laboral
 interface Experience {
   jobTitle: string;
   company: string;
@@ -55,9 +55,9 @@ const WorkExperienceSection = () => {
   };
 
   const handleAddExperience = () => {
-    // Add validation before adding
+     // Add validation before adding
     if (!newExperience.jobTitle || !newExperience.company) {
-      // Maybe show an error
+       // Maybe show an error
       return;
     }
 
@@ -69,7 +69,7 @@ const WorkExperienceSection = () => {
 
     const updatedExperiences = [...allExperiences, experienceToAdd];
     setValue("workExperience", updatedExperiences, { shouldDirty: true });
-    // Reset form
+     // Reset form
     setNewExperience({
       jobTitle: "",
       company: "",
@@ -124,7 +124,7 @@ const WorkExperienceSection = () => {
     <div className="space-y-6">
       <h3 className="text-lg font-medium text-gray-800">Experiencia Laboral</h3>
       
-      {/* Lista de experiencias en formato Acordeón */}
+      { /* Lista de experiencias en formato Acordeón */}
       <Accordion type="single" collapsible className="w-full">
         {allExperiences.map((exp, index) => {
           const uniqueKey = `${exp.jobTitle}-${exp.company}-${exp.startDate || index}`;
@@ -197,8 +197,8 @@ const WorkExperienceSection = () => {
                   </div>
                 ) : (
                   <>
-                    <p><strong>Desde:</strong> {exp.startDate}</p>
-                    <p><strong>Hasta:</strong> {exp.isCurrentJob ? 'Actualidad' : exp.endDate}</p>
+                    <p><strong>Desde:< /strong> {exp.startDate}</p>
+                    <p><strong>Hasta:< /strong> {exp.isCurrentJob ? 'Actualidad' : exp.endDate}</p>
                     <p>{exp.description}</p>
                   </>
                 )}
@@ -208,11 +208,11 @@ const WorkExperienceSection = () => {
         })}
       </Accordion>
       
-      {/* Formulario para añadir nueva experiencia */}
+      { /* Formulario para añadir nueva experiencia */}
       <div className="p-4 border border-gray-200 rounded-lg space-y-4">
         <h4 className="font-medium">Añadir Nueva Experiencia</h4>
         
-        {/* Formulario de nueva experiencia */}
+        { /* Formulario de nueva experiencia */}
         <div className="space-y-4">
           <div>
             <Label htmlFor="jobTitle">Cargo</Label>

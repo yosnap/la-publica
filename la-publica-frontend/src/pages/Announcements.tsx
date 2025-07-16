@@ -95,9 +95,9 @@ export default function Announcements() {
                   )}
                   <Badge className={announcement.type === "offer" ? "bg-green-500" : "bg-blue-500"}>
                     {announcement.type === "offer" ? (
-                      <><TrendingUp className="h-3 w-3 mr-1" /> Oferta</>
+                      <><TrendingUp className="h-3 w-3 mr-1"  /> Oferta</>
                     ) : (
-                      <><TrendingDown className="h-3 w-3 mr-1" /> Demanda</>
+                      <><TrendingDown className="h-3 w-3 mr-1"  /> Demanda</>
                     )}
                   </Badge>
                 </div>
@@ -146,7 +146,7 @@ export default function Announcements() {
   return (
     <PageWrapper>
       <div className="space-y-6">
-        {/* Header */}
+        { /* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">Anuncios Empresariales</h1>
@@ -158,7 +158,7 @@ export default function Announcements() {
           </Button>
         </div>
 
-        {/* Search and Quick Stats */}
+        { /* Search and Quick Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           <div className="lg:col-span-2">
             <Input
@@ -187,7 +187,7 @@ export default function Announcements() {
           </Card>
         </div>
 
-        {/* View Toggle and Filter Tabs */}
+        { /* View Toggle and Filter Tabs */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <Tabs value={activeFilter} onValueChange={setActiveFilter} className="flex-1">
             <TabsList className="grid w-full grid-cols-3 max-w-md bg-white border">
@@ -221,7 +221,7 @@ export default function Announcements() {
           </div>
         </div>
 
-        {/* Content */}
+        { /* Content */}
         <Tabs value={activeFilter} onValueChange={setActiveFilter} className="w-full">
           <TabsContent value="all" className="space-y-4">
             <div className={viewMode === "grid" ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "space-y-4"}>

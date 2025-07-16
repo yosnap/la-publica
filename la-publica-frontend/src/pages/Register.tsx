@@ -33,14 +33,14 @@ const Register = () => {
     setError(null);
 
     try {
-      await apiClient.post('/api/auth/register', {
+      await apiClient.post('/auth/register', {
         firstName,
         lastName,
         username,
         email,
         password
       });
-      // Redirigir al login con un mensaje de éxito (opcional, pero buena UX)
+       // Redirigir al login con un mensaje de éxito (opcional, pero buena UX)
       navigate('/login?registered=true');
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -146,9 +146,9 @@ const Register = () => {
                    <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1 /2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? <EyeOff className="h-4 w-4"  /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
@@ -186,14 +186,14 @@ const Register = () => {
               </p>
             </div>
             
-            {/* Divisor */}
+            { /* Divisor */}
             <div className="mt-6 flex items-center">
               <div className="flex-1 border-t border-gray-200"></div>
               <span className="px-4 text-sm text-gray-500">O continúa con</span>
               <div className="flex-1 border-t border-gray-200"></div>
             </div>
 
-            {/* Botones de redes sociales */}
+            { /* Botones de redes sociales */}
             <div className="mt-6 grid grid-cols-2 gap-3">
               <Button
                 type="button"
