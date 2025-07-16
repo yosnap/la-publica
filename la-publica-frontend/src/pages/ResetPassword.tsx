@@ -56,7 +56,7 @@ const ResetPassword: React.FC = () => {
     setError(null);
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/reset-password`, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/reset-password`, {
         token,
         newPassword: data.newPassword,
       });

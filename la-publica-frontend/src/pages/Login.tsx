@@ -24,7 +24,7 @@ const Login = () => {
 
     try {
       // Recordar que nuestro backend espera un campo 'login' que puede ser email o username
-      const response = await apiClient.post('/auth/login', {
+      const response = await apiClient.post('/api/auth/login', {
         login: email, 
         password: password
       });

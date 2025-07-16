@@ -35,7 +35,7 @@ const ForgotPassword: React.FC = () => {
     setError(null);
 
     try {
-      const response = await axios.post(`${import.meta.env.VITE_API_URL}/auth/forgot`, {
+      const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/forgot`, {
         email: data.email,
       });
 
