@@ -66,7 +66,7 @@ const Profile = () => {
     const fetchProfile = async () => {
       setLoading(true);
       try {
-        const response = await apiClient.get('/users/profile');
+        const response = await apiClient.get('/api/users/profile');
         if (response.data.success) {
           setUser(response.data.data);
         } else {

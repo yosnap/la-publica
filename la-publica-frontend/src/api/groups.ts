@@ -62,7 +62,7 @@ export interface GroupCategory {
 
 // Crear un nuevo grupo
 export const createGroup = async (groupData: CreateGroupData) => {
-  const response = await apiClient.post('/groups', groupData);
+  const response = await apiClient.post('/api/groups', groupData);
   return response.data;
 };
 
@@ -73,13 +73,13 @@ export const fetchGroups = async (params?: {
   page?: number;
   limit?: number;
 }) => {
-  const response = await apiClient.get('/groups', { params });
+  const response = await apiClient.get('/api/groups', { params });
   return response.data;
 };
 
 // Obtener los grupos del usuario
 export const fetchUserGroups = async () => {
-  const response = await apiClient.get('/groups/me/groups');
+  const response = await apiClient.get('/api/groups/me/groups');
   return response.data;
 };
 
@@ -141,7 +141,7 @@ export const deleteGroup = async (id: string) => {
 
 // Obtener todas las categorías
 export const fetchGroupCategories = async () => {
-  const response = await apiClient.get('/groups/categories');
+  const response = await apiClient.get('/api/groups/categories');
   return response.data;
 };
 
@@ -152,7 +152,7 @@ export const createGroupCategory = async (categoryData: {
   color?: string;
   icon?: string;
 }) => {
-  const response = await apiClient.post('/groups/categories', categoryData);
+  const response = await apiClient.post('/api/groups/categories', categoryData);
   return response.data;
 };
 

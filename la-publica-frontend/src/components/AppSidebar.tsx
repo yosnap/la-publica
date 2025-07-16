@@ -123,7 +123,7 @@ export function AppSidebar() {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const response = await apiClient.get('/users/profile');
+        const response = await apiClient.get('/api/users/profile');
         if (response.data.success) {
           setUser(response.data.data);
         }

@@ -134,7 +134,7 @@ const EditProfile = () => {
     const fetchProfile = async () => {
       setIsLoading(true);
       try {
-        const response = await apiClient.get('/users/profile');
+        const response = await apiClient.get('/api/users/profile');
         console.log('📥 Respuesta del backend:', response.data);
         if (response.data.success) {
           console.log('📋 Datos del usuario:', response.data.data);
@@ -218,7 +218,7 @@ const EditProfile = () => {
     }
 
     try {
-      const response = await apiClient.put('/users/profile', updatedProfile);
+      const response = await apiClient.put('/api/users/profile', updatedProfile);
       if (response.data.success) {
         setSuccessMessage("¡Perfil actualizado con éxito!");
       }

@@ -104,7 +104,7 @@ const Dashboard = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await apiClient.get('/users/profile');
+        const response = await apiClient.get('/api/users/profile');
         if (response.data.success) {
           setUser(response.data.data);
         }
@@ -390,7 +390,7 @@ const Dashboard = () => {
       if (selectedImage) {
         const formData = new FormData();
         formData.append('image', selectedImage);
-        const uploadResponse = await apiClient.post('/uploads/image', formData, {
+        const uploadResponse = await apiClient.post('/api/uploads/image', formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         imageUrl = uploadResponse.data.imageUrl;
