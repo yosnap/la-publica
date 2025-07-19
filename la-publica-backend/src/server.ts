@@ -20,6 +20,11 @@ import groupPostRoutes from './groupPost.routes';
 import forumCategoryRoutes from './forumCategory.routes';
 import forumRoutes from './forum.routes';
 import backupRoutes from './backup.routes';
+import companiesRoutes from './companies.routes';
+import jobOffersRoutes from './jobOffers.routes';
+import announcementsRoutes from './announcements.routes';
+import advisoriesRoutes from './advisories.routes';
+import categoriesRoutes from './categories.routes';
 import { errorHandler } from './middleware/errorHandler';
 import 'dotenv/config';
 
@@ -112,6 +117,10 @@ app.use(morgan('combined'));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Logger middleware
+import { logger } from './middleware/logger';
+app.use(logger);
+
 // Servir archivos estáticos desde la carpeta 'uploads' con headers CORS y Cross-Origin-Resource-Policy
 app.use('/uploads', (req, res, next) => {
   res.setHeader('Access-Control-Allow-Origin', '*'); // O limita a tu frontend
@@ -147,6 +156,25 @@ app.use('/api/forums', forumRoutes);
 
 // Rutas de backup/configuración
 app.use('/api/backup', backupRoutes);
+
+// Rutas de empresas
+app.use('/api/companies', companiesRoutes);
+
+// Rutas de ofertas de trabajo
+app.use('/api/job-offers', jobOffersRoutes);
+
+// Rutas de anuncios
+app.use('/api/announcements', announcementsRoutes);
+
+// Rutas de asesorías
+app.use('/api/advisories', advisoriesRoutes);
+
+// Rutas de categorías
+app.use('/api/categories', categoriesRoutes);
+
+// Rutas del sistema (admin)
+import systemRoutes from './system.routes';
+app.use('/api/system', systemRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -6,7 +6,7 @@ import { Request } from 'express';
 export interface JWTPayload {
   userId: string;
   email: string;
-  role: 'user' | 'admin';
+  role: 'user' | 'admin' | 'colaborador';
   iat: number;
   exp: number;
 }

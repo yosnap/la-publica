@@ -62,6 +62,11 @@ npm run preview        # Preview production build
 - `/api/search` - Full-text search across users and posts
 - `/api/admin` - Admin-only endpoints
 - `/api/uploads` - File upload handling
+- `/api/companies` - Company management (colaboradores)
+- `/api/job-offers` - Job offers (companies → users)
+- `/api/announcements` - User announcements (users → users)
+- `/api/advisories` - Advisory services (companies → users)
+- `/api/categories` - Category management (admin)
 
 ### Frontend Architecture
 - **Routing**: React Router with protected routes (`PrivateRoute` component)
@@ -79,10 +84,17 @@ npm run preview        # Preview production build
 - Full-text search
 - Admin panel functionality
 - Profile management with work experience and social links
+- Business collaboration system
+- Category management system
 
 ### Database Models
 - **User**: Profile info, work experience, social links, followers/following arrays
 - **Post**: Content, author reference, likes array, comments with author references
+- **Company**: Business profiles, verification status, owned by colaboradores
+- **JobOffer**: Job postings by companies, visible to users
+- **Announcement**: User-to-user service announcements
+- **Advisory**: Business advisory services by companies
+- **Category**: Hierarchical category system for all content types
 
 ### Important Implementation Details
 - Social links are normalized on frontend (auto-adds https://) and validated on backend
@@ -94,3 +106,100 @@ npm run preview        # Preview production build
 ### Testing
 - Backend uses Jest with test files in `tests/` directory
 - Single health check test exists: `tests/health.test.ts`
+
+## Scripts de Datos
+
+### Seed de Empresas Colaboradoras
+```bash
+cd la-publica-backend
+node scripts/seed-companies.js
+```
+
+**Datos creados:**
+- 3 empresas colaboradoras (TechSolutions, Marketing Digital Pro, Consultoría Empresarial)
+- 3 ofertas de trabajo
+- 3 asesorías especializadas
+- 3 usuarios normales con anuncios
+
+**Credenciales de prueba:**
+- **Colaboradores**: `maria@techsolutions.com`, `carlos@marketingpro.com`, `ana@consultoria.com`
+- **Usuarios**: `luis@example.com`, `carmen@example.com`, `roberto@example.com`
+- **Contraseña**: `password123` (para todos)
+
+### Seed de Categorías
+```bash
+cd la-publica-backend
+node scripts/seed-categories.js
+```
+
+**Categorías creadas:**
+- **Empresas**: 4 categorías principales (16 total con subcategorías)
+- **Ofertas de Trabajo**: 4 categorías principales (17 total con subcategorías)
+- **Anuncios**: 3 categorías principales (14 total con subcategorías)
+- **Asesorías**: 4 categorías principales (18 total con subcategorías)
+
+### Actualizar Contraseña de Usuario
+```bash
+cd la-publica-backend
+node scripts/update-password.js <email> <nueva_contraseña>
+```
+
+**Ejemplo:**
+```bash
+node scripts/update-password.js hola1@hola.com nueva_contraseña
+```
+
+## Roles y Permisos
+
+### Tipos de Usuario
+- **`user`**: Usuarios normales de la plataforma
+- **`colaborador`**: Empresas colaboradoras
+- **`admin`**: Administradores del sistema
+
+### Flujo de Interacciones
+1. **Ofertas de Trabajo**: Empresas (`colaborador`) → Usuarios (`user`)
+2. **Anuncios**: Usuarios (`user`) → Usuarios (`user`)
+3. **Asesorías**: Empresas (`colaborador`) → Usuarios (`user`)
+
+### Permisos por Rol
+
+#### Usuarios (`user`)
+- ✅ Ver ofertas de trabajo
+- ✅ Crear/gestionar anuncios
+- ✅ Ver/reservar asesorías
+- ✅ Interactuar socialmente (posts, likes, comentarios)
+- ❌ Crear empresas o ofertas de trabajo
+
+#### Colaboradores (`colaborador`)
+- ✅ Crear/gestionar empresas
+- ✅ Crear/gestionar ofertas de trabajo
+- ✅ Crear/gestionar asesorías
+- ✅ Interactuar socialmente
+- ❌ Crear anuncios
+- ❌ Ver ofertas de trabajo
+
+#### Administradores (`admin`)
+- ✅ Gestionar categorías
+- ✅ Verificar empresas
+- ✅ Moderación general
+- ✅ Acceso completo al sistema
+
+## APIs de Categorías
+
+### Endpoints Públicos
+- `GET /api/categories` - Listar categorías
+- `GET /api/categories/tree?type=company` - Estructura jerárquica
+- `GET /api/categories/stats` - Estadísticas
+- `GET /api/categories/:id` - Obtener categoría específica
+
+### Endpoints de Administración (requieren rol `admin`)
+- `POST /api/categories` - Crear categoría
+- `PUT /api/categories/:id` - Actualizar categoría
+- `DELETE /api/categories/:id` - Eliminar categoría (desactivar)
+- `PUT /api/categories/reorder/bulk` - Reordenar categorías
+
+### Tipos de Categoría
+- `company` - Categorías para empresas
+- `job` - Categorías para ofertas de trabajo
+- `announcement` - Categorías para anuncios
+- `advisory` - Categorías para asesorías

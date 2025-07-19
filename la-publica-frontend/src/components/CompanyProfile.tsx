@@ -1,5 +1,5 @@
 
-import { Edit, MapPin, Calendar, Users, Camera, Settings, Building2, Globe, Phone, Mail } from "lucide-react";
+import { Edit, MapPin, Calendar, Users, Camera, Settings, Building2, Globe, Phone, Mail, Briefcase, HelpCircle, Star, DollarSign, Clock } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -8,6 +8,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface CompanyProfileProps {
   companyData: {
+    _id: string;
     name: string;
     description: string;
     logo: string;
@@ -20,9 +21,12 @@ interface CompanyProfileProps {
     employees: string;
     industry: string;
   };
+  isOwner?: boolean;
+  jobOffers?: any[];
+  advisories?: any[];
 }
 
-const CompanyProfile = ({ companyData }: CompanyProfileProps) => {
+const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisories = [] }: CompanyProfileProps) => {
   const companyStats = [
     { label: "Servicios", value: "24" },
     { label: "Clientes", value: "150+" },
@@ -125,18 +129,27 @@ const CompanyProfile = ({ companyData }: CompanyProfileProps) => {
 
             { /* Botones de Acción */}
             <div className="flex justify-center gap-3 pt-2">
-              <Button size="sm">
-                <Phone className="h-4 w-4 mr-2" />
-                Contactar
-              </Button>
-              <Button variant="outline" size="sm">
-                <Mail className="h-4 w-4 mr-2" />
-                Enviar Mensaje
-              </Button>
-              <Button variant="outline" size="sm">
-                <Edit className="h-4 w-4 mr-2" />
-                Seguir
-              </Button>
+              {isOwner ? (
+                <Button size="sm" onClick={() => window.location.href = '/colaborador/empresas'}>
+                  <Edit className="h-4 w-4 mr-2" />
+                  Editar Empresa
+                </Button>
+              ) : (
+                <>
+                  <Button size="sm">
+                    <Phone className="h-4 w-4 mr-2" />
+                    Contactar
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Mail className="h-4 w-4 mr-2" />
+                    Enviar Mensaje
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    <Edit className="h-4 w-4 mr-2" />
+                    Seguir
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
@@ -154,9 +167,15 @@ const CompanyProfile = ({ companyData }: CompanyProfileProps) => {
 
       { /* Contenido con Tabs */}
       <Tabs defaultValue="services" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 bg-white border">
+        <TabsList className="grid w-full grid-cols-6 bg-white border">
           <TabsTrigger value="services" className="data-[state=active]:bg-primary data-[state=active]:text-white">
             Servicios
+          </TabsTrigger>
+          <TabsTrigger value="offers" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+            Ofertas
+          </TabsTrigger>
+          <TabsTrigger value="advisories" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+            Asesoramientos
           </TabsTrigger>
           <TabsTrigger value="about" className="data-[state=active]:bg-primary data-[state=active]:text-white">
             Acerca de
@@ -193,6 +212,111 @@ const CompanyProfile = ({ companyData }: CompanyProfileProps) => {
               </CardContent>
             </Card>
           ))}
+        </TabsContent>
+
+        <TabsContent value="offers" className="space-y-4">
+          {jobOffers.length === 0 ? (
+            <Card className="shadow-sm border-0 bg-white">
+              <CardContent className="p-12 text-center">
+                <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay ofertas disponibles</h3>
+                <p className="text-gray-600">Esta empresa no tiene ofertas de trabajo activas en este momento.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            jobOffers.map((offer) => (
+              <Card key={offer._id} className="shadow-sm border-0 bg-white">
+                <CardContent className="p-6">
+                  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900">{offer.title}</h3>
+                        <Badge variant={offer.isActive ? "default" : "secondary"}>
+                          {offer.isActive ? "Activa" : "Cerrada"}
+                        </Badge>
+                      </div>
+                      <p className="text-gray-600 mb-3">{offer.description}</p>
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <span className="flex items-center">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          {offer.location.isRemote ? "Remoto" : `${offer.location.city}, ${offer.location.country}`}
+                        </span>
+                        <span className="flex items-center">
+                          <Clock className="h-4 w-4 mr-1" />
+                          {offer.employmentType}
+                        </span>
+                        <span className="flex items-center">
+                          <DollarSign className="h-4 w-4 mr-1" />
+                          {offer.salary?.min && offer.salary?.max ? `€${offer.salary.min} - €${offer.salary.max}` : "A convenir"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button size="sm">Ver Detalles</Button>
+                      <Button variant="outline" size="sm">Aplicar</Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="advisories" className="space-y-4">
+          {advisories.length === 0 ? (
+            <Card className="shadow-sm border-0 bg-white">
+              <CardContent className="p-12 text-center">
+                <HelpCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">No hay asesoramientos disponibles</h3>
+                <p className="text-gray-600">Esta empresa no ofrece servicios de asesoría en este momento.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            advisories.map((advisory) => (
+              <Card key={advisory._id} className="shadow-sm border-0 bg-white">
+                <CardContent className="p-6">
+                  <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-2">
+                        <h3 className="text-lg font-semibold text-gray-900">{advisory.title}</h3>
+                        <Badge variant={advisory.isActive ? "default" : "secondary"}>
+                          {advisory.isActive ? "Disponible" : "No disponible"}
+                        </Badge>
+                      </div>
+                      <p className="text-gray-600 mb-3">{advisory.description}</p>
+                      <div className="flex items-center space-x-4 text-sm text-gray-500">
+                        <span className="flex items-center">
+                          <Clock className="h-4 w-4 mr-1" />
+                          {advisory.pricing?.sessionDuration || 60} min
+                        </span>
+                        <span className="flex items-center">
+                          <DollarSign className="h-4 w-4 mr-1" />
+                          {advisory.pricing?.type === 'free' ? 'Gratuito' : 
+                           advisory.pricing?.hourlyRate ? `€${advisory.pricing.hourlyRate}/hora` : 
+                           advisory.pricing?.sessionRate ? `€${advisory.pricing.sessionRate}/sesión` : 'Consultar'}
+                        </span>
+                        {advisory.stats?.averageRating > 0 && (
+                          <span className="flex items-center">
+                            <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
+                            {advisory.stats.averageRating.toFixed(1)}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {advisory.expertise?.slice(0, 3).map((skill: string, index: number) => (
+                          <Badge key={index} variant="outline" className="text-xs">{skill}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex space-x-2">
+                      <Button size="sm">Ver Detalles</Button>
+                      <Button variant="outline" size="sm">Contactar</Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
         </TabsContent>
 
         <TabsContent value="about" className="space-y-6">

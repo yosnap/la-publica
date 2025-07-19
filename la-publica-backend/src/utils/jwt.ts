@@ -23,7 +23,7 @@ export class JWTService {
   }
 
   // Generar token de acceso
-  static generateAccessToken(payload: { userId: string; email: string; role: 'user' | 'admin' }): string {
+  static generateAccessToken(payload: { userId: string; email: string; role: 'user' | 'admin' | 'colaborador' }): string {
     const plainPayload = { ...payload };
     return jwt.sign(plainPayload, this.getSecret(), {
       expiresIn: JWT_EXPIRES_IN,

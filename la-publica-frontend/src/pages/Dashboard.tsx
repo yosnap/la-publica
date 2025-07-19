@@ -90,6 +90,9 @@ const Dashboard = () => {
   const [showComments, setShowComments] = useState<Record<string, boolean>>({});
   const [commentText, setCommentText] = useState<Record<string, string>>({});
   const [submittingComment, setSubmittingComment] = useState<Record<string, boolean>>({});
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   
    // Estados para herramientas de posts
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
@@ -344,9 +347,10 @@ const Dashboard = () => {
    // Fetch posts on mount
   useEffect(() => {
     setLoadingPosts(true);
-    fetchUserFeed()
+    fetchUserFeed(1, 20) // Cargar 20 posts inicialmente
       .then((res) => {
         setPosts(res.data || []);
+        setHasMorePosts((res.data || []).length === 20);
       })
       .finally(() => setLoadingPosts(false));
   }, []);
@@ -360,10 +364,12 @@ const Dashboard = () => {
        // TODO: Detect mentions, hashtags, categories, scheduling
       await createPost(postContent);
       setPostContent("");
-       // Refresh posts after creation
+       // Refresh posts after creation - volver a cargar desde el principio
       setLoadingPosts(true);
-      const res = await fetchUserFeed();
+      setCurrentPage(1);
+      const res = await fetchUserFeed(1, 20);
       setPosts(res.data || []);
+      setHasMorePosts((res.data || []).length === 20);
     } catch (err) {
        // TODO: Show error toast
     } finally {
@@ -416,10 +422,12 @@ const Dashboard = () => {
       setModalOpen(false);
       toast.success("Post publicado exitosamente");
       
-       // Refresh posts after creation
+       // Refresh posts after creation - volver a cargar desde el principio
       setLoadingPosts(true);
-      const res = await fetchUserFeed();
+      setCurrentPage(1);
+      const res = await fetchUserFeed(1, 20);
       setPosts(res.data || []);
+      setHasMorePosts((res.data || []).length === 20);
     } catch (err) {
       toast.error("Error al publicar el post");
     } finally {
@@ -696,6 +704,30 @@ const Dashboard = () => {
    // Función para verificar si el usuario es admin o moderador
   const isAdminOrModerator = () => {
     return user?.role === 'admin' || user?.role === 'moderator';
+  };
+
+   // Función para cargar más posts
+  const loadMorePosts = async () => {
+    if (!hasMorePosts || loadingMore) return;
+    
+    setLoadingMore(true);
+    try {
+      const nextPage = currentPage + 1;
+      const res = await fetchUserFeed(nextPage, 20);
+      const newPosts = res.data || [];
+      
+      if (newPosts.length > 0) {
+        setPosts(prevPosts => [...prevPosts, ...newPosts]);
+        setCurrentPage(nextPage);
+        setHasMorePosts(newPosts.length === 20);
+      } else {
+        setHasMorePosts(false);
+      }
+    } catch (err) {
+      toast.error("Error al cargar más posts");
+    } finally {
+      setLoadingMore(false);
+    }
   };
 
   return (
@@ -1097,7 +1129,7 @@ const Dashboard = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           { /* Si es el autor */}
-                          {user?._id === post.author._id && (
+                          {user?._id && post.author && user._id === post.author._id && (
                             <>
                               <DropdownMenuItem onClick={() => handleEditPost(post)}>
                                 <Edit className="h-4 w-4 mr-2" /> Editar
@@ -1127,7 +1159,7 @@ const Dashboard = () => {
                             </>
                           )}
                           { /* Si es admin y no es el autor */}
-                          {user?.role === 'admin' && user._id !== post.author._id && (
+                          {user?.role === 'admin' && post.author && user._id !== post.author._id && (
                             <>
                               <DropdownMenuItem onClick={() => handleDeletePost(post._id)}>
                                 <Trash className="h-4 w-4 mr-2" /> Eliminar (admin)
@@ -1138,7 +1170,7 @@ const Dashboard = () => {
                             </>
                           )}
                           { /* Si NO es el autor */}
-                          {user?._id !== post.author._id && user?.role !== 'admin' && (
+                          {user?._id && post.author && user._id !== post.author._id && user?.role !== 'admin' && (
                             <>
                               <DropdownMenuItem disabled>
                                 <Flag className="h-4 w-4 mr-2" /> Reportar
@@ -1292,6 +1324,34 @@ const Dashboard = () => {
                   </CardContent>
                 </Card>
                 ))
+              )}
+              
+              { /* Botón para cargar más posts */}
+              {!loadingPosts && posts.length > 0 && hasMorePosts && (
+                <div className="flex justify-center mt-6">
+                  <Button
+                    onClick={loadMorePosts}
+                    disabled={loadingMore}
+                    variant="outline"
+                    className="px-6"
+                  >
+                    {loadingMore ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+                        Cargando...
+                      </>
+                    ) : (
+                      "Cargar más posts"
+                    )}
+                  </Button>
+                </div>
+              )}
+              
+              { /* Mensaje cuando no hay más posts */}
+              {!loadingPosts && posts.length > 0 && !hasMorePosts && (
+                <div className="text-center py-8 text-gray-500">
+                  No hay más posts para mostrar
+                </div>
               )}
             </div>
           </div>

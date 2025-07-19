@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag, PanelLeftClose, PanelLeft, Moon, Sun, Database } from "lucide-react";
+import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag, PanelLeftClose, PanelLeft, Moon, Sun, Database, Layers } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -46,6 +46,11 @@ const menuItems = [
     url: "/forums",
     icon: MessageCircle,
   },
+  {
+    title: "Anuncios",
+    url: "/announcements",
+    icon: Megaphone,
+  },
 ];
 
 const businessItems = [
@@ -60,11 +65,6 @@ const businessItems = [
     icon: Briefcase,
   },
   {
-    title: "Anuncios",
-    url: "/announcements",
-    icon: Megaphone,
-  },
-  {
     title: "Asesoramiento",
     url: "/consulting",
     icon: HelpCircle,
@@ -73,6 +73,24 @@ const businessItems = [
     title: "Enlaces de Interés",
     url: "/links",
     icon: ExternalLink,
+  },
+];
+
+const collaboratorItems = [
+  {
+    title: "Mis Empresas",
+    url: "/colaborador/empresas",
+    icon: Building,
+  },
+  {
+    title: "Mis Ofertas",
+    url: "/colaborador/ofertas",
+    icon: Briefcase,
+  },
+  {
+    title: "Mis Asesorías",
+    url: "/colaborador/asesorias",
+    icon: HelpCircle,
   },
 ];
 
@@ -93,6 +111,11 @@ const quickActions = [
 
 const adminItems = [
   {
+    title: "Panel de Administración",
+    url: "/admin",
+    icon: Shield,
+  },
+  {
     title: "Categorías de Grupos",
     url: "/admin/group-categories",
     icon: Tag,
@@ -103,9 +126,14 @@ const adminItems = [
     icon: MessageCircle,
   },
   {
+    title: "Categorías Globales",
+    url: "/admin/categories",
+    icon: Layers,
+  },
+  {
     title: "Moderación de Foros",
     url: "/admin/forum-moderation",
-    icon: Shield,
+    icon: MessageCircle,
   },
   {
     title: "Respaldo de Configuración",
@@ -251,6 +279,37 @@ export function AppSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Sección para colaboradores */}
+        {user?.role === 'colaborador' && (
+          <SidebarGroup className="mt-6">
+            <SidebarGroupLabel className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
+              Mi Gestión
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {collaboratorItems.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton 
+                      asChild 
+                      className={`${
+                        location.pathname === item.url 
+                          ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90' 
+                          : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
+                      } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-14 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto`}
+                      tooltip={item.title}
+                    >
+                      <Link to={item.url} className="flex items-center space-x-3 px-3 py-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:space-x-0">
+                        <item.icon className="h-5 w-5 flex-shrink-0" />
+                        <span className="font-medium group-data-[collapsible=icon]:hidden">{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         { /* Sección de Administración - Solo para admins */}
         {isAdmin && (

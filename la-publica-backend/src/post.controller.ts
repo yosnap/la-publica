@@ -218,15 +218,8 @@ export const getUserFeed = async (req: Request, res: Response) => {
   const skip = (page - 1) * limit;
 
   try {
-    const currentUser = await User.findById(currentUserId);
-    if (!currentUser) {
-      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
-    }
-
-    // Incluir los posts del propio usuario en su feed
-    const userIds = [...currentUser.following, currentUserId];
-
-    const posts = await Post.find({ author: { $in: userIds } })
+    // Obtener TODOS los posts, no solo de usuarios seguidos
+    const posts = await Post.find({})
       .sort({ pinned: -1, createdAt: -1 }) // Posts fijados primero, luego por fecha
       .skip(skip)
       .limit(limit)
@@ -239,12 +232,15 @@ export const getUserFeed = async (req: Request, res: Response) => {
           select: 'username firstName lastName profilePicture'
         }
       });
+    
+    // Filtrar posts que no tienen autor (usuarios eliminados)
+    const validPosts = posts.filter(post => post.author !== null);
       
-    const totalPosts = await Post.countDocuments({ author: { $in: userIds } });
+    const totalPosts = await Post.countDocuments({});
 
     return res.status(200).json({
       success: true,
-      data: posts,
+      data: validPosts,
       pagination: {
         total: totalPosts,
         page,

@@ -25,6 +25,7 @@ import ResetPassword from "./pages/ResetPassword";
 import CompleteProfile from "./pages/CompleteProfile";
 import GroupCategories from "./pages/admin/GroupCategories";
 import ForumCategories from "./pages/admin/ForumCategories";
+import Categories from "./pages/admin/Categories";
 import ForumModeration from "./pages/admin/ForumModeration";
 import PlatformBackup from "./pages/admin/PlatformBackup";
 import GroupDetail from "./pages/GroupDetail";
@@ -33,6 +34,10 @@ import ForumDetail from "./pages/ForumDetail";
 import CreateForumPost from "./pages/CreateForumPost";
 import CreateForumPostGeneral from "./pages/CreateForumPostGeneral";
 import ForumPostDetail from "./pages/ForumPostDetail";
+import MyCompanies from "./pages/collaborator/MyCompanies";
+import MyJobOffers from "./pages/collaborator/MyJobOffers";
+import MyAdvisories from "./pages/collaborator/MyAdvisories";
+import Admin from "./pages/Admin";
 
 const queryClient = new QueryClient();
 
@@ -83,10 +88,15 @@ const App = () => (
                   <Route path="consulting" element={<Consulting />} />
                   <Route path="links" element={<Links />} />
                   <Route path="settings" element={<Settings />} />
+                  <Route path="admin" element={<Admin />} />
                   <Route path="admin/group-categories" element={<GroupCategories />} />
                   <Route path="admin/forum-categories" element={<ForumCategories />} />
+                  <Route path="admin/categories" element={<Categories />} />
                   <Route path="admin/forum-moderation" element={<ForumModeration />} />
                   <Route path="admin/platform-backup" element={<PlatformBackup />} />
+                  <Route path="colaborador/empresas" element={<MyCompanies />} />
+                  <Route path="colaborador/ofertas" element={<MyJobOffers />} />
+                  <Route path="colaborador/asesorias" element={<MyAdvisories />} />
                 </Route>
               </Route>
               <Route path="*" element={<NotFound />} />
