@@ -249,7 +249,17 @@ const Admin = () => {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle className="text-lg">Sistema</CardTitle>
-                    <Info className="h-5 w-5 text-blue-500" />
+                    <div className="flex items-center gap-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={loadSystemInfo}
+                        disabled={loadingSystem}
+                      >
+                        <RefreshCw className={`h-4 w-4 ${loadingSystem ? 'animate-spin' : ''}`} />
+                      </Button>
+                      <Info className="h-5 w-5 text-blue-500" />
+                    </div>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">

@@ -1,5 +1,123 @@
 # Changelog
 
+## [1.0.3] - 2025-07-19
+
+### 🔗 Sistema Social Avançat - Seccions de Miembres
+
+#### Funcionalitats Principals
+- **Pàgina completa de Miembres** amb funcionalitats socials:
+  - Visualització grid/llista amb toggle dinàmic
+  - Pestanyes organitzades: Tots, Connexions, Seguint, Seguidors
+  - Cerça avançada i filtres per popularitat, activitat i data
+  - Sistema de paginació (12 elements per pàgina)
+
+#### Sistema de Connexions Bidireccional
+- **Estats de connexió**:
+  - `Connectat`: Connexions aceptades (bidireccional)
+  - `Pendent`: Sol·licituds enviades esperant resposta
+  - `Sol·licitud`: Sol·licituds rebudes per acceptar
+  - `Rebutjat`: Connexions denegades (no poden reconnectar)
+
+- **Pestanya Connexions organitzada**:
+  - **Aceptades**: Connexions confirmades i actives
+  - **Pendents** separades en:
+    - **Salientes**: Sol·licituds que he enviat (icona Send + Clock)
+    - **Entrantes**: Sol·licituds que he rebut (icona Inbox + CheckCircle)
+  - **Rebutjades**: Connexions denegades
+
+#### Interaccions Socials
+- **Sistema de seguiment (Follow)**:
+  - Botó broadcast amb icona Radio
+  - Estados visuals: gris (no seguint) / blau corporatiu (seguint)
+  - Tooltip informatiu: "Seguir actualitzacions" / "Deixar de seguir"
+
+- **Sistema de connexions**:
+  - Botó connectar amb estats dinàmics segons relació
+  - Iconografia específica per cada acció
+  - Tooltips explicatius per cada estat
+
+#### Experiència d'Usuari Millorada
+- **Widget de perfil complet**:
+  - ProfileCompletionWidget amb indicador circular de progrés
+  - LatestUpdatesWidget amb renderitzat HTML adequat
+  - Sidebar integrat a la pàgina de perfil
+
+- **Navegació intel·ligent**:
+  - Card del usuari actual sempre primera
+  - Botó "Editar Perfil" en lloc d'opcions de connexió per l'usuari actual
+  - Navegació a perfils individuals al clicar noms
+
+#### Interfície Visual
+- **Tooltips informatius amb popover**:
+  - Icona `+`: "Connectar"
+  - Icona `Clock`: "A la espera de confirmació"  
+  - Icona `CheckCircle`: "Acceptar sol·licitud"
+  - Icona `UserMinus`: "Desconnectar"
+  - Icona `Radio`: "Seguir actualitzacions"
+
+- **Estats visuals consistents**:
+  - Badges de rol en català: Admin, Colaborador, Usuari
+  - Comptadors dinàmics en totes les pestanyes
+  - Estils de botó coherents segons l'estat de la relació
+
+### 🐛 Correccions i Millores
+
+#### Paginació i Navegació
+- **Paginació implementada**: 12 elements per pàgina amb scroll automàtic
+- **Reset automàtic**: Torna a pàgina 1 quan canvien els filtres
+- **Comptadors corregits**: Total sempre mostra el nombre real (8 usuaris)
+
+#### Renderitzat HTML
+- **LatestUpdatesWidget**: Corregit renderitzat HTML amb `dangerouslySetInnerHTML`
+- **Filtratge segur**: Posts sense autor es filtren per evitar errors null
+- **Contingut truncat**: Limitació intel·ligent de caràcters mostrats
+
+#### Consistència d'Estats
+- **Estat global simulat**: Connexions bidireccionals mantenen consistència
+- **Sincronització automàtica**: Canvis es reflecteixen en ambdues parts
+- **Gestió d'errors**: Fallbacks per connexions no definides
+
+### 🔧 Canvis Tècnics
+
+#### Components Nous
+- **Members.tsx**: Pàgina principal amb totes les funcionalitats socials
+- **ProfileCompletionWidget.tsx**: Component de progrés de perfil
+- **Sistema de tooltips**: Integració completa amb TooltipProvider
+
+#### APIs i Hooks
+- **Endpoints extesos**: `fetchAllUsers` amb filtres i ordenació
+- **toggleFollowUser**: Sistema de seguiment bidireccional
+- **useUserProfile**: Hook centralitzat utilitzat arreu
+
+#### Tipus i Interfaces
+- **User interface estesa**: Camps `isActive`, `lastActive`
+- **Estats de connexió**: Tipatge estricte per tots els estats
+- **Props components**: Interfícies clares per `UserCard` i widgets
+
+### 📱 Responsive i Accessibilitat
+
+#### Adaptabilitat
+- **Grid responsive**: 1 columna (mòbil), 2 (tablet), 3 (desktop)
+- **Vista llista**: Mode alternatiu amb informació compacta
+- **Sidebar responsiu**: S'adapta a pantalles petites
+
+#### Accessibilitat
+- **Tooltips informatius**: Context clar per cada acció
+- **Estados visuals**: Colors i icones consistents
+- **Navegació per teclat**: Suport complet en tots els elements
+
+### 🚀 Optimitzacions
+
+#### Rendiment
+- **Paginació client**: Càrrega eficient de grans quantitats d'usuaris
+- **Filtrage intel·ligent**: Cerca en temps real sense sobrecarregar API
+- **Gestió d'estat**: Sincronització optimitzada entre components
+
+#### Experiència d'Usuari
+- **Feedback visual**: Loading states i transicions suaus
+- **Estats buits**: Missatges clars quan no hi ha contingut
+- **Accions intuïtives**: Workflows clars per connectar i seguir
+
 ## [1.0.2] - 2025-07-19
 
 ### 🎯 Sistema d'Ofertes de Treball i Assessoraments

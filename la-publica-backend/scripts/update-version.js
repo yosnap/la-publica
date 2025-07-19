@@ -10,7 +10,7 @@ const systemInfoSchema = new mongoose.Schema({
   version: {
     type: String,
     required: true,
-    default: '1.0.1'
+    default: '1.0.3'
   },
   lastUpdated: {
     type: Date,
@@ -44,20 +44,20 @@ async function updateVersion() {
     if (!systemInfo) {
       // Si no existe, crear nueva información del sistema
       systemInfo = await SystemInfo.create({
-        version: '1.0.1',
+        version: '1.0.3',
         lastUpdated: new Date(),
         settings: {
           maintenanceMode: false,
           registrationEnabled: true
         }
       });
-      console.log('✅ Informació del sistema creada amb versió 1.0.1');
+      console.log('✅ Informació del sistema creada amb versió 1.0.3');
     } else {
       // Actualizar la versión existente
-      systemInfo.version = '1.0.1';
+      systemInfo.version = '1.0.3';
       systemInfo.lastUpdated = new Date();
       await systemInfo.save();
-      console.log('✅ Versió actualitzada a 1.0.1');
+      console.log('✅ Versió actualitzada a 1.0.3');
     }
 
     console.log('\n📊 Informació del sistema actualitzada:');

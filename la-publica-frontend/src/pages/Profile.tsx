@@ -18,6 +18,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ProfileCompletionWidget } from "@/components/ProfileCompletionWidget";
+import { LatestUpdatesWidget } from "@/components/LatestUpdatesWidget";
 
 // Tipos
 interface PostType {
@@ -233,9 +235,12 @@ const Profile = () => {
   };
 
   return (
-    <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-      {/* Tarjeta del Perfil */}
-      <Card className="rounded-xl overflow-hidden">
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        {/* Main Content */}
+        <div className="lg:col-span-3 space-y-6">
+          {/* Tarjeta del Perfil */}
+          <Card className="rounded-xl overflow-hidden">
         {/* Cover Photo */}
         <div className="relative h-48 bg-gradient-to-r from-blue-400 to-purple-500">
           {user.coverPhoto && (
@@ -358,8 +363,8 @@ const Profile = () => {
         </CardContent>
       </Card>
 
-      {/* Contenido con Tabs */}
-      <Tabs defaultValue="posts" className="space-y-6">
+          {/* Contenido con Tabs */}
+          <Tabs defaultValue="posts" className="space-y-6">
         <TabsList className="grid w-full grid-cols-6 bg-white dark:bg-gray-800/50 border">
           <TabsTrigger value="posts" className="data-[state=active]:bg-primary data-[state=active]:text-white">
             Publicacions
@@ -730,6 +735,14 @@ const Profile = () => {
           </Card>
         </TabsContent>
       </Tabs>
+        </div>
+        
+        {/* Sidebar */}
+        <div className="space-y-6">
+          <ProfileCompletionWidget />
+          <LatestUpdatesWidget />
+        </div>
+      </div>
     </div>
   );
 };

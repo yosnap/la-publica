@@ -1,6 +1,6 @@
 {
   "name": "la-publica-monorepo",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Monorepo para La Pública - Frontend y Backend",
   "private": true,
   "scripts": {

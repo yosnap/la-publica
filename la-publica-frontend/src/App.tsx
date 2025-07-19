@@ -7,6 +7,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import Layout from "./components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
+import Members from "./pages/Members";
 import Groups from "./pages/Groups";
 import Messages from "./pages/Messages";
 import Forums from "./pages/Forums";
@@ -82,6 +83,7 @@ const App = () => (
                   <Route index element={<Dashboard />} />
                   <Route path="perfil" element={<Profile />} />
                   <Route path="editar-perfil" element={<CompleteProfile />} />
+                  <Route path="miembros" element={<Members />} />
                   <Route path="groups" element={<Groups />} />
                   <Route path="groups/:id" element={<GroupDetail />} />
                   <Route path="groups/:id/admin" element={<GroupAdmin />} />

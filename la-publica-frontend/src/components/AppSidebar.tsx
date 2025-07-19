@@ -32,6 +32,11 @@ const menuItems = [
     icon: User,
   },
   {
+    title: "Miembros",
+    url: "/miembros",
+    icon: Users,
+  },
+  {
     title: "Grups",
     url: "/groups",
     icon: Users,

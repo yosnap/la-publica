@@ -2,7 +2,9 @@ import apiClient from './client';
 
 // Obtener información del sistema
 export const getSystemInfo = async () => {
-  const response = await apiClient.get('/api/system/info');
+  // Agregar timestamp para evitar cache
+  const timestamp = new Date().getTime();
+  const response = await apiClient.get(`/api/system/info?t=${timestamp}`);
   return response.data;
 };
 

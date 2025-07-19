@@ -5,10 +5,60 @@ import { validate, updateProfileSchema } from './utils/validation';
 // Listar todos los usuarios
 export const listUsers = async (req: Request, res: Response) => {
   try {
-    const users = await User.find({}, '-password'); // Excluir contraseña
+    const {
+      page = 1,
+      limit = 20,
+      search = '',
+      sortBy = 'newest'
+    } = req.query;
+
+    const pageNum = parseInt(page as string);
+    const limitNum = parseInt(limit as string);
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build filter
+    const filter: any = {};
+    if (search) {
+      filter.$or = [
+        { firstName: { $regex: search, $options: 'i' } },
+        { lastName: { $regex: search, $options: 'i' } },
+        { username: { $regex: search, $options: 'i' } }
+      ];
+    }
+
+    // Build sort
+    let sort: any = {};
+    switch (sortBy) {
+      case 'newest':
+        sort = { createdAt: -1 };
+        break;
+      case 'active':
+        sort = { lastActive: -1, createdAt: -1 };
+        break;
+      case 'popular':
+        sort = { 'followers.length': -1, createdAt: -1 };
+        break;
+      default:
+        sort = { createdAt: -1 };
+    }
+
+    const users = await User.find(filter, '-password')
+      .sort(sort)
+      .skip(skip)
+      .limit(limitNum)
+      .lean();
+
+    const total = await User.countDocuments(filter);
+
     return res.json({
       success: true,
-      data: users
+      data: users,
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        pages: Math.ceil(total / limitNum)
+      }
     });
   } catch (error: any) {
     return res.status(500).json({
