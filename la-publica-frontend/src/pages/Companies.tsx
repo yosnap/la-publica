@@ -193,8 +193,8 @@ export default function Companies() {
         { /* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Empresas y Colaboradores</h1>
-            <p className="text-gray-600">Descubre empresas verificadas y sus servicios profesionales</p>
+            <h1 className="text-2xl font-bold text-gray-900">Empreses i Col·laboradors</h1>
+            <p className="text-gray-600">Descobreix empreses verificades i els seus serveis professionals</p>
           </div>
           <Button 
             className="bg-primary hover:bg-primary/90"
@@ -202,12 +202,12 @@ export default function Companies() {
               if (currentUser?.role === 'colaborador') {
                 window.location.href = '/colaborador/empresas';
               } else {
-                alert('Solo los colaboradores pueden registrar empresas');
+                alert('Només els col·laboradors poden registrar empreses');
               }
             }}
           >
             <Building2 className="h-4 w-4 mr-2" />
-            {currentUser?.role === 'colaborador' ? 'Gestionar Mis Empresas' : 'Registrar Empresa'}
+            {currentUser?.role === 'colaborador' ? 'Gestionar Les Meves Empreses' : 'Registrar Empresa'}
           </Button>
         </div>
 
@@ -216,14 +216,14 @@ export default function Companies() {
           <div className="flex flex-col sm:flex-row gap-4 flex-1">
             <div className="flex-1">
               <Input
-                placeholder="Buscar empresas..."
+                placeholder="Cercar empreses..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
             </div>
             <Button variant="outline">
               <Filter className="h-4 w-4 mr-2" />
-              Filtros
+              Filtres
             </Button>
           </div>
           
@@ -257,7 +257,7 @@ export default function Companies() {
             ))
           ) : (
             <div className="text-center py-8">
-              <p className="text-gray-500">No se encontraron empresas</p>
+              <p className="text-gray-500">No s'han trobat empreses</p>
             </div>
           )}
         </div>
@@ -265,23 +265,23 @@ export default function Companies() {
         { /* Stats Section */}
         <Card className="shadow-sm border-0 bg-white">
           <CardContent className="p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Estadísticas de la Comunidad</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Estadístiques de la Comunitat</h3>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">150+</div>
-                <div className="text-sm text-gray-600">Empresas Registradas</div>
+                <div className="text-sm text-gray-600">Empreses Registrades</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">89%</div>
-                <div className="text-sm text-gray-600">Empresas Verificadas</div>
+                <div className="text-sm text-gray-600">Empreses Verificades</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">25+</div>
-                <div className="text-sm text-gray-600">Sectores</div>
+                <div className="text-sm text-gray-600">Sectors</div>
               </div>
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">4.7</div>
-                <div className="text-sm text-gray-600">Valoración Media</div>
+                <div className="text-sm text-gray-600">Valoració Mitjana</div>
               </div>
             </div>
           </CardContent>
