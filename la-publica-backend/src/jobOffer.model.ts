@@ -4,6 +4,7 @@ export interface IJobOffer extends Document {
   company: mongoose.Types.ObjectId;
   title: string;
   description: string;
+  image?: string; // Featured image for the job offer
   location: {
     city: string;
     country: string;
@@ -56,6 +57,7 @@ const JobOfferSchema = new Schema<IJobOffer>(
     },
     title: { type: String, required: true, trim: true, maxlength: 200 },
     description: { type: String, required: true, trim: true, maxlength: 5000 },
+    image: { type: String, trim: true }, // URL of the featured image
     location: { type: locationSchema, required: true },
     employmentType: {
       type: String,

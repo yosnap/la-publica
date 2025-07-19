@@ -318,9 +318,9 @@ const MyAdvisories = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Mis Asesorías</h1>
+            <h1 className="text-2xl font-bold">Les Meves Assessories</h1>
             <p className="text-gray-600">
-              Gestiona tus servicios de asesoría y consultoría
+              Gestiona els teus serveis d'assessoria i consultoria
             </p>
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

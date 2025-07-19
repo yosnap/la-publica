@@ -324,9 +324,9 @@ const MyJobOffers = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Mis Ofertas de Trabajo</h1>
+            <h1 className="text-2xl font-bold">Les Meves Ofertes de Treball</h1>
             <p className="text-gray-600">
-              Gestiona las ofertas de trabajo de tus empresas
+              Gestiona les ofertes de treball de les teves empreses
             </p>
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

@@ -1,5 +1,103 @@
 # Changelog
 
+## [1.0.2] - 2025-07-19
+
+### 🎯 Sistema d'Ofertes de Treball i Assessoraments
+
+#### Funcionalitats implementades
+- **Nou sistema complet d'ofertes de treball**:
+  - Formularis de creació/edició amb càrrega d'imatges
+  - Pàgines de detall amb informació completa
+  - Control d'accés: només col·laboradors poden crear ofertes
+  - Visualització pública per a tots els usuaris
+
+- **Nou sistema complet d'assessoraments**:
+  - Formularis avançats amb sistema de programació
+  - Múltiples formats (vídeo, telèfon, presencial, email, xat)
+  - Configuració de preus (gratuït, pagament, consulta)
+  - Horaris setmanals i disponibilitat
+
+- **Sistema de categories dinàmic**:
+  - Estructura jeràrquica per cada tipus de contingut
+  - Script de seeding amb categories predefinides
+  - API completa per gestió d'administradors
+
+#### Localització completa al català
+- **URLs catalanes**: `/ofertes` i `/assessorament`
+- **Interfície**: Tots els textos, botons i missatges
+- **Formularis**: Labels, placeholders i validacions
+- **Navegació**: Menús i enllaços actualitzats
+
+### 🔧 Sistema Granular de Backups
+
+#### Backup intel·ligent
+- **Selecció granular**: Filtratge per tipus de contingut, autors i categories
+- **Previsualització**: Vista prèvia abans d'exportar
+- **Filtres avançats**: Per data, estat actiu i camps específics
+- **Exportació/importació**: Sistema complet per migrar dades
+
+#### Gestió d'administració
+- **Panell de gestió de dades**: Interfície per gestionar tot el contingut
+- **Assignació massiva**: Autors i categories per lots
+- **8 tipus de contingut**: Grups, fòrums, blocs, anuncis, empreses, ofertes, assessoraments, enllaços
+
+### 🐛 Correccions Críticas
+
+#### Resolució d'errors API
+- **Error 403**: Corregit fent rutes d'ofertes públiques
+- **Error 404**: Eliminades dades mock, implementades connexions reals
+- **Autenticació**: Ajustats permisos per visualització pública
+
+#### Substitució de dades mock
+- **Offers.tsx**: Connexió real amb backend
+- **Consulting.tsx**: Carrega dades reals d'assessoraments
+- **JobOfferDetail/AdvisoryDetail**: Navegació amb IDs de MongoDB
+
+### 🔒 Control d'Accés i Seguretat
+
+#### Rols i permisos
+- **Usuaris (`user`)**: Poden veure ofertes/assessoraments i crear anuncis
+- **Col·laboradors (`colaborador`)**: Poden crear empreses, ofertes i assessoraments
+- **Administradors (`admin`)**: Accés complet al sistema
+
+#### Scripts de dades
+- **seed-companies.js**: Crea empreses, ofertes i assessoraments d'exemple
+- **seed-categories.js**: Genera estructura de categories completa
+- **update-password.js**: Utilitat per actualitzar contrasenyes
+
+### 📱 Millores d'Experiència d'Usuari
+
+#### Funcionalitat de navegació
+- **Botons funcionals**: Tots els enllaços de detall operatius
+- **Estats de càrrega**: Feedback visual durant càrregues
+- **Gestió d'errors**: Missatges específics per cada tipus d'error
+- **Responsive**: Disseny adaptatiu per mòbils i tauletes
+
+#### Interfície millorada
+- **Cards informatives**: Disseny consistent estil marketplace
+- **Filtres avançats**: Cerca per categoria, disponibilitat i preu
+- **Vista grid/llista**: Modes de visualització alternatius
+- **Informació detallada**: Stats, reviews i disponibilitat
+
+### 🔧 Canvis Tècnics
+
+#### Backend
+- **Nous models**: `JobOffer`, `Advisory`, `Category`, `Company`
+- **Controladors complets**: CRUD per tots els nous models
+- **Rutes públiques**: Visualització sense autenticació
+- **Middleware**: Control d'accés per rol
+
+#### Frontend  
+- **Nous components**: Formularis complexos amb React Hook Form
+- **APIs actualitzades**: Clients per tots els endpoints
+- **Hooks optimitzats**: useUserProfile centralitzat
+- **TypeScript**: Interfaces completes per tots els models
+
+### 📚 Scripts i Utilitats
+- **Scripts de seeding**: Generació de dades d'exemple
+- **Backup granular**: Sistema d'exportació/importació
+- **Gestió de contrasenyes**: Utilitat d'administració
+
 ## [1.0.1] - 2025-01-19
 
 ### 🌍 Localització

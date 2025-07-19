@@ -1,6 +1,6 @@
 {
   "name": "la-publica-backend",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "API Backend para La Pública - Plataforma de red social empresarial",
   "main": "dist/server.js",
   "scripts": {

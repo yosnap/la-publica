@@ -13,20 +13,18 @@ import {
 
 const router = express.Router();
 
-// Rutas públicas para colaboradores (gestión)
+// Rutas públicas (ver ofertas)
+router.get('/', listJobOffers);
+router.get('/:id', getJobOfferById);
 router.get('/company/:companyId', getJobOffersByCompany);
 
 // Rutas protegidas - requieren autenticación
 router.use(authenticate);
 
-// Rutas para usuarios (ver ofertas)
-router.get('/', authorize(['user']), listJobOffers);
-router.get('/:id', authorize(['user']), getJobOfferById);
-
-// Rutas para colaboradores
+// Rutas para colaboradores (gestión de ofertas)
 router.post('/', authorize(['colaborador']), createJobOffer);
-router.get('/my/offers', getMyJobOffers);
-router.put('/:id', updateJobOffer);
-router.delete('/:id', deleteJobOffer);
+router.get('/my/offers', authorize(['colaborador']), getMyJobOffers);
+router.put('/:id', authorize(['colaborador']), updateJobOffer);
+router.delete('/:id', authorize(['colaborador']), deleteJobOffer);
 
 export default router;

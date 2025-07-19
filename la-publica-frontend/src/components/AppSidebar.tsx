@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag, PanelLeftClose, PanelLeft, Moon, Sun, Database, Layers } from "lucide-react";
+import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag, PanelLeftClose, PanelLeft, Moon, Sun, Database, Layers, HardDrive } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -61,12 +61,12 @@ const businessItems = [
   },
   {
     title: "Ofertes",
-    url: "/offers",
+    url: "/ofertes",
     icon: Briefcase,
   },
   {
     title: "Assessorament",
-    url: "/consulting",
+    url: "/assessorament",
     icon: HelpCircle,
   },
   {
@@ -139,6 +139,16 @@ const adminItems = [
     title: "Còpia de Seguretat",
     url: "/admin/platform-backup",
     icon: Database,
+  },
+  {
+    title: "Backup Granular",
+    url: "/admin/granular-backup",
+    icon: HardDrive,
+  },
+  {
+    title: "Gestió de Dades",
+    url: "/admin/data-management",
+    icon: Settings,
   },
 ];
 

@@ -4,6 +4,7 @@ export interface IAdvisory extends Document {
   company: mongoose.Types.ObjectId;
   title: string;
   description: string;
+  image?: string; // Featured image for the advisory service
   category: string;
   subcategory?: string;
   expertise: string[]; // áreas de expertise
@@ -94,6 +95,7 @@ const AdvisorySchema = new Schema<IAdvisory>(
     },
     title: { type: String, required: true, trim: true, maxlength: 200 },
     description: { type: String, required: true, trim: true, maxlength: 2000 },
+    image: { type: String, trim: true }, // URL of the featured image
     category: { type: String, required: true, trim: true, index: true },
     subcategory: { type: String, trim: true },
     expertise: [{ type: String, trim: true, maxlength: 100 }],

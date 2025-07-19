@@ -25,6 +25,8 @@ import jobOffersRoutes from './jobOffers.routes';
 import announcementsRoutes from './announcements.routes';
 import advisoriesRoutes from './advisories.routes';
 import categoriesRoutes from './categories.routes';
+import granularBackupRoutes from './granularBackup.routes';
+import adminDataRoutes from './adminData.routes';
 import { errorHandler } from './middleware/errorHandler';
 import 'dotenv/config';
 
@@ -179,6 +181,12 @@ app.use('/api/advisories', advisoriesRoutes);
 
 // Rutas de categorías
 app.use('/api/categories', categoriesRoutes);
+
+// Rutas de backup granular (admin)
+app.use('/api/granular-backup', granularBackupRoutes);
+
+// Rutas de administración de datos (admin)
+app.use('/api/admin-data', adminDataRoutes);
 
 // Rutas del sistema (admin)
 import systemRoutes from './system.routes';

@@ -143,7 +143,7 @@ export default function Links() {
         { /* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="min-w-0 flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 break-words">Enlaces de Interés</h1>
+            <h1 className="text-2xl font-bold text-gray-900 break-words">Enllaços d'Interès</h1>
             <p className="text-gray-600 break-words">Recursos útiles compartidos por la comunidad empresarial</p>
           </div>
           <Button className="bg-primary hover:bg-primary/90 flex-shrink-0">

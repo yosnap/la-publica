@@ -16,6 +16,7 @@ export interface Advisory {
   };
   title: string;
   description: string;
+  image?: string;
   category: string;
   subcategory?: string;
   expertise: string[];

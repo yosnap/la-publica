@@ -28,6 +28,8 @@ import ForumCategories from "./pages/admin/ForumCategories";
 import Categories from "./pages/admin/Categories";
 import ForumModeration from "./pages/admin/ForumModeration";
 import PlatformBackup from "./pages/admin/PlatformBackup";
+import GranularBackup from "./pages/admin/GranularBackup";
+import DataManagement from "./pages/admin/DataManagement";
 import GroupDetail from "./pages/GroupDetail";
 import GroupAdmin from "./pages/GroupAdmin";
 import ForumDetail from "./pages/ForumDetail";
@@ -41,6 +43,10 @@ import Admin from "./pages/Admin";
 import AnnouncementForm from "./pages/AnnouncementForm";
 import CompanyDetail from "./pages/CompanyDetail";
 import AnnouncementDetail from "./pages/AnnouncementDetail";
+import JobOfferForm from "./pages/JobOfferForm";
+import JobOfferDetail from "./pages/JobOfferDetail";
+import AdvisoryForm from "./pages/AdvisoryForm";
+import AdvisoryDetail from "./pages/AdvisoryDetail";
 
 const queryClient = new QueryClient();
 
@@ -87,12 +93,12 @@ const App = () => (
                   <Route path="forums/posts/:id" element={<ForumPostDetail />} />
                   <Route path="companies" element={<Companies />} />
                   <Route path="empresa/:slugId" element={<CompanyDetail />} />
-                  <Route path="offers" element={<Offers />} />
+                  <Route path="ofertes" element={<Offers />} />
                   <Route path="announcements" element={<Announcements />} />
                   <Route path="anunci/:slugId" element={<AnnouncementDetail />} />
                   <Route path="announcements/new" element={<AnnouncementForm />} />
                   <Route path="announcements/:id/edit" element={<AnnouncementForm />} />
-                  <Route path="consulting" element={<Consulting />} />
+                  <Route path="assessorament" element={<Consulting />} />
                   <Route path="links" element={<Links />} />
                   <Route path="settings" element={<Settings />} />
                   <Route path="admin" element={<Admin />} />
@@ -101,9 +107,17 @@ const App = () => (
                   <Route path="admin/categories" element={<Categories />} />
                   <Route path="admin/forum-moderation" element={<ForumModeration />} />
                   <Route path="admin/platform-backup" element={<PlatformBackup />} />
+                  <Route path="admin/granular-backup" element={<GranularBackup />} />
+                  <Route path="admin/data-management" element={<DataManagement />} />
                   <Route path="colaborador/empresas" element={<MyCompanies />} />
                   <Route path="colaborador/ofertas" element={<MyJobOffers />} />
+                  <Route path="colaborador/ofertas/create" element={<JobOfferForm />} />
+                  <Route path="colaborador/ofertas/:id/edit" element={<JobOfferForm />} />
                   <Route path="colaborador/asesorias" element={<MyAdvisories />} />
+                  <Route path="colaborador/asesorias/create" element={<AdvisoryForm />} />
+                  <Route path="colaborador/asesorias/:id/edit" element={<AdvisoryForm />} />
+                  <Route path="ofertes/:id" element={<JobOfferDetail />} />
+                  <Route path="assessorament/:id" element={<AdvisoryDetail />} />
                 </Route>
               </Route>
               <Route path="*" element={<NotFound />} />

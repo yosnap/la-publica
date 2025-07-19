@@ -16,6 +16,7 @@ export interface JobOffer {
   };
   title: string;
   description: string;
+  image?: string;
   location: {
     city: string;
     country: string;

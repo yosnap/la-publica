@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { 
   Plus, Edit, Trash, Building, MapPin, Globe, 
-  Phone, Mail, Users, Calendar, BadgeCheck, Eye, EyeOff
+  Phone, Mail, Users, Calendar, BadgeCheck, Eye, EyeOff,
+  Camera, Upload
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -65,13 +66,17 @@ const MyCompanies = () => {
       revenue: ""
     }
   });
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string>("");
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [bannerPreview, setBannerPreview] = useState<string>("");
 
   const sizeOptions = [
-    { value: "startup", label: "Startup (1-10 empleados)" },
-    { value: "small", label: "Pequeña (11-50 empleados)" },
-    { value: "medium", label: "Mediana (51-200 empleados)" },
-    { value: "large", label: "Grande (201-1000 empleados)" },
-    { value: "enterprise", label: "Empresa (1000+ empleados)" }
+    { value: "startup", label: "Startup (1-10 empleats)" },
+    { value: "small", label: "Petita (11-50 empleats)" },
+    { value: "medium", label: "Mitjana (51-200 empleats)" },
+    { value: "large", label: "Gran (201-1000 empleats)" },
+    { value: "enterprise", label: "Empresa (1000+ empleats)" }
   ];
 
   const loadCompanies = async () => {
@@ -103,35 +108,73 @@ const MyCompanies = () => {
 
   const handleCreate = async () => {
     if (!formData.name.trim() || !formData.email.trim()) {
-      toast.error("El nombre y email son requeridos");
+      toast.error("El nom i email són requerits");
       return;
     }
 
     try {
-      await createCompany(formData);
-      toast.success("Empresa creada exitosamente");
+      const formDataToSend = new FormData();
+      
+      // Afegir camps de text
+      Object.entries(formData).forEach(([key, value]) => {
+        if (typeof value === 'object' && value !== null) {
+          formDataToSend.append(key, JSON.stringify(value));
+        } else {
+          formDataToSend.append(key, String(value));
+        }
+      });
+      
+      // Afegir imatges si existeixen
+      if (logoFile) {
+        formDataToSend.append('logo', logoFile);
+      }
+      if (bannerFile) {
+        formDataToSend.append('banner', bannerFile);
+      }
+      
+      await createCompany(formDataToSend as any);
+      toast.success("Empresa creada exitosament");
       setIsCreateOpen(false);
       resetForm();
       await loadCompanies();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error al crear la empresa");
+      toast.error(error.response?.data?.message || "Error al crear l'empresa");
     }
   };
 
   const handleUpdate = async () => {
     if (!editingCompany || !formData.name.trim() || !formData.email.trim()) {
-      toast.error("El nombre y email son requeridos");
+      toast.error("El nom i email són requerits");
       return;
     }
 
     try {
-      await updateCompany(editingCompany._id, formData);
-      toast.success("Empresa actualizada exitosamente");
+      const formDataToSend = new FormData();
+      
+      // Afegir camps de text
+      Object.entries(formData).forEach(([key, value]) => {
+        if (typeof value === 'object' && value !== null) {
+          formDataToSend.append(key, JSON.stringify(value));
+        } else {
+          formDataToSend.append(key, String(value));
+        }
+      });
+      
+      // Afegir imatges si existeixen
+      if (logoFile) {
+        formDataToSend.append('logo', logoFile);
+      }
+      if (bannerFile) {
+        formDataToSend.append('banner', bannerFile);
+      }
+      
+      await updateCompany(editingCompany._id, formDataToSend as any);
+      toast.success("Empresa actualitzada exitosament");
       setEditingCompany(null);
       resetForm();
       await loadCompanies();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error al actualizar la empresa");
+      toast.error(error.response?.data?.message || "Error al actualitzar l'empresa");
     }
   };
 
@@ -172,6 +215,10 @@ const MyCompanies = () => {
         revenue: ""
       }
     });
+    setLogoFile(null);
+    setLogoPreview("");
+    setBannerFile(null);
+    setBannerPreview("");
   };
 
   const startEdit = (company: Company) => {
@@ -188,6 +235,18 @@ const MyCompanies = () => {
       socialLinks: company.socialLinks || { linkedin: "", twitter: "", facebook: "" },
       stats: company.stats
     });
+    // Reset images first
+    setLogoFile(null);
+    setLogoPreview("");
+    setBannerFile(null);
+    setBannerPreview("");
+    // Set existing images if available
+    if (company.logo) {
+      setLogoPreview(company.logo);
+    }
+    if (company.banner || company.coverImage) {
+      setBannerPreview(company.banner || company.coverImage);
+    }
   };
 
   const getVerificationBadge = (status: string) => {
@@ -236,9 +295,85 @@ const MyCompanies = () => {
             </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Crear Nueva Empresa</DialogTitle>
+                <DialogTitle>Crear Nova Empresa</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
+                {/* Imatges */}
+                <div className="space-y-4">
+                  <div>
+                    <Label>Logo de l'empresa</Label>
+                    <div className="mt-2 flex items-center gap-4">
+                      <div className="relative">
+                        <div className="h-24 w-24 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                          {logoPreview ? (
+                            <img src={logoPreview} alt="Logo preview" className="h-full w-full object-cover" />
+                          ) : (
+                            <Camera className="h-8 w-8 text-gray-400" />
+                          )}
+                        </div>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setLogoFile(file);
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setLogoPreview(reader.result as string);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        <p>Format: JPG, PNG</p>
+                        <p>Mida màxima: 5MB</p>
+                        <p>Recomanat: 200x200px</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label>Portada de l'empresa</Label>
+                    <div className="mt-2">
+                      <div className="relative">
+                        <div className="h-32 w-full rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                          {bannerPreview ? (
+                            <img src={bannerPreview} alt="Banner preview" className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="text-center">
+                              <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                              <p className="text-sm text-gray-600">Fes clic per pujar la portada</p>
+                            </div>
+                          )}
+                        </div>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setBannerFile(file);
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setBannerPreview(reader.result as string);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Format: JPG, PNG • Mida màxima: 5MB • Recomanat: 1200x400px
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="name">Nombre de la Empresa *</Label>
@@ -520,6 +655,82 @@ const MyCompanies = () => {
                 <DialogTitle>Editar Empresa</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
+                {/* Imatges */}
+                <div className="space-y-4">
+                  <div>
+                    <Label>Logo de l'empresa</Label>
+                    <div className="mt-2 flex items-center gap-4">
+                      <div className="relative">
+                        <div className="h-24 w-24 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                          {logoPreview ? (
+                            <img src={logoPreview} alt="Logo preview" className="h-full w-full object-cover" />
+                          ) : (
+                            <Camera className="h-8 w-8 text-gray-400" />
+                          )}
+                        </div>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setLogoFile(file);
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setLogoPreview(reader.result as string);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        <p>Format: JPG, PNG</p>
+                        <p>Mida màxima: 5MB</p>
+                        <p>Recomanat: 200x200px</p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div>
+                    <Label>Portada de l'empresa</Label>
+                    <div className="mt-2">
+                      <div className="relative">
+                        <div className="h-32 w-full rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center overflow-hidden">
+                          {bannerPreview ? (
+                            <img src={bannerPreview} alt="Banner preview" className="h-full w-full object-cover" />
+                          ) : (
+                            <div className="text-center">
+                              <Upload className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                              <p className="text-sm text-gray-600">Fes clic per pujar la portada</p>
+                            </div>
+                          )}
+                        </div>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          className="absolute inset-0 opacity-0 cursor-pointer"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              setBannerFile(file);
+                              const reader = new FileReader();
+                              reader.onloadend = () => {
+                                setBannerPreview(reader.result as string);
+                              };
+                              reader.readAsDataURL(file);
+                            }
+                          }}
+                        />
+                      </div>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Format: JPG, PNG • Mida màxima: 5MB • Recomanat: 1200x400px
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="edit-name">Nombre de la Empresa *</Label>

@@ -15,8 +15,8 @@ const Settings = () => {
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Configuración</h1>
-        <p className="text-gray-600">Gestiona tu cuenta y preferencias de privacidad</p>
+        <h1 className="text-2xl font-bold text-gray-900">Configuració</h1>
+        <p className="text-gray-600">Gestiona el teu compte i preferències de privacitat</p>
       </div>
 
       <Tabs defaultValue="profile" className="space-y-6">
@@ -27,19 +27,19 @@ const Settings = () => {
           </TabsTrigger>
           <TabsTrigger value="notifications" className="data-[state=active]:bg-primary data-[state=active]:text-white">
             <Bell className="h-4 w-4 mr-2" />
-            Notificaciones
+            Notificacions
           </TabsTrigger>
           <TabsTrigger value="privacy" className="data-[state=active]:bg-primary data-[state=active]:text-white">
             <Shield className="h-4 w-4 mr-2" />
-            Privacidad
+            Privacitat
           </TabsTrigger>
           <TabsTrigger value="appearance" className="data-[state=active]:bg-primary data-[state=active]:text-white">
             <Eye className="h-4 w-4 mr-2" />
-            Apariencia
+            Aparença
           </TabsTrigger>
           <TabsTrigger value="account" className="data-[state=active]:bg-primary data-[state=active]:text-white">
             <Globe className="h-4 w-4 mr-2" />
-            Cuenta
+            Compte
           </TabsTrigger>
         </TabsList>
 
@@ -47,7 +47,7 @@ const Settings = () => {
         <TabsContent value="profile" className="space-y-6">
           <Card className="shadow-sm border-0 bg-white">
             <CardHeader>
-              <h3 className="text-lg font-semibold">Información Personal</h3>
+              <h3 className="text-lg font-semibold">Informació Personal</h3>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="flex items-center space-x-6">

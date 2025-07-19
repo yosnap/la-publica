@@ -786,7 +786,7 @@ const Dashboard = () => {
           <div className="lg:col-span-6 space-y-6">
             { /* Header */}
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Activity Feed</h1>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-2">Activitat</h1>
               <div className="flex items-center justify-center space-x-4 text-sm text-gray-500 dark:text-gray-400">
                 <span className="cursor-pointer hover:text-gray-900 dark:text-gray-100">Mostrar todo</span>
                 <span>·</span>
