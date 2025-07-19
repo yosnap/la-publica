@@ -185,11 +185,11 @@ const Profile = () => {
   }
 
   const userStats = [
-    { label: "Posts", value: userPosts.length },
-    { label: "Seguidores", value: user.followers?.length || 0 },
-    { label: "Siguiendo", value: user.following?.length || 0 },
-    { label: "Grupos", value: userGroups.length },
-    { label: "Anuncios", value: userAnnouncements.length },
+    { label: "Publicacions", value: userPosts.length },
+    { label: "Seguidors", value: user.followers?.length || 0 },
+    { label: "Seguint", value: user.following?.length || 0 },
+    { label: "Grups", value: userGroups.length },
+    { label: "Anuncis", value: userAnnouncements.length },
   ];
 
   // Formatear fecha
@@ -199,10 +199,10 @@ const Profile = () => {
     const diff = now.getTime() - posted.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     
-    if (days === 0) return "Hoy";
-    if (days === 1) return "Ayer";
-    if (days < 7) return `Hace ${days} días`;
-    if (days < 30) return `Hace ${Math.floor(days / 7)} semanas`;
+    if (days === 0) return "Avui";
+    if (days === 1) return "Ahir";
+    if (days < 7) return `Fa ${days} dies`;
+    if (days < 30) return `Fa ${Math.floor(days / 7)} setmanes`;
     return posted.toLocaleDateString('es-ES');
   };
 
@@ -250,7 +250,7 @@ const Profile = () => {
               <span>•</span>
               <Calendar className="h-4 w-4 mr-1 inline" />
               <span>
-                Se unió en {new Date(user.createdAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' }).toLowerCase()}
+                Es va unir al {new Date(user.createdAt).toLocaleDateString('ca-ES', { year: 'numeric', month: 'long' }).toLowerCase()}
               </span>
             </div>
             
@@ -308,7 +308,7 @@ const Profile = () => {
               </Button>
               <Button variant="outline" size="sm" onClick={() => navigate('/settings')}>
                 <Settings className="h-4 w-4 mr-2" />
-                Configuración
+                Configuració
               </Button>
             </div>
           </div>
@@ -329,22 +329,22 @@ const Profile = () => {
       <Tabs defaultValue="posts" className="space-y-6">
         <TabsList className="grid w-full grid-cols-6 bg-white dark:bg-gray-800/50 border">
           <TabsTrigger value="posts" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-            Posts
+            Publicacions
           </TabsTrigger>
           <TabsTrigger value="about" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-            Acerca de
+            Sobre mi
           </TabsTrigger>
           <TabsTrigger value="groups" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-            Grupos
+            Grups
           </TabsTrigger>
           <TabsTrigger value="announcements" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-            Anuncios
+            Anuncis
           </TabsTrigger>
           <TabsTrigger value="forums" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-            Foros
+            Fòrums
           </TabsTrigger>
           <TabsTrigger value="achievements" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-            Logros
+            Assoliments
           </TabsTrigger>
         </TabsList>
 

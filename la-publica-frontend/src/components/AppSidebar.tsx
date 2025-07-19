@@ -22,32 +22,32 @@ import { useUserProfile } from "@/hooks/useUser";
 
 const menuItems = [
   {
-    title: "Dashboard",
+    title: "Tauler",
     url: "/",
     icon: Home,
   },
   {
-    title: "Mi Perfil",
+    title: "El Meu Perfil",
     url: "/perfil",
     icon: User,
   },
   {
-    title: "Grupos",
+    title: "Grups",
     url: "/groups",
     icon: Users,
   },
   {
-    title: "Mensajes",
+    title: "Missatges",
     url: "/messages",
     icon: MessageSquare,
   },
   {
-    title: "Foros",
+    title: "Fòrums",
     url: "/forums",
     icon: MessageCircle,
   },
   {
-    title: "Anuncios",
+    title: "Anuncis",
     url: "/announcements",
     icon: Megaphone,
   },
@@ -55,22 +55,22 @@ const menuItems = [
 
 const businessItems = [
   {
-    title: "Empresas y Colaboradores",
+    title: "Empreses i Col·laboradors",
     url: "/companies",
     icon: Building,
   },
   {
-    title: "Ofertas",
+    title: "Ofertes",
     url: "/offers",
     icon: Briefcase,
   },
   {
-    title: "Asesoramiento",
+    title: "Assessorament",
     url: "/consulting",
     icon: HelpCircle,
   },
   {
-    title: "Enlaces de Interés",
+    title: "Enllaços d'Interès",
     url: "/links",
     icon: ExternalLink,
   },
@@ -78,17 +78,17 @@ const businessItems = [
 
 const collaboratorItems = [
   {
-    title: "Mis Empresas",
+    title: "Les Meves Empreses",
     url: "/colaborador/empresas",
     icon: Building,
   },
   {
-    title: "Mis Ofertas",
+    title: "Les Meves Ofertes",
     url: "/colaborador/ofertas",
     icon: Briefcase,
   },
   {
-    title: "Mis Asesorías",
+    title: "Les Meves Assessories",
     url: "/colaborador/asesorias",
     icon: HelpCircle,
   },
@@ -96,47 +96,47 @@ const collaboratorItems = [
 
 const quickActions = [
   {
-    title: "Buscar",
+    title: "Cercar",
     icon: Search,
   },
   {
-    title: "Notificaciones",
+    title: "Notificacions",
     icon: Bell,
   },
   {
-    title: "Calendario",
+    title: "Calendari",
     icon: Calendar,
   },
 ];
 
 const adminItems = [
   {
-    title: "Panel de Administración",
+    title: "Panell d'Administració",
     url: "/admin",
     icon: Shield,
   },
   {
-    title: "Categorías de Grupos",
+    title: "Categories de Grups",
     url: "/admin/group-categories",
     icon: Tag,
   },
   {
-    title: "Categorías de Foros",
+    title: "Categories de Fòrums",
     url: "/admin/forum-categories",
     icon: MessageCircle,
   },
   {
-    title: "Categorías Globales",
+    title: "Categories Globals",
     url: "/admin/categories",
     icon: Layers,
   },
   {
-    title: "Moderación de Foros",
+    title: "Moderació de Fòrums",
     url: "/admin/forum-moderation",
     icon: MessageCircle,
   },
   {
-    title: "Respaldo de Configuración",
+    title: "Còpia de Seguretat",
     url: "/admin/platform-backup",
     icon: Database,
   },
@@ -182,7 +182,7 @@ export function AppSidebar() {
             </div>
             <div className="group-data-[collapsible=icon]:hidden">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">La pública</h2>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Comunidad Social</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Comunitat Social</p>
             </div>
           </div>
           <SidebarTrigger className="group-data-[collapsible=icon]:hidden hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors" />
@@ -192,7 +192,7 @@ export function AppSidebar() {
       <SidebarContent className="px-3 group-data-[collapsible=icon]:px-2">
         <SidebarGroup>
           <SidebarGroupLabel className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
-            Navegación Principal
+            Navegació Principal
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -220,7 +220,7 @@ export function AppSidebar() {
 
         <SidebarGroup className="mt-6">
           <SidebarGroupLabel className="text-gray-500 dark:text-gray-400 text-xs uppercase tracking-wider mb-2 group-data-[collapsible=icon]:hidden">
-            Empresas y Negocios
+            Empreses i Negocis
           </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
@@ -348,11 +348,11 @@ export function AppSidebar() {
                       ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90' 
                       : 'hover:bg-gray-100 text-gray-700'
                   } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-14 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto`}
-                  tooltip="Configuración"
+                  tooltip="Configuració"
                 >
                   <Link to="/settings" className="flex items-center space-x-3 px-3 py-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:space-x-0">
                     <Settings className="h-5 w-5 flex-shrink-0" />
-                    <span className="font-medium group-data-[collapsible=icon]:hidden">Configuración</span>
+                    <span className="font-medium group-data-[collapsible=icon]:hidden">Configuració</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
@@ -360,7 +360,7 @@ export function AppSidebar() {
                 <SidebarMenuButton 
                   onClick={toggleDarkMode}
                   className="hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-14 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto"
-                  tooltip={isDarkMode ? "Modo Claro" : "Modo Oscuro"}
+                  tooltip={isDarkMode ? "Mode Clar" : "Mode Fosc"}
                 >
                   <div className="flex items-center space-x-3 px-3 py-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:space-x-0">
                     {isDarkMode ? (
@@ -369,7 +369,7 @@ export function AppSidebar() {
                       <Moon className="h-5 w-5 flex-shrink-0" />
                     )}
                     <span className="font-medium group-data-[collapsible=icon]:hidden">
-                      {isDarkMode ? "Modo Claro" : "Modo Oscuro"}
+                      {isDarkMode ? "Mode Clar" : "Mode Fosc"}
                     </span>
                   </div>
                 </SidebarMenuButton>

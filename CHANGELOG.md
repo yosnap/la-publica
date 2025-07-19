@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.0.1] - 2025-01-19
+
+### 🌍 Localització
+
+#### Català com idioma per defecte
+- **Actualitzat**: Tota la interfície d'usuari al català:
+  - `AppSidebar`: Navegació principal, elements de negoci, accions ràpides i administració
+  - `Announcements`: Títols, botons, filtres, missatges d'estat i formats de data
+  - `Profile`: Pestanyes, estadístiques, botons d'acció i dates relatives
+  - Formats de data actualitzats per utilitzar localització catalana (`ca-ES`)
+
+#### Optimitzacions d'API
+- **Corregit**: Errors 429 (Massa sol·licituds) causats per crides múltiples
+- **Implementat**: Hook centralitzat `useUserProfile` per reduir crides duplicades a `/api/users/profile`
+- **Optimitzat**: Rate limiter més permissiu en desenvolupament (1000 sol·licituds vs 100)
+- **Millorat**: Rendiment general de l'aplicació
+
+#### Correccions de renderitzat
+- **Corregit**: Error de renderitzat en `AnnouncementCard` amb objectes de localització
+- **Actualitzat**: Gestió de camps `location` com a string o objecte `{city, country, allowRemote}`
+- **Sincronitzat**: Interfícies TypeScript a tots els fitxers rellevants
+
+### 🔧 Canvis tècnics
+- **Migrat**: Components principals per utilitzar el hook centralitzat:
+  - `Profile.tsx`: Eliminades crides directes a API
+  - `Dashboard.tsx`: Centralitzada obtenció de dades d'usuari  
+  - `AppSidebar.tsx`: Optimitzada càrrega de perfil
+  - `Companies.tsx`: Utilitza hook compartit
+- **Creat**: `hooks/useUser.ts` - Hook centralitzat per gestió d'usuari
+- **Actualitzat**: Rate limiter al backend amb configuració més flexible
+
 ## [1.0.0] - 2024-01-19
 
 ### 🎉 Nuevas Funcionalidades

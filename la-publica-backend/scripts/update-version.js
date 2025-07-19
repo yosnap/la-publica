@@ -32,17 +32,17 @@ const systemInfoSchema = new mongoose.Schema({
 
 const SystemInfo = mongoose.model('SystemInfo', systemInfoSchema);
 
-async function initializeSystem() {
+async function updateVersion() {
   try {
     // Conectar a MongoDB
     await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/la-publica');
-    console.log('✅ Conectado a MongoDB');
+    console.log('✅ Connectat a MongoDB');
 
-    // Verificar si ya existe información del sistema
+    // Buscar y actualizar la información del sistema
     let systemInfo = await SystemInfo.findOne();
     
     if (!systemInfo) {
-      // Crear información inicial del sistema
+      // Si no existe, crear nueva información del sistema
       systemInfo = await SystemInfo.create({
         version: '1.0.1',
         lastUpdated: new Date(),
@@ -51,24 +51,28 @@ async function initializeSystem() {
           registrationEnabled: true
         }
       });
-      console.log('✅ Información del sistema creada');
+      console.log('✅ Informació del sistema creada amb versió 1.0.1');
     } else {
-      console.log('ℹ️  La información del sistema ya existe');
+      // Actualizar la versión existente
+      systemInfo.version = '1.0.1';
+      systemInfo.lastUpdated = new Date();
+      await systemInfo.save();
+      console.log('✅ Versió actualitzada a 1.0.1');
     }
 
-    console.log('\n📊 Información del sistema:');
-    console.log(`   Versión: ${systemInfo.version}`);
-    console.log(`   Última actualización: ${systemInfo.lastUpdated}`);
-    console.log(`   Modo mantenimiento: ${systemInfo.settings.maintenanceMode ? 'Activado' : 'Desactivado'}`);
-    console.log(`   Registro habilitado: ${systemInfo.settings.registrationEnabled ? 'Sí' : 'No'}`);
+    console.log('\n📊 Informació del sistema actualitzada:');
+    console.log(`   Versió: ${systemInfo.version}`);
+    console.log(`   Última actualització: ${systemInfo.lastUpdated}`);
+    console.log(`   Mode manteniment: ${systemInfo.settings.maintenanceMode ? 'Activat' : 'Desactivat'}`);
+    console.log(`   Registre habilitat: ${systemInfo.settings.registrationEnabled ? 'Sí' : 'No'}`);
 
   } catch (error) {
     console.error('❌ Error:', error);
   } finally {
     await mongoose.disconnect();
-    console.log('\n✅ Desconectado de MongoDB');
+    console.log('\n✅ Desconnectat de MongoDB');
   }
 }
 
-// Ejecutar la inicialización
-initializeSystem();
+// Ejecutar la actualización
+updateVersion();

@@ -100,10 +100,10 @@ export default function Announcements() {
     const diff = now.getTime() - posted.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
     
-    if (days === 0) return "Hoy";
-    if (days === 1) return "Ayer";
-    if (days < 7) return `Hace ${days} días`;
-    if (days < 30) return `Hace ${Math.floor(days / 7)} semanas`;
+    if (days === 0) return "Avui";
+    if (days === 1) return "Ahir";
+    if (days < 7) return `Fa ${days} dies`;
+    if (days < 30) return `Fa ${Math.floor(days / 7)} setmanes`;
     return posted.toLocaleDateString('es-ES');
   };
 
@@ -125,7 +125,7 @@ export default function Announcements() {
                 </h3>
                 <div className="flex items-center gap-2 ml-2">
                   {announcement.featured && (
-                    <Badge className="bg-yellow-500 text-white">Destacado</Badge>
+                    <Badge className="bg-yellow-500 text-white">Destacat</Badge>
                   )}
                   <Badge className={announcement.type === "offer" ? "bg-green-500 text-white" : "bg-blue-500 text-white"}>
                     {announcement.type === "offer" ? (
@@ -156,7 +156,7 @@ export default function Announcements() {
                 </div>
                 <div className="flex items-center gap-1">
                   <Eye className="h-4 w-4" />
-                  <span>{announcement.views} vistas</span>
+                  <span>{announcement.views} visualitzacions</span>
                 </div>
                 {announcement.location && (
                   <div className="flex items-center gap-1">
@@ -173,10 +173,10 @@ export default function Announcements() {
               
               <div className="text-lg font-bold text-primary">
                 {announcement.type === "offer" 
-                  ? announcement.price ? `€${announcement.price}` : 'Precio a consultar'
+                  ? announcement.price ? `€${announcement.price}` : 'Preu a consultar'
                   : announcement.budget 
                     ? `€${announcement.budget.min} - €${announcement.budget.max}`
-                    : 'Presupuesto a definir'
+                    : 'Pressupost a definir'
                 }
               </div>
             </div>
@@ -192,7 +192,7 @@ export default function Announcements() {
                     navigate(`/announcements/${announcement._id}`);
                   }}
                 >
-                  Ver Detalles
+                  Veure Detalls
                 </Button>
               </div>
             </div>
@@ -208,8 +208,8 @@ export default function Announcements() {
         {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Anuncios</h1>
-            <p className="text-gray-600 dark:text-gray-400">Ofertas y demandas de servicios de usuarios</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Anuncis</h1>
+            <p className="text-gray-600 dark:text-gray-400">Ofertes i demandes de serveis d'usuaris</p>
           </div>
           {user?.role === 'user' && (
             <Button 
@@ -217,7 +217,7 @@ export default function Announcements() {
               onClick={() => navigate('/announcements/new')}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Publicar Anuncio
+              Publicar Anunci
             </Button>
           )}
         </div>
@@ -226,7 +226,7 @@ export default function Announcements() {
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
           <div className="lg:col-span-2">
             <Input
-              placeholder="Buscar anuncios..."
+              placeholder="Cercar anuncis..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full"
@@ -236,7 +236,7 @@ export default function Announcements() {
             <div className="flex items-center space-x-2">
               <TrendingUp className="h-5 w-5 text-green-500" />
               <div>
-                <p className="text-sm font-medium">Ofertas Activas</p>
+                <p className="text-sm font-medium">Ofertes Actives</p>
                 <p className="text-lg font-bold">{offerAnnouncements.length}</p>
               </div>
             </div>
@@ -245,7 +245,7 @@ export default function Announcements() {
             <div className="flex items-center space-x-2">
               <TrendingDown className="h-5 w-5 text-blue-500" />
               <div>
-                <p className="text-sm font-medium">Demandas</p>
+                <p className="text-sm font-medium">Demandes</p>
                 <p className="text-lg font-bold">{demandAnnouncements.length}</p>
               </div>
             </div>
@@ -257,13 +257,13 @@ export default function Announcements() {
           <Tabs value={activeFilter} onValueChange={setActiveFilter} className="flex-1">
             <TabsList className="grid w-full grid-cols-3 max-w-md bg-white dark:bg-gray-800 border">
               <TabsTrigger value="all" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-                Todos
+                Tots
               </TabsTrigger>
               <TabsTrigger value="offers" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-                Ofertas ({offerAnnouncements.length})
+                Ofertes ({offerAnnouncements.length})
               </TabsTrigger>
               <TabsTrigger value="demands" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-                Demandas ({demandAnnouncements.length})
+                Demandes ({demandAnnouncements.length})
               </TabsTrigger>
             </TabsList>
           </Tabs>
@@ -301,13 +301,13 @@ export default function Announcements() {
           <Card>
             <CardContent className="p-12 text-center">
               <Megaphone className="h-12 w-12 mx-auto text-gray-300 mb-4" />
-              <p className="text-gray-500">No se encontraron anuncios</p>
+              <p className="text-gray-500">No s'han trobat anuncis</p>
               {user?.role === 'user' && (
                 <Button 
                   className="mt-4"
                   onClick={() => navigate('/announcements/new')}
                 >
-                  Publicar el primer anuncio
+                  Publicar el primer anunci
                 </Button>
               )}
             </CardContent>
