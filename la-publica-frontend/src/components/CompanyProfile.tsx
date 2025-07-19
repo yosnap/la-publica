@@ -28,26 +28,26 @@ interface CompanyProfileProps {
 
 const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisories = [] }: CompanyProfileProps) => {
   const companyStats = [
-    { label: "Servicios", value: "24" },
-    { label: "Clientes", value: "150+" },
-    { label: "Proyectos", value: "89" },
-    { label: "Años", value: "8" }
+    { label: "Serveis", value: "24" },
+    { label: "Clients", value: "150+" },
+    { label: "Projectes", value: "89" },
+    { label: "Anys", value: "8" }
   ];
 
   const companyServices = [
     {
       id: 1,
-      title: "Desarrollo Web",
-      description: "Creamos sitios web modernos y responsivos usando las últimas tecnologías",
-      category: "Tecnología",
-      price: "Desde €2,500",
-      duration: "2-4 semanas"
+      title: "Desenvolupament Web",
+      description: "Creem llocs web moderns i responsius utilitzant les últimes tecnologies",
+      category: "Tecnologia",
+      price: "Des de €2,500",
+      duration: "2-4 setmanes"
     },
     {
       id: 2,
-      title: "Consultoría Digital",
-      description: "Asesoramiento estratégico para la transformación digital de tu empresa",
-      category: "Consultoría",
+      title: "Consultoria Digital",
+      description: "Assessorament estratègic per a la transformació digital de la teva empresa",
+      category: "Consultoria",
       price: "€150/hora",
       duration: "Flexible"
     }
@@ -169,22 +169,22 @@ const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisori
       <Tabs defaultValue="services" className="space-y-6">
         <TabsList className="grid w-full grid-cols-6 bg-white border">
           <TabsTrigger value="services" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-            Servicios
+            Serveis
           </TabsTrigger>
           <TabsTrigger value="offers" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-            Ofertas
+            Ofertes
           </TabsTrigger>
           <TabsTrigger value="advisories" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-            Asesoramientos
+            Assessoraments
           </TabsTrigger>
           <TabsTrigger value="about" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-            Acerca de
+            Sobre nosaltres
           </TabsTrigger>
           <TabsTrigger value="projects" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-            Proyectos
+            Projectes
           </TabsTrigger>
           <TabsTrigger value="certifications" className="data-[state=active]:bg-primary data-[state=active]:text-white">
-            Certificaciones
+            Certificacions
           </TabsTrigger>
         </TabsList>
 
@@ -232,14 +232,14 @@ const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisori
                       <div className="flex items-center space-x-2 mb-2">
                         <h3 className="text-lg font-semibold text-gray-900">{offer.title}</h3>
                         <Badge variant={offer.isActive ? "default" : "secondary"}>
-                          {offer.isActive ? "Activa" : "Cerrada"}
+                          {offer.isActive ? "Activa" : "Tancada"}
                         </Badge>
                       </div>
                       <p className="text-gray-600 mb-3">{offer.description}</p>
                       <div className="flex items-center space-x-4 text-sm text-gray-500">
                         <span className="flex items-center">
                           <MapPin className="h-4 w-4 mr-1" />
-                          {offer.location.isRemote ? "Remoto" : `${offer.location.city}, ${offer.location.country}`}
+                          {offer.location.isRemote ? "Remot" : `${offer.location.city}, ${offer.location.country}`}
                         </span>
                         <span className="flex items-center">
                           <Clock className="h-4 w-4 mr-1" />
@@ -291,9 +291,9 @@ const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisori
                         </span>
                         <span className="flex items-center">
                           <DollarSign className="h-4 w-4 mr-1" />
-                          {advisory.pricing?.type === 'free' ? 'Gratuito' : 
+                          {advisory.pricing?.type === 'free' ? 'Gratuït' : 
                            advisory.pricing?.hourlyRate ? `€${advisory.pricing.hourlyRate}/hora` : 
-                           advisory.pricing?.sessionRate ? `€${advisory.pricing.sessionRate}/sesión` : 'Consultar'}
+                           advisory.pricing?.sessionRate ? `€${advisory.pricing.sessionRate}/sessió` : 'Consultar'}
                         </span>
                         {advisory.stats?.averageRating > 0 && (
                           <span className="flex items-center">
