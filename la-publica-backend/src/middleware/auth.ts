@@ -16,7 +16,7 @@ export const authenticate = (
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     res.status(401).json({
       success: false,
-      message: 'Se requiere un token de autenticación válido.'
+      message: 'Es requereix un token d\'autenticació vàlid.'
     });
     return;
   }
@@ -30,7 +30,7 @@ export const authenticate = (
   } catch (error: any) {
     res.status(401).json({
       success: false,
-      message: error.message || 'Token inválido o expirado.'
+      message: error.message || 'Token invàlid o caducat.'
     });
   }
 };

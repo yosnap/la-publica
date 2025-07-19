@@ -7,14 +7,14 @@ export const createCompany = async (req: AuthenticatedRequest, res: Response, ne
   try {
     const userId = req.user?.userId;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     // Verificar que el usuario sea colaborador
     if (req.user?.role !== 'colaborador') {
       return res.status(403).json({ 
         success: false, 
-        message: 'Solo los usuarios colaboradores pueden crear empresas' 
+        message: 'Només els usuaris col·laboradors poden crear empreses' 
       });
     }
 
@@ -31,14 +31,14 @@ export const createCompany = async (req: AuthenticatedRequest, res: Response, ne
     return res.status(201).json({
       success: true,
       data: populatedCompany,
-      message: 'Empresa creada exitosamente'
+      message: 'Empresa creada exitosament'
     });
 
   } catch (error: any) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ 
         success: false, 
-        message: 'Error de validación', 
+        message: 'Error de validació', 
         error: error.message 
       });
     }
@@ -95,7 +95,7 @@ export const getCompanyById = async (req: Request, res: Response, next: NextFunc
     if (!company) {
       return res.status(404).json({
         success: false,
-        message: 'Empresa no encontrada'
+        message: 'Empresa no trobada'
       });
     }
 
@@ -116,19 +116,19 @@ export const updateCompany = async (req: AuthenticatedRequest, res: Response, ne
     const companyId = req.params.id;
 
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     const company = await Company.findById(companyId);
     if (!company) {
-      return res.status(404).json({ success: false, message: 'Empresa no encontrada' });
+      return res.status(404).json({ success: false, message: 'Empresa no trobada' });
     }
 
     // Verificar que el usuario sea el propietario o admin
     if (company.owner.toString() !== userId && req.user?.role !== 'admin') {
       return res.status(403).json({ 
         success: false, 
-        message: 'No tienes permisos para actualizar esta empresa' 
+        message: 'No tens permisos per actualitzar aquesta empresa' 
       });
     }
 
@@ -141,14 +141,14 @@ export const updateCompany = async (req: AuthenticatedRequest, res: Response, ne
     return res.json({
       success: true,
       data: updatedCompany,
-      message: 'Empresa actualizada exitosamente'
+      message: 'Empresa actualitzada exitosament'
     });
 
   } catch (error: any) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ 
         success: false, 
-        message: 'Error de validación', 
+        message: 'Error de validació', 
         error: error.message 
       });
     }
@@ -163,19 +163,19 @@ export const deleteCompany = async (req: AuthenticatedRequest, res: Response, ne
     const companyId = req.params.id;
 
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     const company = await Company.findById(companyId);
     if (!company) {
-      return res.status(404).json({ success: false, message: 'Empresa no encontrada' });
+      return res.status(404).json({ success: false, message: 'Empresa no trobada' });
     }
 
     // Verificar que el usuario sea el propietario o admin
     if (company.owner.toString() !== userId && req.user?.role !== 'admin') {
       return res.status(403).json({ 
         success: false, 
-        message: 'No tienes permisos para eliminar esta empresa' 
+        message: 'No tens permisos per eliminar aquesta empresa' 
       });
     }
 
@@ -183,7 +183,7 @@ export const deleteCompany = async (req: AuthenticatedRequest, res: Response, ne
 
     return res.json({
       success: true,
-      message: 'Empresa eliminada exitosamente'
+      message: 'Empresa eliminada exitosament'
     });
 
   } catch (error) {
@@ -196,7 +196,7 @@ export const getMyCompanies = async (req: AuthenticatedRequest, res: Response, n
   try {
     const userId = req.user?.userId;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     const companies = await Company.find({ owner: userId })
@@ -219,7 +219,7 @@ export const updateVerificationStatus = async (req: AuthenticatedRequest, res: R
     if (req.user?.role !== 'admin') {
       return res.status(403).json({ 
         success: false, 
-        message: 'Solo los administradores pueden cambiar el estado de verificación' 
+        message: 'Només els administradors poden canviar l\'estat de verificació' 
       });
     }
 
@@ -228,7 +228,7 @@ export const updateVerificationStatus = async (req: AuthenticatedRequest, res: R
 
     const company = await Company.findById(companyId);
     if (!company) {
-      return res.status(404).json({ success: false, message: 'Empresa no encontrada' });
+      return res.status(404).json({ success: false, message: 'Empresa no trobada' });
     }
 
     company.verified.status = status;

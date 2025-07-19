@@ -167,7 +167,16 @@ export default function JobOfferDetail() {
   };
 
   const canEdit = () => {
-    return user?.role === 'colaborador' && user?.userId === jobOffer?.company.owner._id;
+    // Solo mostrar botón si tenemos todos los datos necesarios y el usuario es el propietario
+    if (!user || user.role !== 'colaborador' || !jobOffer?.company?.owner) {
+      return false;
+    }
+    
+    // Convertir ambos IDs a string para asegurar comparación correcta
+    const currentUserId = String(user._id);
+    const ownerId = String(jobOffer.company.owner._id);
+    
+    return currentUserId === ownerId;
   };
 
   const canApply = () => {
@@ -260,7 +269,7 @@ export default function JobOfferDetail() {
             </Button>
             {canEdit() && (
               <Button variant="outline" size="sm" asChild>
-                <Link to={`/colaborador/ofertas/${jobOffer._id}/edit`}>
+                <Link to={`/colaborador/ofertas/${jobOffer!._id}/edit`}>
                   <Edit className="h-4 w-4 mr-2" />
                   Editar
                 </Link>

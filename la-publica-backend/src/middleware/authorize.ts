@@ -10,7 +10,7 @@ export const authorize = (allowedRoles: Array<'user' | 'admin' | 'colaborador'>)
     if (!req.user) {
       res.status(401).json({
         success: false,
-        message: 'Autenticación requerida para esta acción.'
+        message: 'Autenticació requerida per a aquesta acció.'
       });
       return;
     }
@@ -20,7 +20,7 @@ export const authorize = (allowedRoles: Array<'user' | 'admin' | 'colaborador'>)
     if (!allowedRoles.includes(userRole)) {
       res.status(403).json({
         success: false,
-        message: 'No tienes permisos suficientes para realizar esta acción.'
+        message: 'No tens permisos suficients per realitzar aquesta acció.'
       });
       return;
     }

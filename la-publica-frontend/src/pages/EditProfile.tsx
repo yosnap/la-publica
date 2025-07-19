@@ -58,10 +58,10 @@ type ProfileDataWithBirthDate = ProfileFormData & { birthDate?: string };
 
  // Esquema de validación con Zod
 const profileSchema = z.object({
-  firstName: z.string().min(1, "El nombre es requerido"),
-  lastName: z.string().min(1, "El apellido es requerido"),
-  username: z.string().min(1, "El apodo es requerido"),
-  email: z.string().email("Email inválido"),
+  firstName: z.string().min(1, "El nom és requerit"),
+  lastName: z.string().min(1, "El cognom és requerit"),
+  username: z.string().min(1, "El nom d'usuari és requerit"),
+  email: z.string().email("Email invàlid"),
   phone: z.string().optional(),
   location: z.string().optional(),
   bio: z.string().optional(),
@@ -69,9 +69,9 @@ const profileSchema = z.object({
   company: z.string().optional(),
   experience: z.string().optional(),
   education: z.string().optional(),
-  birthDay: z.string().min(1, "Selecciona el día"),
+  birthDay: z.string().min(1, "Selecciona el dia"),
   birthMonth: z.string().min(1, "Selecciona el mes"),
-  birthYear: z.string().min(1, "Selecciona el año"),
+  birthYear: z.string().min(1, "Selecciona l'any"),
   gender: z.string().optional(),
   workExperience: z.array(z.object({
     jobTitle: z.string(),
@@ -143,7 +143,7 @@ const EditProfile = () => {
           if (response.data.data.profilePicture) setProfileImage(response.data.data.profilePicture);
         }
       } catch (err) {
-        console.error('Error al obtener perfil:', err);
+        console.error('Error en obtenir perfil:', err);
       } finally {
         setIsLoading(false);
       }

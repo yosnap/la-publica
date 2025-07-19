@@ -25,7 +25,7 @@ const Register = () => {
     e.preventDefault();
 
     if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden.");
+      setError("Les contrasenyes no coincideixen.");
       return;
     }
 
@@ -44,10 +44,10 @@ const Register = () => {
       navigate('/login?registered=true');
     } catch (err) {
       if (axios.isAxiosError(err)) {
-        const errorMessage = err.response?.data?.message || "Error al crear la cuenta. Inténtalo más tarde.";
+        const errorMessage = err.response?.data?.message || "Error en crear el compte. Intenta-ho més tard.";
         setError(errorMessage);
       } else {
-        setError("Ocurrió un error inesperado.");
+        setError("S'ha produït un error inesperat.");
       }
     } finally {
       setIsLoading(false);
@@ -61,33 +61,33 @@ const Register = () => {
           <div className="w-16 h-16 bg-[#4F8FF7] rounded-2xl flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-2xl">LP</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Crea tu cuenta</h1>
-          <p className="text-gray-600 mt-2">Únete a La pública para empezar a conectar</p>
+          <h1 className="text-2xl font-bold text-gray-900">Crea el teu compte</h1>
+          <p className="text-gray-600 mt-2">Uneix-te a La pública per començar a connectar</p>
         </div>
 
         <Card className="shadow-lg border-0">
           <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-xl font-semibold text-center">Registro</CardTitle>
+            <CardTitle className="text-xl font-semibold text-center">Registre</CardTitle>
             <CardDescription className="text-center">
-              Completa el formulario para crear tu perfil
+              Completa el formulari per crear el teu perfil
             </CardDescription>
           </CardHeader>
           <CardContent>
             {error && (
               <Alert variant="destructive" className="mb-4">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error en el registro</AlertTitle>
+                <AlertTitle>Error en el registre</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="firstName">Nombre</Label>
+                  <Label htmlFor="firstName">Nom</Label>
                   <Input
                     id="firstName"
                     type="text"
-                    placeholder="Tu nombre"
+                    placeholder="El teu nom"
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     required
@@ -95,11 +95,11 @@ const Register = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="lastName">Apellidos</Label>
+                  <Label htmlFor="lastName">Cognoms</Label>
                   <Input
                     id="lastName"
                     type="text"
-                    placeholder="Tus apellidos"
+                    placeholder="Els teus cognoms"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     required
@@ -108,11 +108,11 @@ const Register = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="username">Nombre de usuario</Label>
+                <Label htmlFor="username">Nom d'usuari</Label>
                 <Input
                   id="username"
                   type="text"
-                  placeholder="tu_usuario"
+                  placeholder="el_teu_usuari"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   required
@@ -120,11 +120,11 @@ const Register = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="email">Correo electrónico</Label>
+                <Label htmlFor="email">Correu electrònic</Label>
                 <Input
                   id="email"
                   type="email"
-                  placeholder="tu@email.com"
+                  placeholder="el_teu@email.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -132,12 +132,12 @@ const Register = () => {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password">Contraseña</Label>
+                <Label htmlFor="password">Contrasenya</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Crea una contraseña segura"
+                    placeholder="Crea una contrasenya segura"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -153,11 +153,11 @@ const Register = () => {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
+                <Label htmlFor="confirmPassword">Confirmar contrasenya</Label>
                 <Input
                   id="confirmPassword"
                   type="password"
-                  placeholder="Vuelve a escribir la contraseña"
+                  placeholder="Torna a escriure la contrasenya"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
@@ -169,19 +169,19 @@ const Register = () => {
                 disabled={isLoading}
                 className="w-full h-11 bg-[#4F8FF7] hover:bg-[#4F8FF7]/90 text-white rounded-xl font-medium"
               >
-                {isLoading ? "Creando cuenta..." : (
+                {isLoading ? "Creant compte..." : (
                   <>
                     <UserPlus className="h-4 w-4 mr-2" />
-                    Crear cuenta
+                    Crear compte
                   </>
                 )}
               </Button>
             </form>
             <div className="mt-6 text-center">
               <p className="text-gray-600">
-                ¿Ya tienes una cuenta?{" "}
+                Ja tens un compte?{" "}
                 <Link to="/login" className="text-[#4F8FF7] hover:underline font-medium">
-                  Inicia sesión aquí
+                  Inicia sessió aquí
                 </Link>
               </p>
             </div>
@@ -189,7 +189,7 @@ const Register = () => {
             { /* Divisor */}
             <div className="mt-6 flex items-center">
               <div className="flex-1 border-t border-gray-200"></div>
-              <span className="px-4 text-sm text-gray-500">O continúa con</span>
+              <span className="px-4 text-sm text-gray-500">O continua amb</span>
               <div className="flex-1 border-t border-gray-200"></div>
             </div>
 

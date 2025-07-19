@@ -48,7 +48,7 @@ export default function Forums() {
 
     } catch (error) {
       console.error('Error loading forums data:', error);
-      toast.error('Error al cargar los datos de los foros');
+      toast.error('Error en carregar les dades dels fòrums');
     } finally {
       setLoading(false);
     }
@@ -208,16 +208,16 @@ export default function Forums() {
                             </div>
                           </div>
                         </div>
-                        {forum.lastPost && (
+                        {forum.lastPost && forum.lastPost.author && (
                           <div className="text-right min-w-0 ml-4">
                             <p className="text-sm font-medium text-gray-900 truncate max-w-48">
                               {forum.lastPost.title}
                             </p>
                             <div className="flex items-center justify-end space-x-2 mt-1">
                               <Avatar className="h-5 w-5">
-                                <AvatarImage src={getImageUrl(forum.lastPost.author.profilePicture)} />
+                                <AvatarImage src={forum.lastPost.author.profilePicture ? getImageUrl(forum.lastPost.author.profilePicture) : undefined} />
                                 <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold text-xs">
-                                  {forum.lastPost.author.firstName[0]}{forum.lastPost.author.lastName[0]}
+                                  {forum.lastPost.author.firstName?.[0] || '?'}{forum.lastPost.author.lastName?.[0] || '?'}
                                 </AvatarFallback>
                               </Avatar>
                               <span className="text-xs text-gray-500">

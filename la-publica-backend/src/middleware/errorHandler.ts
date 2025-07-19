@@ -33,14 +33,14 @@ export const errorHandler = (
 
   // Error de cast de MongoDB (ID inválido)
   if (err.name === 'CastError') {
-    const message = 'Recurso no encontrado';
+    const message = 'Recurs no trobat';
     error = { name: 'CastError', message, status: 404 } as CustomError;
   }
 
   // Error de duplicado de MongoDB
   if (err.code === 11000) {
     const field = Object.keys(err.keyValue || {})[0];
-    const message = `${field || 'Campo'} ya existe`;
+    const message = `${field || 'Camp'} ja existeix`;
     error = { name: 'DuplicateField', message, status: 400 } as CustomError;
   }
 
@@ -52,29 +52,29 @@ export const errorHandler = (
 
   // Error de JWT
   if (err.name === 'JsonWebTokenError') {
-    const message = 'Token inválido';
+    const message = 'Token invàlid';
     error = { name: 'JsonWebTokenError', message, status: 401 } as CustomError;
   }
 
   // Error de JWT expirado
   if (err.name === 'TokenExpiredError') {
-    const message = 'Token expirado';
+    const message = 'Token caducat';
     error = { name: 'TokenExpiredError', message, status: 401 } as CustomError;
   }
 
   // Error de Multer (archivos)
   if (err.name === 'MulterError') {
-    let message = 'Error al subir archivo';
+    let message = 'Error en pujar arxiu';
 
     switch (err.code) {
       case 'LIMIT_FILE_SIZE':
-        message = 'El archivo es demasiado grande';
+        message = 'L\'arxiu és massa gran';
         break;
       case 'LIMIT_FILE_COUNT':
-        message = 'Demasiados archivos';
+        message = 'Massa arxius';
         break;
       case 'LIMIT_UNEXPECTED_FILE':
-        message = 'Campo de archivo inesperado';
+        message = 'Camp d\'arxiu inesperat';
         break;
     }
 
@@ -83,12 +83,12 @@ export const errorHandler = (
 
   // Error de Stripe
   if (err.type && err.type.includes('Stripe')) {
-    const message = 'Error en el procesamiento del pago';
+    const message = 'Error en el processament del pagament';
     error = { name: 'PaymentError', message, status: 400 } as CustomError;
   }
 
   const status = error.status || error.statusCode || 500;
-  const message = error.message || 'Error interno del servidor';
+  const message = error.message || 'Error intern del servidor';
 
   res.status(status).json(
     ResponseService.error(
@@ -100,7 +100,7 @@ export const errorHandler = (
 
 // Middleware para rutas no encontradas
 export const notFound = (req: Request, res: Response, next: NextFunction): void => {
-  const error = new Error(`Ruta no encontrada - ${req.originalUrl}`) as CustomError;
+  const error = new Error(`Ruta no trobada - ${req.originalUrl}`) as CustomError;
   error.status = 404;
   next(error);
 };
@@ -129,12 +129,12 @@ export const validateEnvironment = (): void => {
   const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
   if (missingEnvVars.length > 0) {
-    console.error('❌ Variables de entorno faltantes:');
+    console.error('❌ Variables d\'entorn mancants:');
     missingEnvVars.forEach(envVar => {
       console.error(`   - ${envVar}`);
     });
     process.exit(1);
   }
 
-  console.log('✅ Variables de entorno validadas');
+  console.log('✅ Variables d\'entorn validades');
 };

@@ -319,7 +319,7 @@ const ForumPostDetail = () => {
             <CardContent>
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="reply">Tu respuesta</Label>
+                  <Label htmlFor="reply">La teva resposta</Label>
                   <Textarea
                     id="reply"
                     value={replyContent}
@@ -417,7 +417,7 @@ const ForumPostDetail = () => {
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label htmlFor="reason">Razón *</Label>
+                <Label htmlFor="reason">Raó *</Label>
                 <select
                   id="reason"
                   value={reportReason}
@@ -434,7 +434,7 @@ const ForumPostDetail = () => {
                 </select>
               </div>
               <div>
-                <Label htmlFor="description">Descripción (opcional)</Label>
+                <Label htmlFor="description">Descripció (opcional)</Label>
                 <Textarea
                   id="description"
                   value={reportDescription}

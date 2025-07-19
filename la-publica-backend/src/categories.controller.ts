@@ -11,7 +11,7 @@ export const createCategory = async (req: AuthenticatedRequest, res: Response, n
     if (userRole !== 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'Solo los administradores pueden crear categorías'
+        message: 'Només els administradors poden crear categories'
       });
     }
 
@@ -20,7 +20,7 @@ export const createCategory = async (req: AuthenticatedRequest, res: Response, n
     if (!name || !type) {
       return res.status(400).json({
         success: false,
-        message: 'El nombre y el tipo de la categoría son requeridos'
+        message: 'El nom i el tipus de la categoria són requerits'
       });
     }
 
@@ -34,7 +34,7 @@ export const createCategory = async (req: AuthenticatedRequest, res: Response, n
     if (existingCategory) {
       return res.status(409).json({
         success: false,
-        message: 'Ya existe una categoría con ese nombre en este tipo'
+        message: 'Ja existeix una categoria amb aquest nom en aquest tipus'
       });
     }
 
@@ -44,13 +44,13 @@ export const createCategory = async (req: AuthenticatedRequest, res: Response, n
       if (!parent) {
         return res.status(404).json({
           success: false,
-          message: 'La categoría padre no existe'
+          message: 'La categoria pare no existeix'
         });
       }
       if (parent.type !== type) {
         return res.status(400).json({
           success: false,
-          message: 'La categoría padre debe ser del mismo tipo'
+          message: 'La categoria pare ha de ser del mateix tipus'
         });
       }
     }
@@ -73,13 +73,13 @@ export const createCategory = async (req: AuthenticatedRequest, res: Response, n
     return res.status(201).json({
       success: true,
       data: category,
-      message: 'Categoría creada exitosamente'
+      message: 'Categoria creada exitosament'
     });
   } catch (error: any) {
     if (error.code === 11000) {
       return res.status(409).json({
         success: false,
-        message: 'Ya existe una categoría con ese nombre'
+        message: 'Ja existeix una categoria amb aquest nom'
       });
     }
     return next(error);
@@ -126,7 +126,7 @@ export const getCategoriesTree = async (req: Request, res: Response, next: NextF
     if (!type) {
       return res.status(400).json({
         success: false,
-        message: 'El tipo de categoría es requerido'
+        message: 'El tipus de categoria és requerit'
       });
     }
 
@@ -173,7 +173,7 @@ export const getCategoryById = async (req: Request, res: Response, next: NextFun
     if (!category) {
       return res.status(404).json({
         success: false,
-        message: 'Categoría no encontrada'
+        message: 'Categoria no trobada'
       });
     }
 
@@ -204,7 +204,7 @@ export const updateCategory = async (req: AuthenticatedRequest, res: Response, n
     if (userRole !== 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'Solo los administradores pueden actualizar categorías'
+        message: 'Només els administradors poden actualitzar categories'
       });
     }
 
@@ -215,7 +215,7 @@ export const updateCategory = async (req: AuthenticatedRequest, res: Response, n
     if (!category) {
       return res.status(404).json({
         success: false,
-        message: 'Categoría no encontrada'
+        message: 'Categoria no trobada'
       });
     }
 
@@ -231,7 +231,7 @@ export const updateCategory = async (req: AuthenticatedRequest, res: Response, n
       if (existingCategory) {
         return res.status(409).json({
           success: false,
-          message: 'Ya existe una categoría con ese nombre'
+          message: 'Ja existeix una categoria amb aquest nom'
         });
       }
       category.name = name;
@@ -242,7 +242,7 @@ export const updateCategory = async (req: AuthenticatedRequest, res: Response, n
       if (parentCategory === id) {
         return res.status(400).json({
           success: false,
-          message: 'Una categoría no puede ser su propia categoría padre'
+          message: 'Una categoria no pot ser la seva pròpia categoria pare'
         });
       }
       
@@ -251,13 +251,13 @@ export const updateCategory = async (req: AuthenticatedRequest, res: Response, n
         if (!parent) {
           return res.status(404).json({
             success: false,
-            message: 'La categoría padre no existe'
+            message: 'La categoria pare no existeix'
           });
         }
         if (parent.type !== category.type) {
           return res.status(400).json({
             success: false,
-            message: 'La categoría padre debe ser del mismo tipo'
+            message: 'La categoria pare ha de ser del mateix tipus'
           });
         }
       }
@@ -276,13 +276,13 @@ export const updateCategory = async (req: AuthenticatedRequest, res: Response, n
     return res.json({
       success: true,
       data: category,
-      message: 'Categoría actualizada exitosamente'
+      message: 'Categoria actualitzada exitosament'
     });
   } catch (error: any) {
     if (error.code === 11000) {
       return res.status(409).json({
         success: false,
-        message: 'Ya existe una categoría con ese nombre'
+        message: 'Ja existeix una categoria amb aquest nom'
       });
     }
     return next(error);
@@ -298,7 +298,7 @@ export const deleteCategory = async (req: AuthenticatedRequest, res: Response, n
     if (userRole !== 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'Solo los administradores pueden eliminar categorías'
+        message: 'Només els administradors poden eliminar categories'
       });
     }
 
@@ -308,7 +308,7 @@ export const deleteCategory = async (req: AuthenticatedRequest, res: Response, n
     if (!category) {
       return res.status(404).json({
         success: false,
-        message: 'Categoría no encontrada'
+        message: 'Categoria no trobada'
       });
     }
 
@@ -321,7 +321,7 @@ export const deleteCategory = async (req: AuthenticatedRequest, res: Response, n
     if (hasActiveSubcategories > 0) {
       return res.status(400).json({
         success: false,
-        message: 'No se puede eliminar una categoría que tiene subcategorías activas'
+        message: 'No es pot eliminar una categoria que té subcategories actives'
       });
     }
 
@@ -331,7 +331,7 @@ export const deleteCategory = async (req: AuthenticatedRequest, res: Response, n
 
     return res.json({
       success: true,
-      message: 'Categoría desactivada exitosamente'
+      message: 'Categoria desactivada exitosament'
     });
   } catch (error) {
     return next(error);
@@ -347,7 +347,7 @@ export const reorderCategories = async (req: AuthenticatedRequest, res: Response
     if (userRole !== 'admin') {
       return res.status(403).json({
         success: false,
-        message: 'Solo los administradores pueden reordenar categorías'
+        message: 'Només els administradors poden reordenar categories'
       });
     }
 
@@ -356,7 +356,7 @@ export const reorderCategories = async (req: AuthenticatedRequest, res: Response
     if (!Array.isArray(categories)) {
       return res.status(400).json({
         success: false,
-        message: 'Se requiere un array de categorías'
+        message: 'Es requereix un array de categories'
       });
     }
 
@@ -369,7 +369,7 @@ export const reorderCategories = async (req: AuthenticatedRequest, res: Response
 
     return res.json({
       success: true,
-      message: 'Categorías reordenadas exitosamente'
+      message: 'Categories reordenades exitosament'
     });
   } catch (error) {
     return next(error);

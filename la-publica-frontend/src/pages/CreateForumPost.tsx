@@ -39,13 +39,13 @@ const CreateForumPost = () => {
         
          // Verificar si el foro está bloqueado
         if (response.data.isLocked) {
-          toast.error('Este foro está bloqueado para nuevos posts');
+          toast.error('Aquest fòrum està bloquejat per a noves publicacions');
           navigate(`/forums/${forumId}`);
           return;
         }
       }
     } catch (error) {
-      toast.error('Error al cargar el foro');
+      toast.error('Error en carregar el fòrum');
       navigate('/forums');
     } finally {
       setLoading(false);
@@ -56,7 +56,7 @@ const CreateForumPost = () => {
     e.preventDefault();
     
     if (!formData.title.trim() || !formData.content.trim()) {
-      toast.error('El título y contenido son obligatorios');
+      toast.error('El títol i contingut són obligatoris');
       return;
     }
 
@@ -70,7 +70,7 @@ const CreateForumPost = () => {
       });
 
       if (response.success) {
-        toast.success('Post creado exitosamente');
+        toast.success('Publicació creada exitosament');
         navigate(`/forums/posts/${response.data._id}`);
       }
     } catch (error: any) {
@@ -180,12 +180,12 @@ const CreateForumPost = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               { /* Title */}
               <div>
-                <Label htmlFor="title">Título del Post *</Label>
+                <Label htmlFor="title">Títol de la Publicació *</Label>
                 <Input
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Escribe un título descriptivo para tu post"
+                  placeholder="Escriu un títol descriptiu per a la teva publicació"
                   maxLength={200}
                   className="mt-1"
                 />
@@ -201,7 +201,7 @@ const CreateForumPost = () => {
                   <RichTextEditor
                     value={formData.content}
                     onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
-                    placeholder="Escribe el contenido de tu post aquí..."
+                    placeholder="Escriu el contingut de la teva publicació aquí..."
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
@@ -219,7 +219,7 @@ const CreateForumPost = () => {
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder="Agregar tag..."
+                      placeholder="Afegir etiqueta..."
                       maxLength={20}
                     />
                     <Button 

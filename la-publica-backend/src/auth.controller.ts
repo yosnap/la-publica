@@ -19,7 +19,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message: 'El email o el nombre de usuario ya están en uso.'
+        message: 'L\'email o el nom d\'usuari ja estan en ús.'
       });
     }
 
@@ -37,7 +37,7 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
 
     return res.status(201).json({
       success: true,
-      message: 'Usuario registrado con éxito.'
+      message: 'Usuari registrat amb èxit.'
     });
 
   } catch (error) {
@@ -58,24 +58,24 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     }).select('+password');
 
     if (!user) {
-      return res.status(401).json({ success: false, message: 'Credenciales inválidas' });
+      return res.status(401).json({ success: false, message: 'Credencials invàlides' });
     }
 
     const isPasswordValid = await PasswordService.verifyPassword(data.password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json({ success: false, message: 'Credenciales inválidas' });
+      return res.status(401).json({ success: false, message: 'Credencials invàlides' });
     }
     
     if (!user.isActive) {
-      return res.status(403).json({ success: false, message: 'La cuenta de usuario está inactiva.' });
+      return res.status(403).json({ success: false, message: 'El compte d\'usuari està inactiu.' });
     }
 
     const token = JWTService.generateAccessToken({ userId: user.id, email: user.email, role: user.role });
 
     return res.json({
       success: true,
-      message: 'Login exitoso',
+      message: 'Inici de sessió exitós',
       token: token,
       user: {
         id: user._id,
@@ -98,7 +98,7 @@ export const refreshToken = async (req: Request, res: Response) => {
     if (!token) {
       return res.status(400).json({
         success: false,
-        message: 'Token requerido'
+        message: 'Token requerit'
       });
     }
     // Decodificar el token para obtener datos del usuario
@@ -106,7 +106,7 @@ export const refreshToken = async (req: Request, res: Response) => {
     if (!decoded) {
       return res.status(401).json({
         success: false,
-        message: 'Token inválido'
+        message: 'Token invàlid'
       });
     }
     // Generar nuevo token
@@ -118,12 +118,12 @@ export const refreshToken = async (req: Request, res: Response) => {
     return res.json({
       success: true,
       accessToken: newToken,
-      message: 'Token renovado'
+      message: 'Token renovat'
     });
   } catch (error: any) {
     return res.status(error.status || 500).json({
       success: false,
-      message: error.message || 'Error al refrescar token',
+      message: error.message || 'Error en refrescar token',
       error: error.errors || undefined
     });
   }
@@ -134,7 +134,7 @@ export const logoutUser = async (req: Request, res: Response) => {
   // En JWT puro, el logout es frontend. Aquí solo respondemos OK.
   return res.json({
     success: true,
-    message: 'Logout exitoso'
+    message: 'Tancament de sessió exitós'
   });
 };
 
@@ -146,7 +146,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: 'Email es requerido'
+        message: 'L\'email és requerit'
       });
     }
 
@@ -156,7 +156,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     // Siempre devolver la misma respuesta por seguridad
     const response = {
       success: true,
-      message: 'Si el email existe, se enviaron instrucciones para recuperar la contraseña'
+      message: 'Si l\'email existeix, s\'han enviat instruccions per recuperar la contrasenya'
     };
 
     if (!user) {
@@ -189,7 +189,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
     console.error('Forgot password error:', error);
     return res.status(500).json({
       success: false,
-      message: 'Error interno del servidor'
+      message: 'Error intern del servidor'
     });
   }
 };
@@ -202,14 +202,14 @@ export const resetPassword = async (req: Request, res: Response) => {
     if (!token || !newPassword) {
       return res.status(400).json({
         success: false,
-        message: 'Token y nueva contraseña son requeridos'
+        message: 'Token i nova contrasenya són requerits'
       });
     }
 
     if (newPassword.length < 6) {
       return res.status(400).json({
         success: false,
-        message: 'La contraseña debe tener al menos 6 caracteres'
+        message: 'La contrasenya ha de tenir almenys 6 caràcters'
       });
     }
 
@@ -222,7 +222,7 @@ export const resetPassword = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: 'Token inválido o expirado'
+        message: 'Token invàlid o caducat'
       });
     }
 
@@ -235,14 +235,14 @@ export const resetPassword = async (req: Request, res: Response) => {
 
     return res.json({
       success: true,
-      message: 'Contraseña cambiada exitosamente'
+      message: 'Contrasenya canviada exitosament'
     });
 
   } catch (error) {
     console.error('Reset password error:', error);
     return res.status(500).json({
       success: false,
-      message: 'Error interno del servidor'
+      message: 'Error intern del servidor'
     });
   }
 };
@@ -255,7 +255,7 @@ export const createAdmin = async (req: Request, res: Response) => {
     if (!email || !firstName || !lastName || !username) {
       return res.status(400).json({
         success: false,
-        message: 'Email, nombre, apellido y username son requeridos'
+        message: 'Email, nom, cognom i nom d\'usuari són requerits'
       });
     }
 
@@ -267,7 +267,7 @@ export const createAdmin = async (req: Request, res: Response) => {
     if (existingUser) {
       return res.status(409).json({
         success: false,
-        message: 'El email o username ya están en uso'
+        message: 'L\'email o nom d\'usuari ja estan en ús'
       });
     }
 
@@ -299,7 +299,7 @@ export const createAdmin = async (req: Request, res: Response) => {
 
     return res.status(201).json({
       success: true,
-      message: 'Administrador creado exitosamente',
+      message: 'Administrador creat exitosament',
       admin: {
         id: adminUser._id,
         email: adminUser.email,
@@ -315,7 +315,7 @@ export const createAdmin = async (req: Request, res: Response) => {
     console.error('Create admin error:', error);
     return res.status(500).json({
       success: false,
-      message: 'Error interno del servidor'
+      message: 'Error intern del servidor'
     });
   }
 }; 

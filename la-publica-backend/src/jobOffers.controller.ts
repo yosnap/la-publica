@@ -8,14 +8,14 @@ export const createJobOffer = async (req: AuthenticatedRequest, res: Response, n
   try {
     const userId = req.user?.userId;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     // Verificar que el usuario sea colaborador
     if (req.user?.role !== 'colaborador') {
       return res.status(403).json({ 
         success: false, 
-        message: 'Solo los usuarios colaboradores pueden crear ofertas de trabajo' 
+        message: 'Només els usuaris col·laboradors poden crear ofertes de treball' 
       });
     }
 
@@ -24,13 +24,13 @@ export const createJobOffer = async (req: AuthenticatedRequest, res: Response, n
     // Verificar que la empresa existe y pertenece al usuario
     const company = await Company.findById(companyId);
     if (!company) {
-      return res.status(404).json({ success: false, message: 'Empresa no encontrada' });
+      return res.status(404).json({ success: false, message: 'Empresa no trobada' });
     }
 
     if (company.owner.toString() !== userId) {
       return res.status(403).json({ 
         success: false, 
-        message: 'Solo puedes crear ofertas para tus propias empresas' 
+        message: 'Només pots crear ofertes per a les teves pròpies empreses' 
       });
     }
 
@@ -42,19 +42,19 @@ export const createJobOffer = async (req: AuthenticatedRequest, res: Response, n
     await jobOffer.save();
 
     const populatedJobOffer = await JobOffer.findById(jobOffer._id)
-      .populate('company', 'name logo location verified');
+      .populate('company', 'name logo location verified owner');
 
     return res.status(201).json({
       success: true,
       data: populatedJobOffer,
-      message: 'Oferta de trabajo creada exitosamente'
+      message: 'Oferta de treball creada exitosament'
     });
 
   } catch (error: any) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ 
         success: false, 
-        message: 'Error de validación', 
+        message: 'Error de validació', 
         error: error.message 
       });
     }
@@ -101,7 +101,7 @@ export const listJobOffers = async (req: Request, res: Response, next: NextFunct
     }
 
     const jobOffers = await JobOffer.find(filters)
-      .populate('company', 'name logo location verified')
+      .populate('company', 'name logo location verified owner')
       .sort({ createdAt: -1 })
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum);
@@ -128,12 +128,19 @@ export const listJobOffers = async (req: Request, res: Response, next: NextFunct
 export const getJobOfferById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const jobOffer = await JobOffer.findById(req.params.id)
-      .populate('company', 'name logo location verified description website email');
+      .populate({
+        path: 'company',
+        select: 'name logo location verified description website email owner',
+        populate: {
+          path: 'owner',
+          select: '_id firstName lastName username'
+        }
+      });
     
     if (!jobOffer) {
       return res.status(404).json({
         success: false,
-        message: 'Oferta de trabajo no encontrada'
+        message: 'Oferta de treball no trobada'
       });
     }
 
@@ -154,19 +161,19 @@ export const updateJobOffer = async (req: AuthenticatedRequest, res: Response, n
     const jobOfferId = req.params.id;
 
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     const jobOffer = await JobOffer.findById(jobOfferId).populate('company');
     if (!jobOffer) {
-      return res.status(404).json({ success: false, message: 'Oferta de trabajo no encontrada' });
+      return res.status(404).json({ success: false, message: 'Oferta de treball no trobada' });
     }
 
     // Verificar que el usuario sea el propietario de la empresa o admin
     if ((jobOffer.company as any).owner.toString() !== userId && req.user?.role !== 'admin') {
       return res.status(403).json({ 
         success: false, 
-        message: 'No tienes permisos para actualizar esta oferta' 
+        message: 'No tens permisos per actualitzar aquesta oferta' 
       });
     }
 
@@ -179,14 +186,14 @@ export const updateJobOffer = async (req: AuthenticatedRequest, res: Response, n
     return res.json({
       success: true,
       data: updatedJobOffer,
-      message: 'Oferta de trabajo actualizada exitosamente'
+      message: 'Oferta de treball actualitzada exitosament'
     });
 
   } catch (error: any) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ 
         success: false, 
-        message: 'Error de validación', 
+        message: 'Error de validació', 
         error: error.message 
       });
     }
@@ -201,19 +208,19 @@ export const deleteJobOffer = async (req: AuthenticatedRequest, res: Response, n
     const jobOfferId = req.params.id;
 
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     const jobOffer = await JobOffer.findById(jobOfferId).populate('company');
     if (!jobOffer) {
-      return res.status(404).json({ success: false, message: 'Oferta de trabajo no encontrada' });
+      return res.status(404).json({ success: false, message: 'Oferta de treball no trobada' });
     }
 
     // Verificar que el usuario sea el propietario de la empresa o admin
     if ((jobOffer.company as any).owner.toString() !== userId && req.user?.role !== 'admin') {
       return res.status(403).json({ 
         success: false, 
-        message: 'No tienes permisos para eliminar esta oferta' 
+        message: 'No tens permisos per eliminar aquesta oferta' 
       });
     }
 
@@ -221,7 +228,7 @@ export const deleteJobOffer = async (req: AuthenticatedRequest, res: Response, n
 
     return res.json({
       success: true,
-      message: 'Oferta de trabajo eliminada exitosamente'
+      message: 'Oferta de treball eliminada exitosament'
     });
 
   } catch (error) {
@@ -234,7 +241,7 @@ export const getMyJobOffers = async (req: AuthenticatedRequest, res: Response, n
   try {
     const userId = req.user?.userId;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     // Obtener empresas del usuario
@@ -242,7 +249,7 @@ export const getMyJobOffers = async (req: AuthenticatedRequest, res: Response, n
     const companyIds = userCompanies.map(company => company._id);
 
     const jobOffers = await JobOffer.find({ company: { $in: companyIds } })
-      .populate('company', 'name logo location verified')
+      .populate('company', 'name logo location verified owner')
       .sort({ createdAt: -1 });
 
     return res.json({
@@ -268,7 +275,7 @@ export const getJobOffersByCompany = async (req: Request, res: Response, next: N
     if (isActive !== undefined) filters.isActive = isActive === 'true';
 
     const jobOffers = await JobOffer.find(filters)
-      .populate('company', 'name logo location verified')
+      .populate('company', 'name logo location verified owner')
       .sort({ createdAt: -1 })
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum);

@@ -7,7 +7,7 @@ export function validate<T>(schema: ZodSchema<T>, data: any): T {
   } catch (error) {
     if (error instanceof z.ZodError) {
       const formattedErrors = error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join(', ');
-      throw new Error(`Error de validación: ${formattedErrors}`);
+      throw new Error(`Error de validació: ${formattedErrors}`);
     }
     throw error;
   }
@@ -15,11 +15,11 @@ export function validate<T>(schema: ZodSchema<T>, data: any): T {
 
 // Esquemas de validación para usuarios con Zod
 export const registerUserSchema = z.object({
-  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/, "El nombre de usuario solo puede contener letras, números y guiones bajos"),
+  username: z.string().min(3).max(30).regex(/^[a-zA-Z0-9_]+$/, "El nom d'usuari només pot contenir lletres, números i guions baixos"),
   firstName: z.string().min(2).max(50),
   lastName: z.string().min(2).max(50),
   email: z.string().email(),
-  password: z.string().min(8, "La contraseña debe tener al menos 8 caracteres"),
+  password: z.string().min(8, "La contrasenya ha de tenir almenys 8 caràcters"),
 });
 
 export const loginSchema = z.object({
@@ -28,17 +28,17 @@ export const loginSchema = z.object({
 });
 
 const socialLinksSchema = z.object({
-  facebook: z.string().url("URL de Facebook no válida").optional().nullable(),
-  twitter: z.string().url("URL de Twitter no válida").optional().nullable(),
-  youtube: z.string().url("URL de YouTube no válida").optional().nullable(),
+  facebook: z.string().url("URL de Facebook no vàlida").optional().nullable(),
+  twitter: z.string().url("URL de Twitter no vàlida").optional().nullable(),
+  youtube: z.string().url("URL de YouTube no vàlida").optional().nullable(),
 });
 
 const workExperienceSchema = z.object({
-  jobTitle: z.string().min(2, "El cargo debe tener al menos 2 caracteres").max(100),
-  company: z.string().min(2, "El nombre de la empresa debe tener al menos 2 caracteres").max(100),
+  jobTitle: z.string().min(2, "El càrrec ha de tenir almenys 2 caràcters").max(100),
+  company: z.string().min(2, "El nom de l'empresa ha de tenir almenys 2 caràcters").max(100),
   startDate: z.coerce.date().optional().nullable(),
   endDate: z.coerce.date().optional().nullable(),
-  description: z.string().max(500, "La descripción no puede superar los 500 caracteres").optional().nullable(),
+  description: z.string().max(500, "La descripció no pot superar els 500 caràcters").optional().nullable(),
   isCurrentJob: z.boolean().optional(),
 });
 
@@ -61,14 +61,14 @@ export const updateProfileSchema = z.object({
     // Allow both full URLs and relative paths starting with /uploads/
     return val.startsWith('http') || val.startsWith('/uploads/');
   }, {
-    message: "Debe ser una URL válida o una ruta de archivo válida (/uploads/...)"
+    message: "Ha de ser una URL vàlida o una ruta d'arxiu vàlida (/uploads/...)"
   }).optional().nullable(),
   coverPhoto: z.string().refine((val) => {
     if (!val) return true; // Allow empty/null values
     // Allow both full URLs and relative paths starting with /uploads/
     return val.startsWith('http') || val.startsWith('/uploads/');
   }, {
-    message: "Debe ser una URL válida o una ruta de archivo válida (/uploads/...)"
+    message: "Ha de ser una URL vàlida o una ruta d'arxiu vàlida (/uploads/...)"
   }).optional().nullable(),
   socialLinks: socialLinksSchema.optional(),
   workExperience: z.array(workExperienceSchema).optional(),
@@ -91,12 +91,12 @@ export const updateProfileSchema = z.object({
 
 // Esquema para la creación de un post
 export const postSchema = z.object({
-  content: z.string().min(1, "El contenido no puede estar vacío.").max(2000),
+  content: z.string().min(1, "El contingut no pot estar buit.").max(2000),
 });
 
 // Esquema para la creación de un comentario
 export const commentSchema = z.object({
-  content: z.string().min(1, "El comentario no puede estar vacío.").max(1000),
+  content: z.string().min(1, "El comentari no pot estar buit.").max(1000),
 });
 
 // Esquemas para empresas
@@ -181,10 +181,10 @@ export const createAdSchema = z.object({
     })
   }),
   campaign: z.object({
-    startDate: z.date().min(new Date(), "La fecha de inicio debe ser igual o posterior a la fecha actual"),
+    startDate: z.date().min(new Date(), "La data d'inici ha de ser igual o posterior a la data actual"),
     endDate: z.date()
   }).refine((data) => data.endDate > data.startDate, {
-    message: "La fecha de finalización debe ser posterior a la fecha de inicio",
+    message: "La data de finalització ha de ser posterior a la data d'inici",
     path: ["endDate"],
   })
 });

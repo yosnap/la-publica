@@ -11,7 +11,7 @@ export const createPost = async (req: Request, res: Response) => {
     console.log('Received post data:', { content, image, mood }); // Debug
 
     if (!content) {
-      return res.status(400).json({ success: false, message: 'El contenido es requerido' });
+      return res.status(400).json({ success: false, message: 'El contingut és requerit' });
     }
 
     const post = new Post({
@@ -28,10 +28,10 @@ export const createPost = async (req: Request, res: Response) => {
     return res.status(201).json({
       success: true,
       data: populatedPost,
-      message: 'Post creado exitosamente'
+      message: 'Publicació creada exitosament'
     });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error al crear el post', error: error.message });
+    return res.status(500).json({ success: false, message: 'Error en crear la publicació', error: error.message });
   }
 };
 
@@ -47,7 +47,7 @@ export const listPosts = async (req: Request, res: Response) => {
       data: posts
     });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error al listar los posts', error: error.message });
+    return res.status(500).json({ success: false, message: 'Error en llistar les publicacions', error: error.message });
   }
 };
 
@@ -59,7 +59,7 @@ export const getPostById = async (req: Request, res: Response) => {
       .populate('comments.author', 'username firstName lastName profilePicture'); // Poblar autores de comentarios
 
     if (!post) {
-      return res.status(404).json({ success: false, message: 'Post no encontrado' });
+      return res.status(404).json({ success: false, message: 'Publicació no trobada' });
     }
 
     return res.json({
@@ -67,7 +67,7 @@ export const getPostById = async (req: Request, res: Response) => {
       data: post
     });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error al buscar el post', error: error.message });
+    return res.status(500).json({ success: false, message: 'Error en buscar la publicació', error: error.message });
   }
 };
 
@@ -79,12 +79,12 @@ export const updatePost = async (req: Request, res: Response) => {
     const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return res.status(404).json({ success: false, message: 'Post no encontrado' });
+      return res.status(404).json({ success: false, message: 'Publicació no trobada' });
     }
 
     // Verificar si el usuario es el autor del post
     if (post.author.toString() !== userId) {
-      return res.status(403).json({ success: false, message: 'No tienes permisos para editar este post' });
+      return res.status(403).json({ success: false, message: 'No tens permisos per editar aquesta publicació' });
     }
 
     post.content = content;
@@ -96,10 +96,10 @@ export const updatePost = async (req: Request, res: Response) => {
     return res.json({
       success: true,
       data: populatedPost,
-      message: 'Post actualizado'
+      message: 'Publicació actualitzada'
     });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error al actualizar el post', error: error.message });
+    return res.status(500).json({ success: false, message: 'Error en actualitzar la publicació', error: error.message });
   }
 };
 
@@ -111,22 +111,22 @@ export const deletePost = async (req: Request, res: Response) => {
     const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return res.status(404).json({ success: false, message: 'Post no encontrado' });
+      return res.status(404).json({ success: false, message: 'Publicació no trobada' });
     }
 
     // Verificar si el usuario es el autor o un admin
     if (post.author.toString() !== userId && userRole !== 'admin') {
-      return res.status(403).json({ success: false, message: 'No tienes permisos para eliminar este post' });
+      return res.status(403).json({ success: false, message: 'No tens permisos per eliminar aquesta publicació' });
     }
 
     await post.deleteOne();
 
     return res.json({
       success: true,
-      message: 'Post eliminado'
+      message: 'Publicació eliminada'
     });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error al eliminar el post', error: error.message });
+    return res.status(500).json({ success: false, message: 'Error en eliminar la publicació', error: error.message });
   }
 };
 
@@ -137,7 +137,7 @@ export const likePost = async (req: Request, res: Response) => {
     const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return res.status(404).json({ success: false, message: 'Post no encontrado' });
+      return res.status(404).json({ success: false, message: 'Publicació no trobada' });
     }
 
     // Verificar si el usuario ya dio like
@@ -161,10 +161,10 @@ export const likePost = async (req: Request, res: Response) => {
     return res.json({
       success: true,
       data: populatedPost,
-      message: 'Like actualizado'
+      message: 'M\'agrada actualitzat'
     });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error al dar like', error: error.message });
+    return res.status(500).json({ success: false, message: 'Error en donar m\'agrada', error: error.message });
   }
 };
 
@@ -176,15 +176,15 @@ export const commentOnPost = async (req: Request, res: Response) => {
     const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return res.status(404).json({ success: false, message: 'Post no encontrado' });
+      return res.status(404).json({ success: false, message: 'Publicació no trobada' });
     }
 
     if (post.commentsDisabled) {
-      return res.status(403).json({ success: false, message: 'Los comentarios están desactivados para este post' });
+      return res.status(403).json({ success: false, message: 'Els comentaris estan desactivats per a aquesta publicació' });
     }
 
     if (!text) {
-      return res.status(400).json({ success: false, message: 'El texto del comentario es requerido' });
+      return res.status(400).json({ success: false, message: 'El text del comentari és requerit' });
     }
 
     const comment = {
@@ -203,10 +203,10 @@ export const commentOnPost = async (req: Request, res: Response) => {
     return res.json({
       success: true,
       data: populatedPost,
-      message: 'Comentario agregado'
+      message: 'Comentari afegit'
     });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error al comentar el post', error: error.message });
+    return res.status(500).json({ success: false, message: 'Error en comentar la publicació', error: error.message });
   }
 };
 
@@ -250,7 +250,7 @@ export const getUserFeed = async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error al obtener el feed', error: error.message });
+    return res.status(500).json({ success: false, message: 'Error en obtenir el feed', error: error.message });
   }
 };
 
@@ -262,12 +262,12 @@ export const toggleComments = async (req: Request, res: Response) => {
     const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return res.status(404).json({ success: false, message: 'Post no encontrado' });
+      return res.status(404).json({ success: false, message: 'Publicació no trobada' });
     }
 
     // Verificar permisos: solo admin, moderador o el autor del post
     if (userRole !== 'admin' && userRole !== 'moderator' && post.author.toString() !== userId) {
-      return res.status(403).json({ success: false, message: 'No tienes permisos para esta acción' });
+      return res.status(403).json({ success: false, message: 'No tens permisos per a aquesta acció' });
     }
 
     post.commentsDisabled = !post.commentsDisabled;
@@ -280,10 +280,10 @@ export const toggleComments = async (req: Request, res: Response) => {
     return res.json({
       success: true,
       data: populatedPost,
-      message: post.commentsDisabled ? 'Comentarios desactivados' : 'Comentarios activados'
+      message: post.commentsDisabled ? 'Comentaris desactivats' : 'Comentaris activats'
     });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error al cambiar estado de comentarios', error: error.message });
+    return res.status(500).json({ success: false, message: 'Error en canviar estat de comentaris', error: error.message });
   }
 };
 
@@ -295,12 +295,12 @@ export const togglePinPost = async (req: Request, res: Response) => {
     const post = await Post.findById(req.params.id);
 
     if (!post) {
-      return res.status(404).json({ success: false, message: 'Post no encontrado' });
+      return res.status(404).json({ success: false, message: 'Publicació no trobada' });
     }
 
     // Verificar permisos: solo admin o moderador
     if (userRole !== 'admin' && userRole !== 'moderator') {
-      return res.status(403).json({ success: false, message: 'No tienes permisos para esta acción' });
+      return res.status(403).json({ success: false, message: 'No tens permisos per a aquesta acció' });
     }
 
     post.pinned = !post.pinned;
@@ -321,9 +321,9 @@ export const togglePinPost = async (req: Request, res: Response) => {
     return res.json({
       success: true,
       data: populatedPost,
-      message: post.pinned ? 'Post fijado en el feed' : 'Post desfijado del feed'
+      message: post.pinned ? 'Publicació fixada al feed' : 'Publicació disfixada del feed'
     });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error al fijar/desfijar post', error: error.message });
+    return res.status(500).json({ success: false, message: 'Error en fixar/disfixar publicació', error: error.message });
   }
 }; 

@@ -44,7 +44,7 @@ const CreateForumPostGeneral = () => {
         setForums(activeForums);
       }
     } catch (error) {
-      toast.error('Error al cargar los foros');
+      toast.error('Error en carregar els fòrums');
     } finally {
       setLoading(false);
     }
@@ -140,7 +140,7 @@ const CreateForumPostGeneral = () => {
                 <Label htmlFor="forum">Foro *</Label>
                 <Select value={formData.forumId} onValueChange={(value) => setFormData(prev => ({ ...prev, forumId: value }))}>
                   <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Selecciona un foro" />
+                    <SelectValue placeholder="Selecciona un fòrum" />
                   </SelectTrigger>
                   <SelectContent>
                     {forums.map((forum) => (
@@ -171,7 +171,7 @@ const CreateForumPostGeneral = () => {
                   id="title"
                   value={formData.title}
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                  placeholder="Escribe un título descriptivo para tu post"
+                  placeholder="Escriu un títol descriptiu per a la teva publicació"
                   maxLength={200}
                   className="mt-1"
                 />
@@ -187,7 +187,7 @@ const CreateForumPostGeneral = () => {
                   <RichTextEditor
                     value={formData.content}
                     onChange={(value) => setFormData(prev => ({ ...prev, content: value }))}
-                    placeholder="Escribe el contenido de tu post aquí..."
+                    placeholder="Escriu el contingut de la teva publicació aquí..."
                   />
                 </div>
                 <p className="text-xs text-gray-500 mt-1">
@@ -205,7 +205,7 @@ const CreateForumPostGeneral = () => {
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
                       onKeyPress={handleKeyPress}
-                      placeholder="Agregar tag..."
+                      placeholder="Afegir etiqueta..."
                       maxLength={20}
                     />
                     <Button 

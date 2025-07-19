@@ -806,7 +806,7 @@ const Dashboard = () => {
                   <div className="flex-1">
                       <input
                         className="w-full bg-gray-100 dark:bg-gray-700/50 rounded-full px-4 py-2 text-gray-500 dark:text-gray-400 cursor-pointer outline-none"
-                        placeholder={`¿Qué estás pensando, ${user?.firstName}?`}
+                        placeholder={`Què estàs pensant, ${user?.firstName}?`}
                         readOnly
                         onClick={handleOpenModal}
                       />
@@ -861,7 +861,7 @@ const Dashboard = () => {
                   <RichTextEditor
                     value={newPostContent}
                     onChange={setNewPostContent}
-                    placeholder={`Comparte algo con la comunidad, ${user?.firstName}...`}
+                    placeholder={`Comparteix alguna cosa amb la comunitat, ${user?.firstName}...`}
                     className="mb-2"
                   />
                   
@@ -910,7 +910,7 @@ const Dashboard = () => {
                         <div key={index} className="flex items-center gap-2">
                           <input
                             type="text"
-                            placeholder={`Opción ${index + 1}`}
+                            placeholder={`Opció ${index + 1}`}
                             value={option}
                             onChange={(e) => updatePollOption(index, e.target.value)}
                             className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
@@ -1281,7 +1281,7 @@ const Dashboard = () => {
                           <div className="flex-1">
                             <div className="flex space-x-2">
                               <Textarea
-                                placeholder="Escribe un comentario..."
+                                placeholder="Escriu un comentari..."
                                 value={commentText[post._id] || ""}
                                 onChange={(e) => setCommentText(prev => ({ 
                                   ...prev, 
@@ -1492,7 +1492,7 @@ const Dashboard = () => {
             <RichTextEditor
               value={editContent}
               onChange={setEditContent}
-              placeholder="Edita tu publicación..."
+              placeholder="Edita la teva publicació..."
               className="mb-2"
             />
             <div className="flex items-center justify-between mt-2">

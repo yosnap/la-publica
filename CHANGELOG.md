@@ -41,7 +41,30 @@
 - **Assignació massiva**: Autors i categories per lots
 - **8 tipus de contingut**: Grups, fòrums, blocs, anuncis, empreses, ofertes, assessoraments, enllaços
 
-### 🐛 Correccions Críticas
+### 🐛 Correccions Críticas - v1.0.2
+
+#### Correccions de permisos d'edició
+- **JobOfferDetail.tsx**: Afegida verificació robusta de permisos d'edició
+  - Corregit error "Cannot read properties of undefined (reading '_id')"
+  - Utilitzat `user._id` en lloc de `user.userId` per comparar propietaris
+  - El botó d'editar només es mostra quan l'usuari és propietari de l'oferta
+- **AdvisoryDetail.tsx**: Aplicades les mateixes correccions per asesorías
+
+#### Millores de backend per populate
+- **jobOffers.controller.ts**: Implementat nested populate per obtenir dades de propietari
+- **advisories.controller.ts**: Implementat nested populate per obtenir dades de propietari
+- Assegurar que `company.owner` sigui poblat correctament en detalls
+
+#### Consistència de disseny d'interfície
+- **Offers.tsx**: Amplada del contenidor dret canviada de `w-48` a `w-80`
+- **Consulting.tsx**: Amplada del contenidor dret canviada de `w-48` a `w-80`
+- **Companies.tsx**: Mantingut `w-80` per consistència entre totes les pàgines
+
+#### Correccions de Forums
+- **Forums.tsx**: Afegida verificació de camps nuls per evitar errors d'autor
+  - Corregit "Cannot read properties of null (reading 'profilePicture')"
+  - Utilitzada navegació segura amb optional chaining
+  - Afegits fallbacks per firstName i lastName nuls
 
 #### Resolució d'errors API
 - **Error 403**: Corregit fent rutes d'ofertes públiques

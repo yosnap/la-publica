@@ -8,14 +8,14 @@ export const createAdvisory = async (req: AuthenticatedRequest, res: Response, n
   try {
     const userId = req.user?.userId;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     // Verificar que el usuario sea colaborador
     if (req.user?.role !== 'colaborador') {
       return res.status(403).json({ 
         success: false, 
-        message: 'Solo los usuarios colaboradores pueden crear asesorías' 
+        message: 'Només els usuaris col·laboradors poden crear assessories' 
       });
     }
 
@@ -24,13 +24,13 @@ export const createAdvisory = async (req: AuthenticatedRequest, res: Response, n
     // Verificar que la empresa existe y pertenece al usuario
     const company = await Company.findById(companyId);
     if (!company) {
-      return res.status(404).json({ success: false, message: 'Empresa no encontrada' });
+      return res.status(404).json({ success: false, message: 'Empresa no trobada' });
     }
 
     if (company.owner.toString() !== userId) {
       return res.status(403).json({ 
         success: false, 
-        message: 'Solo puedes crear asesorías para tus propias empresas' 
+        message: 'Només pots crear assessories per a les teves pròpies empreses' 
       });
     }
 
@@ -42,19 +42,19 @@ export const createAdvisory = async (req: AuthenticatedRequest, res: Response, n
     await advisory.save();
 
     const populatedAdvisory = await Advisory.findById(advisory._id)
-      .populate('company', 'name logo location verified');
+      .populate('company', 'name logo location verified owner');
 
     return res.status(201).json({
       success: true,
       data: populatedAdvisory,
-      message: 'Asesoría creada exitosamente'
+      message: 'Assessoria creada exitosament'
     });
 
   } catch (error: any) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ 
         success: false, 
-        message: 'Error de validación', 
+        message: 'Error de validació', 
         error: error.message 
       });
     }
@@ -95,7 +95,7 @@ export const listAdvisories = async (req: Request, res: Response, next: NextFunc
     }
 
     const advisories = await Advisory.find(filters)
-      .populate('company', 'name logo location verified')
+      .populate('company', 'name logo location verified owner')
       .sort({ 'stats.averageRating': -1, createdAt: -1 })
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum);
@@ -122,13 +122,20 @@ export const listAdvisories = async (req: Request, res: Response, next: NextFunc
 export const getAdvisoryById = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const advisory = await Advisory.findById(req.params.id)
-      .populate('company', 'name logo location verified description website email')
+      .populate({
+        path: 'company',
+        select: 'name logo location verified description website email owner',
+        populate: {
+          path: 'owner',
+          select: '_id firstName lastName username'
+        }
+      })
       .populate('reviews.user', 'firstName lastName username profilePicture');
     
     if (!advisory) {
       return res.status(404).json({
         success: false,
-        message: 'Asesoría no encontrada'
+        message: 'Assessoria no trobada'
       });
     }
 
@@ -149,19 +156,19 @@ export const updateAdvisory = async (req: AuthenticatedRequest, res: Response, n
     const advisoryId = req.params.id;
 
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     const advisory = await Advisory.findById(advisoryId).populate('company');
     if (!advisory) {
-      return res.status(404).json({ success: false, message: 'Asesoría no encontrada' });
+      return res.status(404).json({ success: false, message: 'Assessoria no trobada' });
     }
 
     // Verificar que el usuario sea el propietario de la empresa o admin
     if ((advisory.company as any).owner.toString() !== userId && req.user?.role !== 'admin') {
       return res.status(403).json({ 
         success: false, 
-        message: 'No tienes permisos para actualizar esta asesoría' 
+        message: 'No tens permisos per actualitzar aquesta assessoria' 
       });
     }
 
@@ -174,14 +181,14 @@ export const updateAdvisory = async (req: AuthenticatedRequest, res: Response, n
     return res.json({
       success: true,
       data: updatedAdvisory,
-      message: 'Asesoría actualizada exitosamente'
+      message: 'Assessoria actualitzada exitosament'
     });
 
   } catch (error: any) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ 
         success: false, 
-        message: 'Error de validación', 
+        message: 'Error de validació', 
         error: error.message 
       });
     }
@@ -196,19 +203,19 @@ export const deleteAdvisory = async (req: AuthenticatedRequest, res: Response, n
     const advisoryId = req.params.id;
 
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     const advisory = await Advisory.findById(advisoryId).populate('company');
     if (!advisory) {
-      return res.status(404).json({ success: false, message: 'Asesoría no encontrada' });
+      return res.status(404).json({ success: false, message: 'Assessoria no trobada' });
     }
 
     // Verificar que el usuario sea el propietario de la empresa o admin
     if ((advisory.company as any).owner.toString() !== userId && req.user?.role !== 'admin') {
       return res.status(403).json({ 
         success: false, 
-        message: 'No tienes permisos para eliminar esta asesoría' 
+        message: 'No tens permisos per eliminar aquesta assessoria' 
       });
     }
 
@@ -216,7 +223,7 @@ export const deleteAdvisory = async (req: AuthenticatedRequest, res: Response, n
 
     return res.json({
       success: true,
-      message: 'Asesoría eliminada exitosamente'
+      message: 'Assessoria eliminada exitosament'
     });
 
   } catch (error) {
@@ -229,7 +236,7 @@ export const getMyAdvisories = async (req: AuthenticatedRequest, res: Response, 
   try {
     const userId = req.user?.userId;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     // Obtener empresas del usuario
@@ -237,7 +244,7 @@ export const getMyAdvisories = async (req: AuthenticatedRequest, res: Response, 
     const companyIds = userCompanies.map(company => company._id);
 
     const advisories = await Advisory.find({ company: { $in: companyIds } })
-      .populate('company', 'name logo location verified')
+      .populate('company', 'name logo location verified owner')
       .sort({ createdAt: -1 });
 
     return res.json({
@@ -263,7 +270,7 @@ export const getAdvisoriesByCompany = async (req: Request, res: Response, next: 
     if (isActive !== undefined) filters.isActive = isActive === 'true';
 
     const advisories = await Advisory.find(filters)
-      .populate('company', 'name logo location verified')
+      .populate('company', 'name logo location verified owner')
       .sort({ 'stats.averageRating': -1, createdAt: -1 })
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum);
@@ -294,20 +301,20 @@ export const addReview = async (req: AuthenticatedRequest, res: Response, next: 
     const { rating, comment } = req.body;
 
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     // Verificar que el usuario sea un usuario normal
     if (req.user?.role !== 'user') {
       return res.status(403).json({ 
         success: false, 
-        message: 'Solo los usuarios pueden agregar reseñas' 
+        message: 'Només els usuaris poden afegir ressenyes' 
       });
     }
 
     const advisory = await Advisory.findById(advisoryId);
     if (!advisory) {
-      return res.status(404).json({ success: false, message: 'Asesoría no encontrada' });
+      return res.status(404).json({ success: false, message: 'Assessoria no trobada' });
     }
 
     // Verificar que el usuario no haya reseñado ya
@@ -318,7 +325,7 @@ export const addReview = async (req: AuthenticatedRequest, res: Response, next: 
     if (existingReview) {
       return res.status(400).json({ 
         success: false, 
-        message: 'Ya has reseñado esta asesoría' 
+        message: 'Ja has ressenyat aquesta assessoria' 
       });
     }
 
@@ -333,13 +340,13 @@ export const addReview = async (req: AuthenticatedRequest, res: Response, next: 
     await advisory.updateAverageRating();
 
     const populatedAdvisory = await Advisory.findById(advisoryId)
-      .populate('company', 'name logo')
+      .populate('company', 'name logo owner')
       .populate('reviews.user', 'firstName lastName username profilePicture');
 
     return res.json({
       success: true,
       data: populatedAdvisory,
-      message: 'Reseña agregada exitosamente'
+      message: 'Ressenya afegida exitosament'
     });
 
   } catch (error) {

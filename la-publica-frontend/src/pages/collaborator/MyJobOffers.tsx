@@ -338,7 +338,7 @@ const MyJobOffers = () => {
             </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
-                <DialogTitle>Crear Nueva Oferta</DialogTitle>
+                <DialogTitle>Crear Nova Oferta</DialogTitle>
               </DialogHeader>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">

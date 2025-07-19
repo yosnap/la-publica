@@ -7,7 +7,7 @@ export const searchAll = async (req: Request, res: Response) => {
   const type = req.query.type as string; // 'users', 'posts' or undefined
 
   if (!query) {
-    return res.status(400).json({ success: false, message: 'Se requiere un término de búsqueda (?q=...)' });
+    return res.status(400).json({ success: false, message: 'Es requereix un terme de cerca (?q=...)' });
   }
 
   try {
@@ -39,6 +39,6 @@ export const searchAll = async (req: Request, res: Response) => {
     });
 
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error al realizar la búsqueda', error: error.message });
+    return res.status(500).json({ success: false, message: 'Error en realitzar la cerca', error: error.message });
   }
 }; 

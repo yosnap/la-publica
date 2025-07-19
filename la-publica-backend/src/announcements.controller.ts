@@ -7,14 +7,14 @@ export const createAnnouncement = async (req: AuthenticatedRequest, res: Respons
   try {
     const userId = req.user?.userId;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     // Verificar que el usuario sea un usuario normal (no colaborador)
     if (req.user?.role !== 'user') {
       return res.status(403).json({ 
         success: false, 
-        message: 'Solo los usuarios pueden crear anuncios' 
+        message: 'Només els usuaris poden crear anuncis' 
       });
     }
 
@@ -32,14 +32,14 @@ export const createAnnouncement = async (req: AuthenticatedRequest, res: Respons
     return res.status(201).json({
       success: true,
       data: populatedAnnouncement,
-      message: 'Anuncio creado exitosamente'
+      message: 'Anunci creat exitosament'
     });
 
   } catch (error: any) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ 
         success: false, 
-        message: 'Error de validación', 
+        message: 'Error de validació', 
         error: error.message 
       });
     }
@@ -123,7 +123,7 @@ export const getAnnouncementById = async (req: Request, res: Response, next: Nex
     if (!announcement) {
       return res.status(404).json({
         success: false,
-        message: 'Anuncio no encontrado'
+        message: 'Anunci no trobat'
       });
     }
 
@@ -150,19 +150,19 @@ export const updateAnnouncement = async (req: AuthenticatedRequest, res: Respons
     const announcementId = req.params.id;
 
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     const announcement = await Announcement.findById(announcementId);
     if (!announcement) {
-      return res.status(404).json({ success: false, message: 'Anuncio no encontrado' });
+      return res.status(404).json({ success: false, message: 'Anunci no trobat' });
     }
 
     // Verificar que el usuario sea el autor o admin
     if (announcement.author.toString() !== userId && req.user?.role !== 'admin') {
       return res.status(403).json({ 
         success: false, 
-        message: 'No tienes permisos para actualizar este anuncio' 
+        message: 'No tens permisos per actualitzar aquest anunci' 
       });
     }
 
@@ -175,14 +175,14 @@ export const updateAnnouncement = async (req: AuthenticatedRequest, res: Respons
     return res.json({
       success: true,
       data: updatedAnnouncement,
-      message: 'Anuncio actualizado exitosamente'
+      message: 'Anunci actualitzat exitosament'
     });
 
   } catch (error: any) {
     if (error.name === 'ValidationError') {
       return res.status(400).json({ 
         success: false, 
-        message: 'Error de validación', 
+        message: 'Error de validació', 
         error: error.message 
       });
     }
@@ -197,19 +197,19 @@ export const deleteAnnouncement = async (req: AuthenticatedRequest, res: Respons
     const announcementId = req.params.id;
 
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     const announcement = await Announcement.findById(announcementId);
     if (!announcement) {
-      return res.status(404).json({ success: false, message: 'Anuncio no encontrado' });
+      return res.status(404).json({ success: false, message: 'Anunci no trobat' });
     }
 
     // Verificar que el usuario sea el autor o admin
     if (announcement.author.toString() !== userId && req.user?.role !== 'admin') {
       return res.status(403).json({ 
         success: false, 
-        message: 'No tienes permisos para eliminar este anuncio' 
+        message: 'No tens permisos per eliminar aquest anunci' 
       });
     }
 
@@ -217,7 +217,7 @@ export const deleteAnnouncement = async (req: AuthenticatedRequest, res: Respons
 
     return res.json({
       success: true,
-      message: 'Anuncio eliminado exitosamente'
+      message: 'Anunci eliminat exitosament'
     });
 
   } catch (error) {
@@ -230,7 +230,7 @@ export const getMyAnnouncements = async (req: AuthenticatedRequest, res: Respons
   try {
     const userId = req.user?.userId;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     const announcements = await Announcement.find({ author: userId })
@@ -254,19 +254,19 @@ export const showInterest = async (req: AuthenticatedRequest, res: Response, nex
     const announcementId = req.params.id;
 
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     const announcement = await Announcement.findById(announcementId);
     if (!announcement) {
-      return res.status(404).json({ success: false, message: 'Anuncio no encontrado' });
+      return res.status(404).json({ success: false, message: 'Anunci no trobat' });
     }
 
     // No permitir interés en propios anuncios
     if (announcement.author.toString() === userId) {
       return res.status(400).json({ 
         success: false, 
-        message: 'No puedes mostrar interés en tu propio anuncio' 
+        message: 'No pots mostrar interès en el teu propi anunci' 
       });
     }
 
@@ -284,7 +284,7 @@ export const showInterest = async (req: AuthenticatedRequest, res: Response, nex
 
     return res.json({
       success: true,
-      message: hasInterest ? 'Interés removido' : 'Interés agregado',
+      message: hasInterest ? 'Interès eliminat' : 'Interès afegit',
       data: { hasInterest: !hasInterest }
     });
 

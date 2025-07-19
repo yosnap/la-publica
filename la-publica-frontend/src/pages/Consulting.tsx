@@ -121,7 +121,7 @@ export default function Consulting() {
             </div>
           </div>
           
-          <div className={`${isGrid ? 'w-full mt-4' : 'w-48 flex-shrink-0'}`}>
+          <div className={`${isGrid ? 'w-full mt-4' : 'w-80 flex-shrink-0'}`}>
             <div className="mb-4">
               <div className="text-lg font-bold text-primary mb-2">
                 {formatPricing(service.pricing)}

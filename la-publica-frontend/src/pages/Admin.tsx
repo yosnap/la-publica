@@ -131,7 +131,7 @@ const Admin = () => {
         setSystemInfo(response.data);
       }
     } catch (error) {
-      toast.error('Error al cargar información del sistema');
+      toast.error('Error en carregar informació del sistema');
     } finally {
       setLoadingSystem(false);
     }
@@ -156,7 +156,7 @@ const Admin = () => {
         setTotalPages(response.pagination.totalPages);
       }
     } catch (error) {
-      toast.error('Error al cargar logs');
+      toast.error('Error en carregar logs');
     } finally {
       setLoadingLogs(false);
     }
@@ -171,7 +171,7 @@ const Admin = () => {
         setLogModalOpen(true);
       }
     } catch (error) {
-      toast.error('Error al cargar detalles del log');
+      toast.error('Error en carregar detalls del log');
     }
   };
 
@@ -186,7 +186,7 @@ const Admin = () => {
         loadLogs();
       }
     } catch (error) {
-      toast.error('Error al eliminar logs');
+      toast.error('Error en eliminar logs');
     }
   };
 
@@ -217,17 +217,17 @@ const Admin = () => {
   return (
     <div className="p-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Panel de Administración</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Panell d'Administració</h1>
         <p className="text-gray-600 dark:text-gray-400 mt-2">Gestión y monitoreo del sistema</p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
         <TabsList>
-          <TabsTrigger value="system">Información del Sistema</TabsTrigger>
+          <TabsTrigger value="system">Informació del Sistema</TabsTrigger>
           <TabsTrigger value="logs">Registros del Sistema</TabsTrigger>
         </TabsList>
 
-        {/* Tab de Información del Sistema */}
+        {/* Tab de Informació del Sistema */}
         <TabsContent value="system" className="space-y-6">
           {loadingSystem ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -244,7 +244,7 @@ const Admin = () => {
             </div>
           ) : systemInfo && (
             <>
-              {/* Información General */}
+              {/* Informació General */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
@@ -445,7 +445,7 @@ const Admin = () => {
               {/* Dependencias */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Tecnologías y Dependencias</CardTitle>
+                  <CardTitle>Tecnologies i Dependències</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -478,7 +478,7 @@ const Admin = () => {
             <div className="flex gap-4 items-center">
               <Select value={logLevel} onValueChange={setLogLevel}>
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Filtrar por nivel" />
+                  <SelectValue placeholder="Filtrar per nivell" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Todos los niveles</SelectItem>
@@ -596,7 +596,7 @@ const Admin = () => {
       <Dialog open={logModalOpen} onOpenChange={setLogModalOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle>Detalles del Log</DialogTitle>
+            <DialogTitle>Detalls del Log</DialogTitle>
           </DialogHeader>
           {selectedLog && (
             <ScrollArea className="max-h-[600px]">
@@ -650,7 +650,7 @@ const Admin = () => {
 
                 {selectedLog.details && (
                   <div>
-                    <p className="text-sm text-gray-500 mb-2">Detalles</p>
+                    <p className="text-sm text-gray-500 mb-2">Detalls</p>
                     <pre className="bg-gray-100 dark:bg-gray-800 p-3 rounded-lg text-sm overflow-x-auto">
                       {JSON.stringify(selectedLog.details, null, 2)}
                     </pre>

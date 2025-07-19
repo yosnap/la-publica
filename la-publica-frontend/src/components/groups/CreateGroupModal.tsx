@@ -229,7 +229,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
       </DialogTrigger>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Crear Nuevo Grupo</DialogTitle>
+          <DialogTitle>Crear Nou Grup</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -240,7 +240,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
               <Input
                 id="name"
                 {...register("name")}
-                placeholder="Ej: Desarrolladores React Ecuador"
+                placeholder="Ex: Desenvolupadors React Catalunya"
                 className="mt-1"
               />
               {errors.name && (
@@ -253,7 +253,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
               <Textarea
                 id="description"
                 {...register("description")}
-                placeholder="Describe de qué trata tu grupo y qué tipo de contenido se compartirá..."
+                placeholder="Descriu de què tracta el teu grup i quin tipus de contingut es compartirà..."
                 className="mt-1 min-h-[100px]"
               />
               {errors.description && (
@@ -265,7 +265,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
               <Label htmlFor="category">Categoría *</Label>
               <Select onValueChange={(value) => setValue("category", value)}>
                 <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="Selecciona una categoría" />
+                  <SelectValue placeholder="Selecciona una categoria" />
                 </SelectTrigger>
                 <SelectContent>
                   {categories.map((category) => (
@@ -327,7 +327,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
               <Input
                 value={newTag}
                 onChange={(e) => setNewTag(e.target.value)}
-                placeholder="Agregar tag..."
+                placeholder="Afegir etiqueta..."
                 onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addTag())}
                 className="flex-1"
               />
@@ -363,7 +363,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
               <Input
                 value={newRule}
                 onChange={(e) => setNewRule(e.target.value)}
-                placeholder="Agregar regla..."
+                placeholder="Afegir regla..."
                 onKeyPress={(e) => e.key === "Enter" && (e.preventDefault(), addRule())}
                 className="flex-1"
               />
@@ -397,7 +397,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
               <Input
                 id="location"
                 {...register("location")}
-                placeholder="Ej: Quito, Ecuador"
+                placeholder="Ex: Barcelona, Catalunya"
                 className="mt-1"
               />
             </div>
@@ -406,7 +406,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
               <Input
                 id="website"
                 {...register("website")}
-                placeholder="https://ejemplo.com"
+                placeholder="https://exemple.com"
                 className="mt-1"
               />
               {errors.website && (

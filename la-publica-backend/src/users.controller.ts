@@ -13,7 +13,7 @@ export const listUsers = async (req: Request, res: Response) => {
   } catch (error: any) {
     return res.status(500).json({
       success: false,
-      message: 'Error al listar usuarios',
+      message: 'Error en llistar usuaris',
       error: error.message
     });
   }
@@ -26,7 +26,7 @@ export const getUserById = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'Usuario no encontrado'
+        message: 'Usuari no trobat'
       });
     }
     return res.json({
@@ -36,7 +36,7 @@ export const getUserById = async (req: Request, res: Response) => {
   } catch (error: any) {
     return res.status(500).json({
       success: false,
-      message: 'Error al buscar usuario',
+      message: 'Error en buscar usuari',
       error: error.message
     });
   }
@@ -47,7 +47,7 @@ export const updateProfile = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     // Validar y transformar los datos usando el esquema
@@ -55,7 +55,7 @@ export const updateProfile = async (req: Request, res: Response) => {
 
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+      return res.status(404).json({ success: false, message: 'Usuari no trobat' });
     }
 
     // Separar los campos sociales de los demás
@@ -102,15 +102,15 @@ export const updateProfile = async (req: Request, res: Response) => {
     return res.json({
       success: true,
       data: userObject,
-      message: 'Perfil actualizado'
+      message: 'Perfil actualitzat'
     });
   } catch (error: any) {
     if (error.name === 'ValidationError') {
-      return res.status(400).json({ success: false, message: 'Error de validación', error: error.message });
+      return res.status(400).json({ success: false, message: 'Error de validació', error: error.message });
     }
     return res.status(500).json({
       success: false,
-      message: 'Error al actualizar perfil',
+      message: 'Error en actualitzar perfil',
       error: error.message
     });
   }
@@ -123,12 +123,12 @@ export const deleteUser = async (req: Request, res: Response) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'Usuario no encontrado'
+        message: 'Usuari no trobat'
       });
     }
-    return res.status(200).json({ success: true, message: 'Usuario eliminado' });
+    return res.status(200).json({ success: true, message: 'Usuari eliminat' });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error al eliminar usuario', error: error.message });
+    return res.status(500).json({ success: false, message: 'Error en eliminar usuari', error: error.message });
   }
 };
 
@@ -139,14 +139,14 @@ export const followOrUnfollowUser = async (req: Request, res: Response, next: Ne
     const currentUserId = (req as any).user?.userId;
 
     if (userToFollowId === currentUserId) {
-      return res.status(400).json({ success: false, message: 'No puedes seguirte a ti mismo' });
+      return res.status(400).json({ success: false, message: 'No pots seguir-te a tu mateix' });
     }
 
     const userToFollow = await User.findById(userToFollowId);
     const currentUser = await User.findById(currentUserId);
 
     if (!userToFollow || !currentUser) {
-      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+      return res.status(404).json({ success: false, message: 'Usuari no trobat' });
     }
 
     const isFollowing = currentUser.following.some(id => id.toString() === userToFollowId);
@@ -163,7 +163,7 @@ export const followOrUnfollowUser = async (req: Request, res: Response, next: Ne
 
     return res.status(200).json({
       success: true,
-      message: isFollowing ? 'Dejaste de seguir al usuario' : 'Ahora sigues al usuario'
+      message: isFollowing ? 'Has deixat de seguir l\'usuari' : 'Ara segueixes l\'usuari'
     });
   } catch (error) {
     return next(error);
@@ -177,12 +177,12 @@ export const getFollowers = async (req: Request, res: Response) => {
       .populate('followers', 'username firstName lastName'); // Popula para obtener detalles
 
     if (!user) {
-      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+      return res.status(404).json({ success: false, message: 'Usuari no trobat' });
     }
 
     return res.status(200).json({ success: true, data: user.followers });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error al obtener seguidores', error: error.message });
+    return res.status(500).json({ success: false, message: 'Error en obtenir seguidors', error: error.message });
   }
 };
 
@@ -193,12 +193,12 @@ export const getFollowing = async (req: Request, res: Response) => {
       .populate('following', 'username firstName lastName'); // Popula para obtener detalles
 
     if (!user) {
-      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+      return res.status(404).json({ success: false, message: 'Usuari no trobat' });
     }
 
     return res.status(200).json({ success: true, data: user.following });
   } catch (error: any) {
-    return res.status(500).json({ success: false, message: 'Error al obtener seguidos', error: error.message });
+    return res.status(500).json({ success: false, message: 'Error en obtenir seguits', error: error.message });
   }
 };
 
@@ -209,12 +209,12 @@ export const getProfile = async (req: Request, res: Response, next: NextFunction
   try {
     const userId = (req as any).user.userId;
     if (!userId) {
-      return res.status(401).json({ success: false, message: 'No autenticado' });
+      return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
     const user = await User.findById(userId).select('-password');
     if (!user) {
-      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+      return res.status(404).json({ success: false, message: 'Usuari no trobat' });
     }
 
     // Log temporal para debug

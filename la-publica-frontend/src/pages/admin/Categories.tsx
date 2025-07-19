@@ -114,7 +114,7 @@ const Categories = () => {
       const response = await getCategories({ type: selectedType });
       setCategories(response.data);
     } catch (error) {
-      toast.error("Error al cargar las categorías");
+      toast.error("Error en carregar les categories");
     }
   };
 
@@ -123,7 +123,7 @@ const Categories = () => {
       const response = await getCategoryStats();
       setStats(response.data);
     } catch (error) {
-      console.error("Error al cargar estadísticas:", error);
+      console.error("Error en carregar estadístiques:", error);
     }
   };
 
@@ -138,7 +138,7 @@ const Categories = () => {
 
   const handleCreate = async () => {
     if (!formData.name.trim()) {
-      toast.error("El nombre es requerido");
+      toast.error("El nom és requerit");
       return;
     }
 
@@ -148,18 +148,18 @@ const Categories = () => {
         type: selectedType as any,
         parentCategory: formData.parentCategory || undefined
       });
-      toast.success("Categoría creada exitosamente");
+      toast.success("Categoria creada exitosament");
       setIsCreateOpen(false);
       resetForm();
       await loadCategories();
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Error al crear la categoría");
+      toast.error(error.response?.data?.message || "Error en crear la categoria");
     }
   };
 
   const handleUpdate = async () => {
     if (!editingCategory || !formData.name.trim()) {
-      toast.error("El nombre es requerido");
+      toast.error("El nom és requerit");
       return;
     }
 

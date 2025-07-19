@@ -182,7 +182,16 @@ export default function AdvisoryDetail() {
   };
 
   const canEdit = () => {
-    return user?.role === 'colaborador' && user?.userId === advisory?.company.owner._id;
+    // Solo mostrar botón si tenemos todos los datos necesarios y el usuario es el propietario
+    if (!user || user.role !== 'colaborador' || !advisory?.company?.owner) {
+      return false;
+    }
+    
+    // Convertir ambos IDs a string para asegurar comparación correcta
+    const currentUserId = String(user._id);
+    const ownerId = String(advisory.company.owner._id);
+    
+    return currentUserId === ownerId;
   };
 
   const canBook = () => {
@@ -275,7 +284,7 @@ export default function AdvisoryDetail() {
             </Button>
             {canEdit() && (
               <Button variant="outline" size="sm" asChild>
-                <Link to={`/colaborador/asesorias/${advisory._id}/edit`}>
+                <Link to={`/colaborador/asesorias/${advisory!._id}/edit`}>
                   <Edit className="h-4 w-4 mr-2" />
                   Editar
                 </Link>
