@@ -17,8 +17,8 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import apiClient from "@/api/client";
 import { getImageUrl } from "@/utils/getImageUrl";
+import { useUserProfile } from "@/hooks/useUser";
 
 const menuItems = [
   {
@@ -144,23 +144,12 @@ const adminItems = [
 
 export function AppSidebar() {
   const location = useLocation();
-  const [user, setUser] = useState<any>(null);
+  // Usar el hook centralizado para los datos del usuario
+  const { user } = useUserProfile();
   const [isDarkMode, setIsDarkMode] = useState(false);
   const { state } = useSidebar();
 
   useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const response = await apiClient.get('/users/profile');
-        if (response.data.success) {
-          setUser(response.data.data);
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      }
-    };
-    fetchUserProfile();
-
      // Cargar preferencia de modo oscuro
     const savedDarkMode = localStorage.getItem('darkMode') === 'true';
     setIsDarkMode(savedDarkMode);

@@ -11,7 +11,7 @@ import CompanyProfile from "@/components/CompanyProfile";
 import { getJobOffersByCompany } from "@/api/jobOffers";
 import { getAdvisoriesByCompany } from "@/api/advisories";
 import { getCompanies, Company } from "@/api/companies";
-import apiClient from "@/api/client";
+import { useUserProfile } from "@/hooks/useUser";
 
 
 export default function Companies() {
@@ -20,24 +20,11 @@ export default function Companies() {
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [jobOffers, setJobOffers] = useState<any[]>([]);
   const [advisories, setAdvisories] = useState<any[]>([]);
-  const [currentUser, setCurrentUser] = useState<any>(null);
+  // Usar el hook centralizado para los datos del usuario
+  const { user: currentUser } = useUserProfile();
   const [loading, setLoading] = useState(false);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companiesLoading, setCompaniesLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      try {
-        const response = await apiClient.get('/users/profile');
-        if (response.data.success) {
-          setCurrentUser(response.data.data);
-        }
-      } catch (error) {
-        console.error("Error fetching user profile:", error);
-      }
-    };
-    fetchUserProfile();
-  }, []);
 
   useEffect(() => {
     const fetchCompanies = async () => {

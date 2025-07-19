@@ -9,9 +9,9 @@ import { Progress } from "@/components/ui/progress";
 import { CircularProgress } from "@/components/ui/circular-progress";
 import { SemiCircularProgress } from "@/components/ui/semi-circular-progress";
 import { useEffect, useState } from "react";
-import apiClient from "@/api/client";
 import { getImageUrl } from '@/utils/getImageUrl';
 import { fetchUserFeed, createPost, updatePost, toggleLikePost, commentOnPost, togglePostComments, togglePostPin } from "@/api/posts";
+import { useUserProfile } from "@/hooks/useUser";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Paperclip, Image as ImageIcon, Smile, BarChart2, Globe, Lock, Users as UsersIcon } from "lucide-react";
 import {
@@ -73,8 +73,9 @@ export interface Post {
 }
 
 const Dashboard = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Usar el hook centralizado para los datos del usuario
+  const { user, loading } = useUserProfile();
+  
   const [posts, setPosts] = useState<Post[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [creatingPost, setCreatingPost] = useState(false);
@@ -103,20 +104,6 @@ const Dashboard = () => {
   const [pollDuration, setPollDuration] = useState("1d");
   const [selectedMood, setSelectedMood] = useState<{emoji: string, label: string} | null>(null);
   const [showMoodPicker, setShowMoodPicker] = useState(false);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const response = await apiClient.get('/users/profile');
-        if (response.data.success) {
-          setUser(response.data.data);
-        }
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
-  }, []);
 
    // Calcular progreso de perfil (removido, se usa la lógica de profileSteps más abajo)
   

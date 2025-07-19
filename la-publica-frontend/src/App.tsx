@@ -38,6 +38,7 @@ import MyCompanies from "./pages/collaborator/MyCompanies";
 import MyJobOffers from "./pages/collaborator/MyJobOffers";
 import MyAdvisories from "./pages/collaborator/MyAdvisories";
 import Admin from "./pages/Admin";
+import AnnouncementForm from "./pages/AnnouncementForm";
 
 const queryClient = new QueryClient();
 
@@ -85,6 +86,8 @@ const App = () => (
                   <Route path="companies" element={<Companies />} />
                   <Route path="offers" element={<Offers />} />
                   <Route path="announcements" element={<Announcements />} />
+                  <Route path="announcements/new" element={<AnnouncementForm />} />
+                  <Route path="announcements/:id/edit" element={<AnnouncementForm />} />
                   <Route path="consulting" element={<Consulting />} />
                   <Route path="links" element={<Links />} />
                   <Route path="settings" element={<Settings />} />

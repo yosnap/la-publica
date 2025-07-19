@@ -105,8 +105,16 @@ app.options('*', cors({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 100, // máximo 100 requests por IP
-  message: { error: 'Demasiadas solicitudes, intenta más tarde' }
+  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // más permisivo en desarrollo
+  message: { error: 'Demasiadas solicitudes, intenta más tarde' },
+  skip: (req) => {
+    // Skipear rate limit para algunas rutas en desarrollo
+    if (process.env.NODE_ENV !== 'production') {
+      const skipRoutes = ['/api/users/profile', '/api/health', '/api/info'];
+      return skipRoutes.some(route => req.path === route);
+    }
+    return false;
+  }
 });
 
 app.use(compression());

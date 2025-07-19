@@ -1,4 +1,4 @@
-import { Edit, MapPin, Calendar, Users, Camera, Settings, Facebook, Youtube, Twitter } from "lucide-react";
+import { Edit, MapPin, Calendar, Users, Camera, Settings, Facebook, Youtube, Twitter, Megaphone, MessageSquare, Heart, MessageCircle, Share, MoreHorizontal, Eye, TrendingUp, TrendingDown } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -6,18 +6,35 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import apiClient from "@/api/client";
 import { getImageUrl } from '@/utils/getImageUrl';
-import { fetchPosts, Post as PostType } from "@/api/posts";
+import { fetchPosts } from "@/api/posts";
 import { fetchUserGroups, Group } from "@/api/groups";
+import { getUserAnnouncements } from "@/api/announcements";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useUserProfile } from "@/hooks/useUser";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
-const getSocialUrl = (url?: string) => {
-  if (!url) return undefined;
-  if (url.startsWith('http://') || url.startsWith('https://')) return url;
-  return 'https://' + url;
-};
+// Tipos
+interface PostType {
+  _id: string;
+  content: string;
+  author: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    profilePicture?: string;
+  };
+  likes: string[];
+  comments: any[];
+  createdAt: string;
+  image?: string;
+}
 
- // Definición mínima de tipos para el usuario
 interface WorkExperience {
   jobTitle: string;
   company: string;
@@ -47,46 +64,60 @@ interface User {
     twitter?: string;
     youtube?: string;
   };
+  followers?: string[];
+  following?: string[];
 }
+
+interface Announcement {
+  _id: string;
+  type: 'offer' | 'demand';
+  title: string;
+  description: string;
+  category?: {
+    _id: string;
+    name: string;
+  };
+  price?: number;
+  budget?: {
+    min: number;
+    max: number;
+  };
+  location?: string | {
+    city: string;
+    country: string;
+    allowRemote?: boolean;
+  };
+  active: boolean;
+  featured: boolean;
+  views: number;
+  createdAt: string;
+}
+
+const getSocialUrl = (url?: string) => {
+  if (!url) return undefined;
+  if (url.startsWith('http://') || url.startsWith('https://')) return url;
+  return 'https://' + url;
+};
 
 const Profile = () => {
   const navigate = useNavigate();
 
-   // Estado para los datos del usuario
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  // Usar el hook centralizado para los datos del usuario
+  const { user, loading, error } = useUserProfile();
 
   const [userPosts, setUserPosts] = useState<PostType[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [userGroups, setUserGroups] = useState<Group[]>([]);
   const [loadingGroups, setLoadingGroups] = useState(true);
-
-  useEffect(() => {
-    const fetchProfile = async () => {
-      setLoading(true);
-      try {
-        const response = await apiClient.get('/users/profile');
-        if (response.data.success) {
-          setUser(response.data.data);
-        } else {
-          setError('No se pudieron cargar los datos del perfil.');
-        }
-      } catch (err) {
-        setError('Ocurrió un error al cargar el perfil.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchProfile();
-  }, []);
+  const [userAnnouncements, setUserAnnouncements] = useState<Announcement[]>([]);
+  const [loadingAnnouncements, setLoadingAnnouncements] = useState(true);
 
   useEffect(() => {
     if (!user) return;
     setLoadingPosts(true);
     fetchPosts()
       .then((res) => {
-         // Filtrar solo los posts del usuario autenticado
+        // Filtrar solo los posts del usuario autenticado
         const posts = (res.data || []).filter((p: PostType) => p.author?._id === user._id);
         setUserPosts(posts);
       })
@@ -98,11 +129,11 @@ const Profile = () => {
       try {
         setLoadingGroups(true);
         const response = await fetchUserGroups();
-        if (response.success) {
+        if (response.success && response.data) {
           setUserGroups(response.data);
         }
-      } catch (error) {
-        console.error('Error loading user groups:', error);
+      } catch (err) {
+        console.error('Error loading groups:', err);
       } finally {
         setLoadingGroups(false);
       }
@@ -110,97 +141,110 @@ const Profile = () => {
     loadUserGroups();
   }, []);
 
+  // Cargar anuncios del usuario
+  useEffect(() => {
+    if (!user) return;
+    const loadUserAnnouncements = async () => {
+      try {
+        setLoadingAnnouncements(true);
+        const response = await getUserAnnouncements(user._id);
+        if (response.success && response.data) {
+          setUserAnnouncements(response.data);
+        }
+      } catch (err) {
+        console.error('Error loading announcements:', err);
+      } finally {
+        setLoadingAnnouncements(false);
+      }
+    };
+    loadUserAnnouncements();
+  }, [user]);
+
   if (loading) {
-    return <div className="text-center py-12">Cargando perfil...</div>;
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <Card className="rounded-xl">
+          <CardContent className="p-12">
+            <Skeleton className="h-8 w-48 mx-auto" />
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
-  if (error) {
-    return <div className="text-center text-red-500 py-12">{error}</div>;
-  }
-  if (!user) {
-    return null;
+
+  if (error || !user) {
+    return (
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        <Card className="rounded-xl">
+          <CardContent className="p-12 text-center">
+            <p className="text-red-500">{error || 'No se encontró el usuario'}</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   const userStats = [
-    { label: "Posts", value: userPosts.length.toString() },
-    { label: "Seguidores", value: "1.2K" },
-    { label: "Siguiendo", value: "234" },
-    { label: "Grupos", value: userGroups.length.toString() }
+    { label: "Posts", value: userPosts.length },
+    { label: "Seguidores", value: user.followers?.length || 0 },
+    { label: "Siguiendo", value: user.following?.length || 0 },
+    { label: "Grupos", value: userGroups.length },
+    { label: "Anuncios", value: userAnnouncements.length },
   ];
 
-  const recentPosts = [
-    {
-      id: 1,
-      content: "Acabamos de lanzar nuestra nueva función de video chat en vivo! 🎥",
-      timestamp: "hace 2 días",
-      likes: 24,
-      comments: 8,
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=400&h=300&fit=crop"
-    },
-    {
-      id: 2,
-      content: "Compartiendo mi experiencia trabajando remotamente. ¿Cuáles son sus mejores prácticas?",
-      timestamp: "hace 1 semana",
-      likes: 35,
-      comments: 15
-    }
-  ];
-
-
-  const achievements = [
-    { title: "Miembro Fundador", description: "Uno de los primeros 100 miembros", icon: "🏆" },
-    { title: "Contribuidor Activo", description: "50+ posts publicados", icon: "✨" },
-    { title: "Connector", description: "Conectó con 100+ miembros", icon: "🤝" }
-  ];
+  // Formatear fecha
+  const formatDate = (date: string) => {
+    const now = new Date();
+    const posted = new Date(date);
+    const diff = now.getTime() - posted.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) return "Hoy";
+    if (days === 1) return "Ayer";
+    if (days < 7) return `Hace ${days} días`;
+    if (days < 30) return `Hace ${Math.floor(days / 7)} semanas`;
+    return posted.toLocaleDateString('es-ES');
+  };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      { /* Header del Perfil */}
-      <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50 overflow-hidden">
-        { /* Cover Photo */}
-        <div
-          className="h-48 bg-gradient-to-r from-blue-500 to-purple-600 relative"
-          style={{
-            backgroundImage: user.coverPhoto ? `url(${getImageUrl(user.coverPhoto)})` : undefined,
-            backgroundSize: user.coverPhoto ? 'cover' : undefined,
-            backgroundPosition: user.coverPhoto ? 'center' : undefined,
-          }}
-        >
+    <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      {/* Tarjeta del Perfil */}
+      <Card className="rounded-xl overflow-hidden">
+        {/* Cover Photo */}
+        <div className="relative h-48 bg-gradient-to-r from-blue-400 to-purple-500">
+          {user.coverPhoto && (
+            <img
+              src={getImageUrl(user.coverPhoto)}
+              alt="Cover"
+              className="w-full h-full object-cover"
+            />
+          )}
           <Button
             variant="secondary"
             size="sm"
-            className="absolute top-4 right-4 bg-black /30 dark:bg-gray-900/50 backdrop-blur-sm text-white hover:bg-black/40 dark:hover:bg-gray-900/60 border-0"
+            className="absolute top-4 right-4"
             onClick={() => navigate('/editar-perfil')}
           >
             <Camera className="h-4 w-4 mr-2" />
-            Cambiar portada
+            Editar Portada
           </Button>
         </div>
 
-        <CardContent className="px-6 pb-6 pt-0 relative">
-          { /* Avatar solapando la imagen de portada */}
-          <div className="flex flex-col items-center -mt-16 mb-4">
-            <div className="relative">
-              <Avatar className="h-32 w-32 border-4 border-white shadow-lg">
-                <AvatarImage src={getImageUrl(user.profilePicture)} />
-                <AvatarFallback className="text-2xl">
-                  {user.firstName?.[0]}{user.lastName?.[0]}
-                </AvatarFallback>
-              </Avatar>
-              { /* Badge de rol */}
-              {user.role && (
-                <span className="absolute -bottom-4 left-1 /2 -translate-x-1/2 bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full shadow">
-                  {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                </span>
-              )}
-            </div>
+        <CardContent className="relative px-6 pb-6">
+          {/* Avatar */}
+          <div className="absolute -top-16 left-1/2 transform -translate-x-1/2">
+            <Avatar className="h-32 w-32 border-4 border-white">
+              <AvatarImage src={getImageUrl(user.profilePicture)} />
+              <AvatarFallback className="text-2xl">{user.firstName?.[0]}{user.lastName?.[0]}</AvatarFallback>
+            </Avatar>
           </div>
-
-          <div className="text-center space-y-3 mb-6">
+          
+          <div className="pt-20 text-center space-y-3">
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{user.firstName} {user.lastName}</h1>
               <p className="text-gray-600 dark:text-gray-400 text-lg">{user.bio}</p>
             </div>
-            { /* Línea con username, calendario y fecha */}
+            
             <div className="flex justify-center items-center gap-x-2 text-sm text-gray-500 dark:text-gray-400">
               <span>@{user.username}</span>
               <span>•</span>
@@ -209,7 +253,8 @@ const Profile = () => {
                 Se unió en {new Date(user.createdAt).toLocaleDateString('es-ES', { year: 'numeric', month: 'long' }).toLowerCase()}
               </span>
             </div>
-            { /* Redes sociales */}
+            
+            {/* Redes sociales */}
             <div className="flex justify-center gap-4 mt-2">
               {user.socialLinks?.facebook && (
                 <a
@@ -251,7 +296,7 @@ const Profile = () => {
                 </a>
               )}
             </div>
-            { /* Aquí puedes dejar los botones y redes sociales como ya tienes */}
+            
             <div className="flex justify-center gap-3 pt-2">
               <Button 
                 variant="outline" 
@@ -261,14 +306,15 @@ const Profile = () => {
                 <Edit className="h-4 w-4 mr-2" />
                 Editar Perfil
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => navigate('/settings')}>
                 <Settings className="h-4 w-4 mr-2" />
                 Configuración
               </Button>
             </div>
           </div>
-          { /* Estadísticas en una fila horizontal */}
-          <div className="grid grid-cols-4 gap-4 text-center border-t pt-6">
+          
+          {/* Estadísticas */}
+          <div className="grid grid-cols-5 gap-4 text-center border-t pt-6 mt-6">
             {userStats.map((stat, index) => (
               <div key={index}>
                 <div className="text-2xl font-bold text-gray-900 dark:text-gray-100">{stat.value}</div>
@@ -279,9 +325,9 @@ const Profile = () => {
         </CardContent>
       </Card>
 
-      { /* Contenido con Tabs */}
+      {/* Contenido con Tabs */}
       <Tabs defaultValue="posts" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4 bg-white dark:bg-gray-800/50 border">
+        <TabsList className="grid w-full grid-cols-6 bg-white dark:bg-gray-800/50 border">
           <TabsTrigger value="posts" className="data-[state=active]:bg-primary data-[state=active]:text-white">
             Posts
           </TabsTrigger>
@@ -291,6 +337,12 @@ const Profile = () => {
           <TabsTrigger value="groups" className="data-[state=active]:bg-primary data-[state=active]:text-white">
             Grupos
           </TabsTrigger>
+          <TabsTrigger value="announcements" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+            Anuncios
+          </TabsTrigger>
+          <TabsTrigger value="forums" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+            Foros
+          </TabsTrigger>
           <TabsTrigger value="achievements" className="data-[state=active]:bg-primary data-[state=active]:text-white">
             Logros
           </TabsTrigger>
@@ -298,40 +350,76 @@ const Profile = () => {
 
         <TabsContent value="posts" className="space-y-4">
           {loadingPosts ? (
-            <div>Cargando posts...</div>
+            <Card>
+              <CardContent className="p-8">
+                <Skeleton className="h-32 w-full" />
+              </CardContent>
+            </Card>
           ) : userPosts.length === 0 ? (
-            <div>No hay publicaciones aún.</div>
+            <Card>
+              <CardContent className="p-8 text-center text-gray-500">
+                <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No has publicado ningún post aún</p>
+              </CardContent>
+            </Card>
           ) : (
             userPosts.map((post) => (
-              <Card key={post._id} className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
+              <Card key={post._id} className="hover:shadow-lg transition-shadow">
                 <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <Avatar className="h-10 w-10">
-                      { /* TODO: Mostrar avatar real del usuario */}
-                      <AvatarImage src={getImageUrl(user.profilePicture)} />
-                      <AvatarFallback>{user.firstName?.[0]}{user.lastName?.[0]}</AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2 mb-2">
-                        <span className="font-semibold text-gray-900 dark:text-gray-100">{user.firstName} {user.lastName}</span>
-                        <span className="text-gray-500 dark:text-gray-400 text-sm">{new Date(post.createdAt).toLocaleString()}</span>
-                      </div>
-                      {post.mood && (
-                        <div className="flex items-center gap-1 mb-2">
-                          <span className="text-sm">{post.mood.emoji}</span>
-                          <span className="text-xs text-gray-600 dark:text-gray-400">se siente {post.mood.label}</span>
-                        </div>
-                      )}
-                      <div 
-                        className="text-gray-800 dark:text-gray-200 mb-4 prose prose-sm max-w-none [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ml-4 [&_ol]:ml-4 [&_a]:text-blue-500 [&_a]:underline"
-                        dangerouslySetInnerHTML={{ __html: post.content }}
-                      />
-                      { /* TODO: Mostrar likes y comentarios reales */}
-                      <div className="flex gap-4 text-sm text-gray-500 dark:text-gray-400">
-                        <span>{post.likes.length} me gusta</span>
-                        <span>{post.comments.length} comentarios</span>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="flex items-center space-x-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={getImageUrl(post.author?.profilePicture)} />
+                        <AvatarFallback>{post.author?.firstName?.[0]}{post.author?.lastName?.[0]}</AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold">{post.author?.firstName} {post.author?.lastName}</p>
+                        <p className="text-sm text-gray-500">{formatDate(post.createdAt)}</p>
                       </div>
                     </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => navigate(`/posts/${post._id}/edit`)}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600">
+                          Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  
+                  <div 
+                    className="text-gray-700 dark:text-gray-300 mb-4 prose prose-sm max-w-none"
+                    dangerouslySetInnerHTML={{ __html: post.content }}
+                  />
+                  
+                  {post.image && (
+                    <img 
+                      src={getImageUrl(post.image)} 
+                      alt="Post" 
+                      className="rounded-lg w-full mb-4"
+                    />
+                  )}
+                  
+                  <div className="flex items-center gap-6 text-gray-500">
+                    <button className="flex items-center gap-2 hover:text-red-500">
+                      <Heart className="h-4 w-4" />
+                      <span>{post.likes.length}</span>
+                    </button>
+                    <button className="flex items-center gap-2 hover:text-blue-500">
+                      <MessageCircle className="h-4 w-4" />
+                      <span>{post.comments.length}</span>
+                    </button>
+                    <button className="flex items-center gap-2 hover:text-green-500">
+                      <Share className="h-4 w-4" />
+                    </button>
                   </div>
                 </CardContent>
               </Card>
@@ -340,187 +428,273 @@ const Profile = () => {
         </TabsContent>
 
         <TabsContent value="about" className="space-y-6">
-          { /* Información Personal */}
-          <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
-            <CardHeader className="flex flex-row items-center justify-between">
+          <Card>
+            <CardHeader>
               <h3 className="text-lg font-semibold">Información Personal</h3>
-              <Button variant="ghost" size="icon" onClick={() => navigate('/editar-perfil')} title="Editar información personal">
-                <Edit className="h-4 w-4" />
-              </Button>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-                <div className="text-gray-500 dark:text-gray-400">Nombre</div>
-                <div className="font-medium text-gray-900 dark:text-gray-100">{user.firstName}</div>
-                <div className="text-gray-500 dark:text-gray-400">Apellidos</div>
-                <div className="font-medium text-gray-900 dark:text-gray-100">{user.lastName}</div>
-                <div className="text-gray-500 dark:text-gray-400">Nombre de usuario</div>
-                <div className="font-medium text-gray-900 dark:text-gray-100">{user.username}</div>
-                <div className="text-gray-500 dark:text-gray-400">Fecha de nacimiento</div>
-                <div className="font-medium text-gray-900 dark:text-gray-100">
-                  {user.birthDate ? new Date(user.birthDate).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}
+              {user.bio && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Bio</p>
+                  <p className="text-gray-700 dark:text-gray-300">{user.bio}</p>
                 </div>
-                <div className="text-gray-500 dark:text-gray-400">Género</div>
-                <div className="font-medium text-gray-900 dark:text-gray-100">
-                  {user.gender === 'male' && 'Masculino'}
-                  {user.gender === 'female' && 'Femenino'}
-                  {user.gender === 'other' && 'Otro'}
-                  {user.gender === 'prefer_not_to_say' && 'Prefiero no decirlo'}
-                  {!user.gender && '—'}
+              )}
+              {user.email && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Email</p>
+                  <p className="text-gray-700 dark:text-gray-300">{user.email}</p>
                 </div>
-              </div>
+              )}
+              {user.gender && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Género</p>
+                  <p className="text-gray-700 dark:text-gray-300">{user.gender}</p>
+                </div>
+              )}
+              {user.birthDate && (
+                <div>
+                  <p className="text-sm text-gray-500 mb-1">Fecha de nacimiento</p>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    {new Date(user.birthDate).toLocaleDateString('es-ES')}
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          { /* Biografía */}
-          <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <h3 className="text-lg font-semibold">Biografía</h3>
-              <Button variant="ghost" size="icon" onClick={() => navigate('/editar-perfil')} title="Editar biografía">
-                <Edit className="h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-900 dark:text-gray-100 whitespace-pre-line min-h-[48px]">{user.bio || <span className="text-gray-400">Sin biografía< /span>}</p>
-            </CardContent>
-          </Card>
+          {user.workExperience && user.workExperience.length > 0 && (
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-semibold">Experiencia Laboral</h3>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {user.workExperience.map((exp, index) => (
+                    <div key={index} className="border-l-2 border-gray-200 pl-4">
+                      <h4 className="font-semibold">{exp.jobTitle}</h4>
+                      <p className="text-gray-600 dark:text-gray-400">{exp.company}</p>
+                      <p className="text-sm text-gray-500">
+                        {exp.startDate && new Date(exp.startDate).toLocaleDateString('es-ES', { year: 'numeric', month: 'short' })}
+                        {' - '}
+                        {exp.isCurrentJob ? 'Actualidad' : exp.endDate && new Date(exp.endDate).toLocaleDateString('es-ES', { year: 'numeric', month: 'short' })}
+                      </p>
+                      {exp.description && (
+                        <p className="mt-2 text-gray-700 dark:text-gray-300">{exp.description}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-          { /* Habilidades */}
-          <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <h3 className="text-lg font-semibold">Habilidades</h3>
-              <Button variant="ghost" size="icon" onClick={() => navigate('/editar-perfil')} title="Editar habilidades">
-                <Edit className="h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
+          {user.skills && user.skills.length > 0 && (
+            <Card>
+              <CardHeader>
+                <h3 className="text-lg font-semibold">Habilidades</h3>
+              </CardHeader>
+              <CardContent>
                 <div className="flex flex-wrap gap-2">
-                  {(user.skills && user.skills.length > 0) ? user.skills.map((skill: string) => (
-                    <Badge key={skill} variant="secondary" className="bg-primary/10 text-primary">
-                      {skill}
-                    </Badge>
-                  )) : <span className="text-gray-400">Sin habilidades</span>}
+                  {user.skills.map((skill, index) => (
+                    <Badge key={index} variant="secondary">{skill}</Badge>
+                  ))}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          { /* Experiencia */}
-          <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <h3 className="text-lg font-semibold">Experiencia</h3>
-              <Button variant="ghost" size="icon" onClick={() => navigate('/editar-perfil')} title="Editar experiencia">
-                <Edit className="h-4 w-4" />
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {(user.workExperience && user.workExperience.length > 0) ? user.workExperience.map((exp: WorkExperience, idx: number) => (
-                <div key={idx} className="border-b last:border-b-0 pb-3 last:pb-0">
-                  <p className="font-medium">{exp.jobTitle}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{exp.company} • {exp.startDate ? new Date(exp.startDate).getFullYear() : ''}{exp.endDate ? ` - ${new Date(exp.endDate).getFullYear()}` : exp.isCurrentJob ? ' - Presente' : ''}</p>
-                  {exp.description && <p className="text-gray-700 text-sm mt-1">{exp.description}</p>}
-                </div>
-              )) : <span className="text-gray-400">Sin experiencia laboral</span>}
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="groups" className="space-y-4">
           {loadingGroups ? (
-            <div className="text-center py-12">Cargando grupos...</div>
+            <Card>
+              <CardContent className="p-8">
+                <Skeleton className="h-32 w-full" />
+              </CardContent>
+            </Card>
           ) : userGroups.length === 0 ? (
-            <Card className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
-              <CardContent className="p-12 text-center">
-                <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">No tienes grupos aún</h3>
-                <p className="text-gray-500 dark:text-gray-400 mb-4">
-                  Únete a grupos existentes o crea tu propio grupo para conectar con personas que comparten tus intereses.
-                </p>
-                <Button onClick={() => navigate('/groups')} className="bg-primary hover:bg-primary/90">
+            <Card>
+              <CardContent className="p-8 text-center text-gray-500">
+                <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No te has unido a ningún grupo aún</p>
+                <Button 
+                  className="mt-4"
+                  onClick={() => navigate('/groups')}
+                >
                   Explorar Grupos
                 </Button>
               </CardContent>
             </Card>
           ) : (
-            userGroups.map((group) => (
-              <Card key={group._id} className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                        {group.image ? (
-                          <img src={getImageUrl(group.image)} alt={group.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-400 to-blue-600">
-                            <Users className="h-6 w-6 text-white" />
-                          </div>
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900 dark:text-gray-100">{group.name}</h3>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">{group.memberCount} miembros</p>
-                        {group.location && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 flex items-center mt-1">
-                            <MapPin className="h-3 w-3 mr-1" />
-                            {group.location}
-                          </p>
-                        )}
-                      </div>
-                    </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {userGroups.map((group) => (
+                <Card 
+                  key={group._id} 
+                  className="hover:shadow-lg transition-shadow cursor-pointer"
+                  onClick={() => navigate(`/groups/${group._id}`)}
+                >
+                  <CardContent className="p-4">
                     <div className="flex items-center space-x-3">
-                      <Badge 
-                        variant={group.userRole === "admin" ? "default" : "secondary"}
-                        className={
-                          group.userRole === "admin" ? "bg-yellow-100 text-yellow-800" :
-                          group.userRole === "moderator" ? "bg-blue-100 text-blue-800" :
-                          "bg-gray-100 text-gray-800 dark:text-gray-200"
-                        }
-                      >
-                        {group.userRole === "admin" ? "Admin" : 
-                         group.userRole === "moderator" ? "Moderador" : "Miembro"}
-                      </Badge>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => navigate(`/groups/${group._id}`)}
-                      >
-                        Ver Grupo
-                      </Button>
-                      {group.userRole === "admin" && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => navigate(`/groups/${group._id}/admin`)}
-                          title="Administrar grupo"
-                        >
-                          <Settings className="h-4 w-4" />
-                        </Button>
-                      )}
+                      <Avatar className="h-12 w-12">
+                        <AvatarImage src={getImageUrl(group.image)} />
+                        <AvatarFallback>{group.name[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-semibold truncate">{group.name}</h4>
+                        <p className="text-sm text-gray-500">
+                          {group.members?.length || 0} miembros
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-          ))
+                    {group.description && (
+                      <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                        {group.description}
+                      </p>
+                    )}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           )}
         </TabsContent>
 
-        <TabsContent value="achievements" className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {achievements.map((achievement, index) => (
-              <Card key={index} className="shadow-sm border-0 bg-white dark:bg-gray-800/50">
+        <TabsContent value="announcements" className="space-y-4">
+          {user?.role === 'user' && (
+            <div className="flex justify-end mb-4">
+              <Button onClick={() => navigate('/announcements/new')}>
+                <Megaphone className="h-4 w-4 mr-2" />
+                Crear Anuncio
+              </Button>
+            </div>
+          )}
+          
+          {loadingAnnouncements ? (
+            <Card>
+              <CardContent className="p-8">
+                <Skeleton className="h-32 w-full" />
+              </CardContent>
+            </Card>
+          ) : userAnnouncements.length === 0 ? (
+            <Card>
+              <CardContent className="p-8 text-center text-gray-500">
+                <Megaphone className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+                <p>No has publicado ningún anuncio aún</p>
+                {user?.role === 'user' && (
+                  <Button 
+                    className="mt-4"
+                    onClick={() => navigate('/announcements/new')}
+                  >
+                    Publicar Anuncio
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          ) : (
+            userAnnouncements.map((announcement) => (
+              <Card 
+                key={announcement._id} 
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => navigate(`/announcements/${announcement._id}`)}
+              >
                 <CardContent className="p-6">
-                  <div className="flex items-start space-x-4">
-                    <div className="text-3xl">{achievement.icon}</div>
+                  <div className="flex items-start justify-between mb-4">
                     <div>
-                      <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{achievement.title}</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{achievement.description}</p>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
+                        {announcement.title}
+                      </h3>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge className={announcement.type === "offer" ? "bg-green-500 text-white" : "bg-blue-500 text-white"}>
+                          {announcement.type === "offer" ? (
+                            <><TrendingUp className="h-3 w-3 mr-1" /> Oferta</>
+                          ) : (
+                            <><TrendingDown className="h-3 w-3 mr-1" /> Demanda</>
+                          )}
+                        </Badge>
+                        {announcement.featured && (
+                          <Badge className="bg-yellow-500 text-white">Destacado</Badge>
+                        )}
+                        {!announcement.active && (
+                          <Badge variant="secondary">Inactivo</Badge>
+                        )}
+                      </div>
+                    </div>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/announcements/${announcement._id}/edit`);
+                        }}>
+                          <Edit className="h-4 w-4 mr-2" />
+                          Editar
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-red-600">
+                          Eliminar
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                  
+                  <p className="text-gray-600 dark:text-gray-400 mb-4 line-clamp-2">
+                    {announcement.description}
+                  </p>
+                  
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4 text-sm text-gray-500">
+                      <div className="flex items-center gap-1">
+                        <Eye className="h-4 w-4" />
+                        <span>{announcement.views} vistas</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <Calendar className="h-4 w-4" />
+                        <span>{formatDate(announcement.createdAt)}</span>
+                      </div>
+                      {announcement.location && (
+                        <div className="flex items-center gap-1">
+                          <MapPin className="h-4 w-4" />
+                          <span>
+                            {typeof announcement.location === 'string' 
+                              ? announcement.location 
+                              : `${announcement.location.city}, ${announcement.location.country}`
+                            }
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="text-lg font-bold text-primary">
+                      {announcement.type === "offer" 
+                        ? announcement.price ? `€${announcement.price}` : 'Precio a consultar'
+                        : announcement.budget 
+                          ? `€${announcement.budget.min} - €${announcement.budget.max}`
+                          : 'Presupuesto a definir'
+                      }
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="forums" className="space-y-4">
+          <Card>
+            <CardContent className="p-8 text-center text-gray-500">
+              <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p>Próximamente: Tus participaciones en foros</p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="achievements" className="space-y-4">
+          <Card>
+            <CardContent className="p-8 text-center text-gray-500">
+              <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+              <p>Próximamente: Sistema de logros y reconocimientos</p>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
