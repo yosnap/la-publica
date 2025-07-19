@@ -71,14 +71,16 @@ const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisori
       <Card className="shadow-sm border-0 bg-white overflow-hidden">
         { /* Cover Photo */}
         <div className="h-48 bg-gradient-to-r from-blue-600 to-indigo-700 relative">
-          <Button
-            variant="secondary"
-            size="sm"
-            className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
-          >
-            <Camera className="h-4 w-4 mr-2" />
-            Canviar portada
-          </Button>
+          {isOwner && (
+            <Button
+              variant="secondary"
+              size="sm"
+              className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
+            >
+              <Camera className="h-4 w-4 mr-2" />
+              Canviar portada
+            </Button>
+          )}
         </div>
 
         <CardContent className="px-6 pb-6 pt-0 relative">
@@ -91,12 +93,14 @@ const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisori
                   <Building2 className="h-12 w-12" />
                 </AvatarFallback>
               </Avatar>
-              <Button
-                size="sm"
-                className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary hover:bg-primary/90 p-0"
-              >
-                <Camera className="h-4 w-4" />
-              </Button>
+              {isOwner && (
+                <Button
+                  size="sm"
+                  className="absolute bottom-0 right-0 h-8 w-8 rounded-full bg-primary hover:bg-primary/90 p-0"
+                >
+                  <Camera className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           </div>
 
