@@ -74,10 +74,10 @@ const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisori
           <Button
             variant="secondary"
             size="sm"
-            className="absolute top-4 right-4 bg-white /20 backdrop-blur-sm text-white hover:bg-white/30"
+            className="absolute top-4 right-4 bg-white/20 backdrop-blur-sm text-white hover:bg-white/30"
           >
             <Camera className="h-4 w-4 mr-2" />
-            Cambiar portada
+            Canviar portada
           </Button>
         </div>
 
@@ -130,19 +130,19 @@ const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisori
             { /* Botones de Acción */}
             <div className="flex justify-center gap-3 pt-2">
               {isOwner ? (
-                <Button size="sm" onClick={() => window.location.href = '/colaborador/empresas'}>
+                <Button variant="default" size="sm" onClick={() => window.location.href = '/colaborador/empresas'}>
                   <Edit className="h-4 w-4 mr-2" />
                   Editar Empresa
                 </Button>
               ) : (
                 <>
-                  <Button size="sm">
+                  <Button variant="default" size="sm">
                     <Phone className="h-4 w-4 mr-2" />
                     Contactar
                   </Button>
                   <Button variant="outline" size="sm">
                     <Mail className="h-4 w-4 mr-2" />
-                    Enviar Mensaje
+                    Enviar Missatge
                   </Button>
                   <Button variant="outline" size="sm">
                     <Edit className="h-4 w-4 mr-2" />
@@ -200,13 +200,13 @@ const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisori
                     </div>
                     <p className="text-gray-600 mb-3">{service.description}</p>
                     <div className="flex items-center space-x-4 text-sm text-gray-500">
-                      <span><strong>Precio:< /strong> {service.price}</span>
-                      <span><strong>Duración:< /strong> {service.duration}</span>
+                      <span><strong>Preu:</strong> {service.price}</span>
+                      <span><strong>Durada:</strong> {service.duration}</span>
                     </div>
                   </div>
                   <div className="flex space-x-2">
-                    <Button size="sm">Ver Detalles</Button>
-                    <Button variant="outline" size="sm">Solicitar</Button>
+                    <Button variant="default" size="sm">Veure Detalls</Button>
+                    <Button variant="outline" size="sm">Sol·licitar</Button>
                   </div>
                 </div>
               </CardContent>
@@ -252,7 +252,7 @@ const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisori
                       </div>
                     </div>
                     <div className="flex space-x-2">
-                      <Button size="sm">Ver Detalles</Button>
+                      <Button variant="default" size="sm">Veure Detalls</Button>
                       <Button variant="outline" size="sm">Aplicar</Button>
                     </div>
                   </div>
@@ -309,7 +309,7 @@ const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisori
                       </div>
                     </div>
                     <div className="flex space-x-2">
-                      <Button size="sm">Ver Detalles</Button>
+                      <Button variant="default" size="sm">Veure Detalls</Button>
                       <Button variant="outline" size="sm">Contactar</Button>
                     </div>
                   </div>
@@ -380,7 +380,7 @@ const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisori
                   </div>
                   <div className="flex items-center space-x-3">
                     <Badge variant="secondary">{project.category}</Badge>
-                    <Button variant="outline" size="sm">Ver Proyecto</Button>
+                    <Button variant="outline" size="sm">Veure Projecte</Button>
                   </div>
                 </div>
               </CardContent>
