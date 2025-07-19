@@ -11,6 +11,7 @@ export interface BackupOptions {
   includeJobOffers?: boolean;
   includeAnnouncements?: boolean;
   includeAdvisories?: boolean;
+  includeBlogs?: boolean;
   includeCategories?: boolean;
   includeGroupCategories?: boolean;
   includeForumCategories?: boolean;
@@ -40,6 +41,7 @@ export interface BackupStatistics {
   jobOffers: number;
   announcements: number;
   advisories: number;
+  blogs: number;
   categories: number;
   groupCategories: number;
   forumCategories: number;
@@ -72,6 +74,7 @@ export interface ImportOptions {
   importJobOffers?: boolean;
   importAnnouncements?: boolean;
   importAdvisories?: boolean;
+  importBlogs?: boolean;
   importCategories?: boolean;
   importGroupCategories?: boolean;
   importForumCategories?: boolean;

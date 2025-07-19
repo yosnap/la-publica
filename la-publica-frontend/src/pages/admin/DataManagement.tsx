@@ -179,9 +179,9 @@ export default function DataManagement() {
     page: 1,
     limit: 20,
     search: '',
-    category: '',
-    author: '',
-    status: '',
+    category: 'all',
+    author: 'all',
+    status: 'all',
     sortBy: 'createdAt',
     sortOrder: 'desc'
   });
@@ -540,7 +540,7 @@ export default function DataManagement() {
                             <SelectValue placeholder="Tots els estats" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="">Tots els estats</SelectItem>
+                            <SelectItem value="all">Tots els estats</SelectItem>
                             <SelectItem value="active">Actius</SelectItem>
                             <SelectItem value="inactive">Inactius</SelectItem>
                           </SelectContent>
@@ -558,7 +558,7 @@ export default function DataManagement() {
                               <SelectValue placeholder="Tots els autors" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">Tots els autors</SelectItem>
+                              <SelectItem value="all">Tots els autors</SelectItem>
                               {users.map(user => (
                                 <SelectItem key={user._id} value={user._id}>
                                   {user.firstName} {user.lastName}
@@ -580,7 +580,7 @@ export default function DataManagement() {
                               <SelectValue placeholder="Totes les categories" />
                             </SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="">Totes les categories</SelectItem>
+                              <SelectItem value="all">Totes les categories</SelectItem>
                               {categories.map(category => (
                                 <SelectItem key={category._id} value={category.name}>
                                   {category.name}

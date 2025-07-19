@@ -25,6 +25,7 @@ import jobOffersRoutes from './jobOffers.routes';
 import announcementsRoutes from './announcements.routes';
 import advisoriesRoutes from './advisories.routes';
 import categoriesRoutes from './categories.routes';
+import blogsRoutes from './blogs.routes';
 import granularBackupRoutes from './granularBackup.routes';
 import adminDataRoutes from './adminData.routes';
 import { errorHandler } from './middleware/errorHandler';
@@ -181,6 +182,9 @@ app.use('/api/advisories', advisoriesRoutes);
 
 // Rutas de categorías
 app.use('/api/categories', categoriesRoutes);
+
+// Rutas de blogs
+app.use('/api', blogsRoutes);
 
 // Rutas de backup granular (admin)
 app.use('/api/granular-backup', granularBackupRoutes);

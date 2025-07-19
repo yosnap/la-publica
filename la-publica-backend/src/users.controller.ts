@@ -271,6 +271,8 @@ export const getProfile = async (req: Request, res: Response, next: NextFunction
     console.log('🔍 Datos del usuario devueltos:', {
       id: user._id,
       firstName: user.firstName,
+      email: user.email,
+      role: user.role,
       birthDate: user.birthDate,
       birthDateType: typeof user.birthDate
     });

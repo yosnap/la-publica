@@ -106,7 +106,8 @@ const Categories = () => {
     { value: "company", label: "Empresas" },
     { value: "job", label: "Ofertas de Trabajo" },
     { value: "announcement", label: "Anuncios" },
-    { value: "advisory", label: "Asesorías" }
+    { value: "advisory", label: "Asesorías" },
+    { value: "blog", label: "Blogs" }
   ];
 
   const loadCategories = async () => {

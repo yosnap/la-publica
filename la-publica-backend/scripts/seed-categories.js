@@ -169,6 +169,62 @@ const categoriesData = [
     ]
   },
 
+  // Categorías de blogs
+  {
+    name: 'Tecnologia',
+    description: 'Articles sobre tecnologia i innovació',
+    color: '#3B82F6',
+    icon: 'Laptop',
+    type: 'blog',
+    order: 1,
+    subcategories: [
+      { name: 'Desenvolupament Web', description: 'Tutorials i tendències en desenvolupament', color: '#10B981', icon: 'Code', order: 1 },
+      { name: 'Intel·ligència Artificial', description: 'Articles sobre IA i ML', color: '#8B5CF6', icon: 'Brain', order: 2 },
+      { name: 'Ciberseguretat', description: 'Seguretat informàtica i privacitat', color: '#F59E0B', icon: 'Shield', order: 3 },
+      { name: 'DevOps', description: 'Automatització i desplegament', color: '#EF4444', icon: 'Settings', order: 4 }
+    ]
+  },
+  {
+    name: 'Negocis',
+    description: 'Articles sobre estratègia empresarial',
+    color: '#6366F1',
+    icon: 'TrendingUp',
+    type: 'blog',
+    order: 2,
+    subcategories: [
+      { name: 'Emprenedoria', description: 'Consells per a emprenedors', color: '#DC2626', icon: 'Rocket', order: 1 },
+      { name: 'Marketing Digital', description: 'Estratègies de màrqueting online', color: '#EC4899', icon: 'Megaphone', order: 2 },
+      { name: 'Lideratge', description: 'Desenvolupament de lideratge', color: '#059669', icon: 'Crown', order: 3 },
+      { name: 'Innovació', description: 'Processos d\'innovació empresarial', color: '#D97706', icon: 'Lightbulb', order: 4 }
+    ]
+  },
+  {
+    name: 'Disseny',
+    description: 'Articles sobre disseny i creativitat',
+    color: '#EC4899',
+    icon: 'Palette',
+    type: 'blog',
+    order: 3,
+    subcategories: [
+      { name: 'UX/UI', description: 'Experiència i interfície d\'usuari', color: '#06B6D4', icon: 'Smartphone', order: 1 },
+      { name: 'Disseny Gràfic', description: 'Disseny visual i branding', color: '#F97316', icon: 'Image', order: 2 },
+      { name: 'Tendències', description: 'Últimes tendències en disseny', color: '#84CC16', icon: 'TrendingUp', order: 3 }
+    ]
+  },
+  {
+    name: 'Actualitat',
+    description: 'Notícies i actualitat del sector',
+    color: '#10B981',
+    icon: 'Newspaper',
+    type: 'blog',
+    order: 4,
+    subcategories: [
+      { name: 'Esdeveniments', description: 'Esdeveniments i conferències', color: '#8B5CF6', icon: 'Calendar', order: 1 },
+      { name: 'Entrevistes', description: 'Entrevistes amb professionals', color: '#EF4444', icon: 'Mic', order: 2 },
+      { name: 'Opinions', description: 'Articles d\'opinió', color: '#F59E0B', icon: 'MessageSquare', order: 3 }
+    ]
+  },
+
   // Categorías de asesorías
   {
     name: 'Tecnología',

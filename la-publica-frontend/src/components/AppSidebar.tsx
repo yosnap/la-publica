@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag, PanelLeftClose, PanelLeft, Moon, Sun, Database, Layers, HardDrive } from "lucide-react";
+import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag, PanelLeftClose, PanelLeft, Moon, Sun, Database, Layers, HardDrive, BookOpen } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -50,6 +50,11 @@ const menuItems = [
     title: "Fòrums",
     url: "/forums",
     icon: MessageCircle,
+  },
+  {
+    title: "Blogs",
+    url: "/blogs",
+    icon: BookOpen,
   },
   {
     title: "Anuncis",

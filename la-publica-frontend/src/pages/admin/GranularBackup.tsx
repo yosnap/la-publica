@@ -3,7 +3,7 @@ import {
   Download, Upload, FileText, CheckCircle, AlertTriangle, 
   Settings, Database, Shield, Info, X, Eye, Calendar,
   User, Building, Users, MessageSquare, Briefcase,
-  Megaphone, HelpCircle, Tag, Filter, RefreshCw
+  Megaphone, HelpCircle, Tag, Filter, RefreshCw, BookOpen
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -70,6 +70,7 @@ export default function GranularBackup() {
     includeJobOffers: true,
     includeAnnouncements: true,
     includeAdvisories: true,
+    includeBlogs: true,
     includeCategories: true,
     includeGroupCategories: true,
     includeForumCategories: true,
@@ -89,6 +90,7 @@ export default function GranularBackup() {
     importJobOffers: true,
     importAnnouncements: true,
     importAdvisories: true,
+    importBlogs: true,
     importCategories: true,
     importGroupCategories: true,
     importForumCategories: true
@@ -217,6 +219,7 @@ export default function GranularBackup() {
     jobOffers: Briefcase,
     announcements: Megaphone,
     advisories: HelpCircle,
+    blogs: BookOpen,
     categories: Tag,
     groupCategories: Tag,
     forumCategories: Tag
@@ -233,6 +236,7 @@ export default function GranularBackup() {
     jobOffers: 'Ofertes de Treball',
     announcements: 'Anuncis',
     advisories: 'Assessoraments',
+    blogs: 'Blogs',
     categories: 'Categories',
     groupCategories: 'Categories de Grups',
     forumCategories: 'Categories de Fòrums'

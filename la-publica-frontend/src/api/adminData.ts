@@ -6,7 +6,7 @@ export interface PaginationParams {
   search?: string;
   category?: string;
   author?: string;
-  status?: 'active' | 'inactive' | '';
+  status?: 'active' | 'inactive' | 'all';
   sortBy?: string;
   sortOrder?: 'asc' | 'desc';
 }
@@ -197,7 +197,7 @@ const buildQueryParams = (params: PaginationParams): string => {
   const queryParams = new URLSearchParams();
   
   Object.entries(params).forEach(([key, value]) => {
-    if (value !== undefined && value !== '') {
+    if (value !== undefined && value !== '' && value !== 'all') {
       queryParams.append(key, String(value));
     }
   });

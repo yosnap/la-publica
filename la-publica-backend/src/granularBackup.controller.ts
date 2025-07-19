@@ -9,6 +9,7 @@ import ForumPost from './forumPost.model';
 import JobOffer from './jobOffer.model';
 import Announcement from './announcement.model';
 import Advisory from './advisory.model';
+import Blog from './blog.model';
 import Category from './category.model';
 import GroupCategory from './groupCategory.model';
 import ForumCategory from './forumCategory.model';
@@ -25,6 +26,7 @@ interface BackupOptions {
   includeJobOffers?: boolean;
   includeAnnouncements?: boolean;
   includeAdvisories?: boolean;
+  includeBlogs?: boolean;
   includeCategories?: boolean;
   includeGroupCategories?: boolean;
   includeForumCategories?: boolean;
@@ -92,7 +94,7 @@ const applyCompanyOwnerFilter = async (query: any, options: BackupOptions) => {
   if (options.authorId) {
     // Find companies owned by this author
     const companies = await Company.find({ owner: options.authorId }).select('_id');
-    const companyIds = companies.map(c => c._id);
+    const companyIds = companies.map(c => c._id).filter(id => id != null);
     query.company = { $in: companyIds };
   }
   return query;
@@ -116,6 +118,7 @@ export const exportGranularData = async (req: Request, res: Response) => {
       includeJobOffers: req.body.includeJobOffers || false,
       includeAnnouncements: req.body.includeAnnouncements || false,
       includeAdvisories: req.body.includeAdvisories || false,
+      includeBlogs: req.body.includeBlogs || false,
       includeCategories: req.body.includeCategories || false,
       includeGroupCategories: req.body.includeGroupCategories || false,
       includeForumCategories: req.body.includeForumCategories || false,
@@ -131,7 +134,22 @@ export const exportGranularData = async (req: Request, res: Response) => {
       exportDate: new Date().toISOString(),
       platform: 'La Pública - Backup Granular',
       options,
-      statistics: {},
+      statistics: {
+        users: 0,
+        posts: 0,
+        companies: 0,
+        groups: 0,
+        groupPosts: 0,
+        forums: 0,
+        forumPosts: 0,
+        jobOffers: 0,
+        announcements: 0,
+        advisories: 0,
+        blogs: 0,
+        categories: 0,
+        groupCategories: 0,
+        forumCategories: 0
+      },
       data: {}
     };
 
@@ -145,51 +163,98 @@ export const exportGranularData = async (req: Request, res: Response) => {
       
       backupData.data.users = users.map(user => ({
         ...user,
-        _id: user._id.toString()
+        _id: user._id ? user._id.toString() : null
       }));
       backupData.statistics.users = users.length;
     }
 
     // Export Posts
     if (options.includePosts) {
-      let query = applyDateFilter({}, options);
-      query = applyAuthorFilter(query, options);
-      
-      const posts = await Post.find(query)
-        .populate('author', 'firstName lastName email')
-        .populate('comments.author', 'firstName lastName')
-        .select('-__v')
-        .limit(options.maxRecords!)
-        .lean();
-      
-      backupData.data.posts = posts.map(post => ({
-        ...post,
-        _id: post._id.toString(),
-        author: typeof post.author === 'object' ? { ...post.author, _id: post.author._id.toString() } : post.author
-      }));
-      backupData.statistics.posts = posts.length;
+      try {
+        console.log('Exporting posts...');
+        let query = applyDateFilter({}, options);
+        query = applyAuthorFilter(query, options);
+        
+        const posts = await Post.find(query)
+          .populate('author', 'firstName lastName email')
+          .populate('comments.author', 'firstName lastName')
+          .select('-__v')
+          .limit(options.maxRecords!)
+          .lean();
+        
+        backupData.data.posts = posts.map(post => {
+          const postData: any = {
+            ...post,
+            _id: post._id ? post._id.toString() : null
+          };
+          
+          // Handle author
+          if (typeof post.author === 'object' && post.author._id) {
+            postData.author = { ...post.author, _id: post.author._id.toString() };
+          } else {
+            postData.author = post.author;
+          }
+          
+          // Handle comments array
+          if (post.comments && Array.isArray(post.comments)) {
+            postData.comments = post.comments.map((comment: any) => {
+              const commentData: any = {
+                ...comment,
+                _id: comment._id ? comment._id.toString() : null
+              };
+              
+              // Handle comment author
+              if (typeof comment.author === 'object' && comment.author._id) {
+                commentData.author = { ...comment.author, _id: comment.author._id.toString() };
+              } else {
+                commentData.author = comment.author;
+              }
+              
+              return commentData;
+            });
+          } else {
+            postData.comments = post.comments || [];
+          }
+          
+          return postData;
+        });
+        backupData.statistics.posts = posts.length;
+        console.log(`Exported ${posts.length} posts successfully`);
+      } catch (postsError) {
+        console.error('Error exporting posts:', postsError);
+        backupData.data.posts = [];
+        backupData.statistics.posts = 0;
+      }
     }
 
     // Export Companies
     if (options.includeCompanies) {
-      let query = applyDateFilter({}, options);
-      
-      if (options.categoryFilter && options.categoryFilter.length > 0) {
-        query.category = { $in: options.categoryFilter };
+      try {
+        console.log('Exporting companies...');
+        let query = applyDateFilter({}, options);
+        
+        if (options.categoryFilter && options.categoryFilter.length > 0) {
+          query.category = { $in: options.categoryFilter };
+        }
+        
+        const companies = await Company.find(query)
+          .populate('owner', 'firstName lastName email')
+          .select('-__v')
+          .limit(options.maxRecords!)
+          .lean();
+        
+        backupData.data.companies = companies.map(company => ({
+          ...company,
+          _id: company._id ? company._id.toString() : null,
+          owner: typeof company.owner === 'object' && company.owner._id ? { ...company.owner, _id: company.owner._id.toString() } : company.owner
+        }));
+        backupData.statistics.companies = companies.length;
+        console.log(`Exported ${companies.length} companies successfully`);
+      } catch (companiesError) {
+        console.error('Error exporting companies:', companiesError);
+        backupData.data.companies = [];
+        backupData.statistics.companies = 0;
       }
-      
-      const companies = await Company.find(query)
-        .populate('owner', 'firstName lastName email')
-        .select('-__v')
-        .limit(options.maxRecords!)
-        .lean();
-      
-      backupData.data.companies = companies.map(company => ({
-        ...company,
-        _id: company._id.toString(),
-        owner: typeof company.owner === 'object' ? { ...company.owner, _id: company.owner._id.toString() } : company.owner
-      }));
-      backupData.statistics.companies = companies.length;
     }
 
     // Export Groups
@@ -205,9 +270,9 @@ export const exportGranularData = async (req: Request, res: Response) => {
       
       backupData.data.groups = groups.map(group => ({
         ...group,
-        _id: group._id.toString(),
-        creator: typeof group.creator === 'object' ? { ...group.creator, _id: group.creator._id.toString() } : group.creator,
-        category: typeof group.category === 'object' ? { ...group.category, _id: group.category._id.toString() } : group.category
+        _id: group._id ? group._id.toString() : null,
+        creator: typeof group.creator === 'object' && group.creator._id ? { ...group.creator, _id: group.creator._id.toString() } : group.creator,
+        category: typeof group.category === 'object' && group.category._id ? { ...group.category, _id: group.category._id.toString() } : group.category
       }));
       backupData.statistics.groups = groups.length;
     }
@@ -226,9 +291,9 @@ export const exportGranularData = async (req: Request, res: Response) => {
       
       backupData.data.groupPosts = groupPosts.map(post => ({
         ...post,
-        _id: post._id.toString(),
-        author: typeof post.author === 'object' ? { ...post.author, _id: post.author._id.toString() } : post.author,
-        group: typeof post.group === 'object' ? { ...post.group, _id: post.group._id.toString() } : post.group
+        _id: post._id ? post._id.toString() : null,
+        author: typeof post.author === 'object' && post.author._id ? { ...post.author, _id: post.author._id.toString() } : post.author,
+        group: typeof post.group === 'object' && post.group._id ? { ...post.group, _id: post.group._id.toString() } : post.group
       }));
       backupData.statistics.groupPosts = groupPosts.length;
     }
@@ -246,9 +311,9 @@ export const exportGranularData = async (req: Request, res: Response) => {
       
       backupData.data.forums = forums.map(forum => ({
         ...forum,
-        _id: forum._id.toString(),
-        creator: typeof forum.creator === 'object' ? { ...forum.creator, _id: forum.creator._id.toString() } : forum.creator,
-        category: typeof forum.category === 'object' ? { ...forum.category, _id: forum.category._id.toString() } : forum.category
+        _id: forum._id ? forum._id.toString() : null,
+        creator: typeof forum.creator === 'object' && forum.creator._id ? { ...forum.creator, _id: forum.creator._id.toString() } : forum.creator,
+        category: typeof forum.category === 'object' && forum.category._id ? { ...forum.category, _id: forum.category._id.toString() } : forum.category
       }));
       backupData.statistics.forums = forums.length;
     }
@@ -267,9 +332,9 @@ export const exportGranularData = async (req: Request, res: Response) => {
       
       backupData.data.forumPosts = forumPosts.map(post => ({
         ...post,
-        _id: post._id.toString(),
-        author: typeof post.author === 'object' ? { ...post.author, _id: post.author._id.toString() } : post.author,
-        forum: typeof post.forum === 'object' ? { ...post.forum, _id: post.forum._id.toString() } : post.forum
+        _id: post._id ? post._id.toString() : null,
+        author: typeof post.author === 'object' && post.author._id ? { ...post.author, _id: post.author._id.toString() } : post.author,
+        forum: typeof post.forum === 'object' && post.forum._id ? { ...post.forum, _id: post.forum._id.toString() } : post.forum
       }));
       backupData.statistics.forumPosts = forumPosts.length;
     }
@@ -291,8 +356,8 @@ export const exportGranularData = async (req: Request, res: Response) => {
       
       backupData.data.jobOffers = jobOffers.map(offer => ({
         ...offer,
-        _id: offer._id.toString(),
-        company: typeof offer.company === 'object' ? { ...offer.company, _id: offer.company._id.toString() } : offer.company
+        _id: offer._id ? offer._id.toString() : null,
+        company: typeof offer.company === 'object' && offer.company._id ? { ...offer.company, _id: offer.company._id.toString() } : offer.company
       }));
       backupData.statistics.jobOffers = jobOffers.length;
     }
@@ -314,8 +379,8 @@ export const exportGranularData = async (req: Request, res: Response) => {
       
       backupData.data.announcements = announcements.map(announcement => ({
         ...announcement,
-        _id: announcement._id.toString(),
-        author: typeof announcement.author === 'object' ? { ...announcement.author, _id: announcement.author._id.toString() } : announcement.author
+        _id: announcement._id ? announcement._id.toString() : null,
+        author: typeof announcement.author === 'object' && announcement.author._id ? { ...announcement.author, _id: announcement.author._id.toString() } : announcement.author
       }));
       backupData.statistics.announcements = announcements.length;
     }
@@ -337,10 +402,66 @@ export const exportGranularData = async (req: Request, res: Response) => {
       
       backupData.data.advisories = advisories.map(advisory => ({
         ...advisory,
-        _id: advisory._id.toString(),
-        company: typeof advisory.company === 'object' ? { ...advisory.company, _id: advisory.company._id.toString() } : advisory.company
+        _id: advisory._id ? advisory._id.toString() : null,
+        company: typeof advisory.company === 'object' && advisory.company._id ? { ...advisory.company, _id: advisory.company._id.toString() } : advisory.company
       }));
       backupData.statistics.advisories = advisories.length;
+    }
+
+    // Export Blogs
+    if (options.includeBlogs) {
+      try {
+        let query = applyDateFilter({}, options);
+        query = applyAuthorFilter(query, options);
+        
+        if (options.categoryFilter && options.categoryFilter.length > 0) {
+          query.category = { $in: options.categoryFilter };
+        }
+        
+        const blogs = await Blog.find(query)
+          .populate('author', 'firstName lastName email')
+          .populate('category', 'name color')
+          .select('-__v')
+          .limit(options.maxRecords!)
+          .lean();
+        
+        backupData.data.blogs = blogs.map(blog => {
+          const blogData: any = {
+            ...blog,
+            _id: blog._id ? blog._id.toString() : null
+          };
+          
+          // Handle author
+          if (blog.author && typeof blog.author === 'object' && blog.author._id) {
+            blogData.author = {
+              ...blog.author,
+              _id: blog.author._id.toString()
+            };
+          } else {
+            blogData.author = blog.author;
+          }
+          
+          // Handle category
+          if (blog.category && typeof blog.category === 'object' && blog.category._id) {
+            blogData.category = {
+              ...blog.category,
+              _id: blog.category._id.toString()
+            };
+          } else {
+            blogData.category = blog.category;
+          }
+          
+          return blogData;
+        });
+        backupData.statistics.blogs = blogs.length;
+      } catch (blogError) {
+        console.error('Error exporting blogs:', blogError);
+        if (blogError instanceof Error) {
+          console.error('Blog error stack:', blogError.stack);
+        }
+        backupData.data.blogs = [];
+        backupData.statistics.blogs = 0;
+      }
     }
 
     // Export Categories
@@ -351,7 +472,7 @@ export const exportGranularData = async (req: Request, res: Response) => {
       
       backupData.data.categories = categories.map(category => ({
         ...category,
-        _id: category._id.toString()
+        _id: category._id ? category._id.toString() : null
       }));
       backupData.statistics.categories = categories.length;
     }
@@ -364,7 +485,7 @@ export const exportGranularData = async (req: Request, res: Response) => {
       
       backupData.data.groupCategories = groupCategories.map(category => ({
         ...category,
-        _id: category._id.toString()
+        _id: category._id ? category._id.toString() : null
       }));
       backupData.statistics.groupCategories = groupCategories.length;
     }
@@ -377,7 +498,7 @@ export const exportGranularData = async (req: Request, res: Response) => {
       
       backupData.data.forumCategories = forumCategories.map(category => ({
         ...category,
-        _id: category._id.toString()
+        _id: category._id ? category._id.toString() : null
       }));
       backupData.statistics.forumCategories = forumCategories.length;
     }
@@ -388,6 +509,8 @@ export const exportGranularData = async (req: Request, res: Response) => {
 
     return res.json(backupData);
   } catch (error: any) {
+    console.error('Granular backup export error:', error);
+    console.error('Error stack:', error.stack);
     return res.status(500).json({
       success: false,
       message: 'Error al exportar les dades',
@@ -454,6 +577,17 @@ export const getBackupPreview = async (req: Request, res: Response) => {
       advisoryQuery = { ...advisoryQuery, category: { $in: options.categoryFilter } };
     }
     statistics.advisories = await Advisory.countDocuments(advisoryQuery);
+    
+    try {
+      let blogQuery = { ...postQuery };
+      if (options.categoryFilter?.length) {
+        blogQuery = { ...blogQuery, category: { $in: options.categoryFilter } };
+      }
+      statistics.blogs = await Blog.countDocuments(blogQuery);
+    } catch (blogError) {
+      console.error('Error counting blogs:', blogError);
+      statistics.blogs = 0;
+    }
 
     statistics.categories = await Category.countDocuments({ isActive: true });
     statistics.groupCategories = await GroupCategory.countDocuments({ isActive: true });
@@ -505,6 +639,7 @@ export const importGranularData = async (req: Request, res: Response) => {
       importJobOffers = false,
       importAnnouncements = false,
       importAdvisories = false,
+      importBlogs = false,
       importCategories = false,
       importGroupCategories = false,
       importForumCategories = false

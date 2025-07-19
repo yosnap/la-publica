@@ -48,6 +48,9 @@ import JobOfferForm from "./pages/JobOfferForm";
 import JobOfferDetail from "./pages/JobOfferDetail";
 import AdvisoryForm from "./pages/AdvisoryForm";
 import AdvisoryDetail from "./pages/AdvisoryDetail";
+import Blogs from "./pages/Blogs";
+import BlogDetail from "./pages/BlogDetail";
+import CreateBlog from "./pages/CreateBlog";
 
 const queryClient = new QueryClient();
 
@@ -93,6 +96,10 @@ const App = () => (
                   <Route path="forums/:id" element={<ForumDetail />} />
                   <Route path="forums/:forumId/new-post" element={<CreateForumPost />} />
                   <Route path="forums/posts/:id" element={<ForumPostDetail />} />
+                  <Route path="blogs" element={<Blogs />} />
+                  <Route path="blogs/new" element={<CreateBlog />} />
+                  <Route path="blogs/:slug" element={<BlogDetail />} />
+                  <Route path="blogs/:id/edit" element={<CreateBlog />} />
                   <Route path="companies" element={<Companies />} />
                   <Route path="empresa/:slugId" element={<CompanyDetail />} />
                   <Route path="ofertes" element={<Offers />} />
