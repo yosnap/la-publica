@@ -6,8 +6,9 @@ import { PageWrapper } from "@/components/PageWrapper";
 import CompanyProfile from "@/components/CompanyProfile";
 import { getJobOffersByCompany } from "@/api/jobOffers";
 import { getAdvisoriesByCompany } from "@/api/advisories";
-import { getCompanyById } from "@/api/companies";
+import { getCompanyById, getCompanies } from "@/api/companies";
 import { useUserProfile } from "@/hooks/useUser";
+import { useCompanySlugMapping } from "@/hooks/useSlugMapping";
 
 export default function CompanyDetail() {
   const { slugId } = useParams<{ slugId: string }>();
@@ -17,6 +18,7 @@ export default function CompanyDetail() {
   const [advisories, setAdvisories] = useState<any[]>([]);
   const { user: currentUser } = useUserProfile();
   const [loading, setLoading] = useState(true);
+  const { updateCompanyMappings, getCompanyIdBySlug } = useCompanySlugMapping();
 
   useEffect(() => {
     const fetchCompanyData = async () => {
@@ -28,16 +30,23 @@ export default function CompanyDetail() {
       try {
         setLoading(true);
         
-        // Extraer el ID de la URL amigable (format: slug-id)
-        const lastDashIndex = slugId.lastIndexOf('-');
-        if (lastDashIndex === -1) {
+        // Primer, obtenir totes les empreses per actualitzar el mapeig
+        const allCompaniesResponse = await getCompanies();
+        if (!allCompaniesResponse.success) {
           navigate('/companies');
           return;
         }
         
-        const companyId = slugId.substring(lastDashIndex + 1);
+        updateCompanyMappings(allCompaniesResponse.data);
         
-        // Obtener datos de la empresa
+        // Obtenir l'ID de l'empresa utilitzant el slug
+        const companyId = getCompanyIdBySlug(slugId);
+        if (!companyId) {
+          navigate('/companies');
+          return;
+        }
+        
+        // Obtenir dades de l'empresa
         const companyResponse = await getCompanyById(companyId);
         if (!companyResponse.success) {
           navigate('/companies');

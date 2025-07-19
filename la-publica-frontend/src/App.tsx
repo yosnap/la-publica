@@ -40,6 +40,7 @@ import MyAdvisories from "./pages/collaborator/MyAdvisories";
 import Admin from "./pages/Admin";
 import AnnouncementForm from "./pages/AnnouncementForm";
 import CompanyDetail from "./pages/CompanyDetail";
+import AnnouncementDetail from "./pages/AnnouncementDetail";
 
 const queryClient = new QueryClient();
 
@@ -88,6 +89,7 @@ const App = () => (
                   <Route path="empresa/:slugId" element={<CompanyDetail />} />
                   <Route path="offers" element={<Offers />} />
                   <Route path="announcements" element={<Announcements />} />
+                  <Route path="anunci/:slugId" element={<AnnouncementDetail />} />
                   <Route path="announcements/new" element={<AnnouncementForm />} />
                   <Route path="announcements/:id/edit" element={<AnnouncementForm />} />
                   <Route path="consulting" element={<Consulting />} />

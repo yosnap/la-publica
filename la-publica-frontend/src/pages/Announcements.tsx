@@ -13,6 +13,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getImageUrl } from "@/utils/getImageUrl";
 import { toast } from "sonner";
 import { useUserProfile } from "@/hooks/useUser";
+import { useAnnouncementSlugMapping } from "@/hooks/useSlugMapping";
 
 interface Announcement {
   _id: string;
@@ -59,6 +60,7 @@ export default function Announcements() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [viewMode, setViewMode] = useState("list");
+  const { updateAnnouncementMappings, getAnnouncementUrlByTitle } = useAnnouncementSlugMapping();
 
   // Cargar anuncios
   useEffect(() => {
@@ -71,6 +73,7 @@ export default function Announcements() {
       const response = await getAllAnnouncements();
       if (response.success) {
         setAnnouncements(response.data);
+        updateAnnouncementMappings(response.data);
       }
     } catch (error) {
       toast.error('Error al cargar los anuncios');
@@ -108,7 +111,7 @@ export default function Announcements() {
   };
 
   const AnnouncementCard = ({ announcement, isGrid }: { announcement: Announcement, isGrid: boolean }) => (
-    <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(`/announcements/${announcement._id}`)}>
+    <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(getAnnouncementUrlByTitle(announcement.title))}>
       <CardContent className={`p-6 ${isGrid ? 'h-full' : ''}`}>
         <div className={`flex ${isGrid ? 'flex-col' : 'items-start'} gap-6`}>
           <div className="flex items-start gap-4 flex-1">
@@ -189,7 +192,7 @@ export default function Announcements() {
                   className="flex-1" 
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigate(`/announcements/${announcement._id}`);
+                    navigate(getAnnouncementUrlByTitle(announcement.title));
                   }}
                 >
                   Veure Detalls
