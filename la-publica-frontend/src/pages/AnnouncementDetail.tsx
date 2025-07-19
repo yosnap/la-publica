@@ -11,34 +11,30 @@ import { useUserProfile } from "@/hooks/useUser";
 import { getImageUrl } from "@/utils/getImageUrl";
 import { toast } from "sonner";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useAnnouncementSlugMapping } from "@/hooks/useSlugMapping";
 
 interface Announcement {
   _id: string;
   type: 'offer' | 'demand';
   title: string;
   description: string;
-  category?: {
-    _id: string;
-    name: string;
+  category?: string;
+  price: {
+    amount?: number;
+    currency: string;
+    type: 'fixed' | 'hourly' | 'daily' | 'negotiable';
   };
-  price?: number;
-  budget?: {
-    min: number;
-    max: number;
-  };
-  location?: string | {
+  location?: {
     city: string;
     country: string;
     allowRemote?: boolean;
   };
-  active: boolean;
-  featured: boolean;
+  isActive: boolean;
+  isFeatured: boolean;
   views: number;
-  contact?: {
+  contact: {
     email?: string;
     phone?: string;
-    whatsapp?: string;
+    preferredMethod?: 'email' | 'phone' | 'platform';
   };
   author: {
     _id: string;
@@ -56,7 +52,6 @@ export default function AnnouncementDetail() {
   const { user } = useUserProfile();
   const [announcement, setAnnouncement] = useState<Announcement | null>(null);
   const [loading, setLoading] = useState(true);
-  const { updateAnnouncementMappings, getAnnouncementIdBySlug } = useAnnouncementSlugMapping();
 
   useEffect(() => {
     const fetchAnnouncement = async () => {
@@ -68,30 +63,34 @@ export default function AnnouncementDetail() {
       try {
         setLoading(true);
         
-        // Primer, obtenir tots els anuncis per actualitzar el mapeig
+        // Obtenir tots els anuncis i buscar el que coincideixi amb el slug
         const allAnnouncementsResponse = await getAllAnnouncements();
         if (!allAnnouncementsResponse.success) {
           navigate('/announcements');
           return;
         }
         
-        updateAnnouncementMappings(allAnnouncementsResponse.data);
+        // Buscar l'anunci que coincideixi amb el slug
+        const announcement = allAnnouncementsResponse.data.find((ann: any) => {
+          const announcementSlug = ann.title
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .trim()
+            .replace(/^-+|-+$/g, '');
+          return announcementSlug === slugId || `${announcementSlug}-2` === slugId || `${announcementSlug}-3` === slugId;
+        });
         
-        // Obtenir l'ID de l'anunci utilitzant el slug
-        const announcementId = getAnnouncementIdBySlug(slugId);
-        if (!announcementId) {
+        if (!announcement) {
           toast.error('No s\'ha trobat l\'anunci');
           navigate('/announcements');
           return;
         }
         
-        const response = await getAnnouncementById(announcementId);
-        if (response.success) {
-          setAnnouncement(response.data);
-        } else {
-          toast.error('No s\'ha trobat l\'anunci');
-          navigate('/announcements');
-        }
+        setAnnouncement(announcement);
       } catch (error) {
         console.error('Error fetching announcement:', error);
         toast.error('Error al carregar l\'anunci');
@@ -133,6 +132,24 @@ export default function AnnouncementDetail() {
     if (days < 7) return `Fa ${days} dies`;
     if (days < 30) return `Fa ${Math.floor(days / 7)} setmanes`;
     return posted.toLocaleDateString('ca-ES');
+  };
+
+  // Formatear precio
+  const formatPrice = (price: Announcement['price']) => {
+    if (!price.amount || price.type === 'negotiable') {
+      return 'Preu a negociar';
+    }
+    
+    const amount = `€${price.amount}`;
+    switch (price.type) {
+      case 'hourly':
+        return `${amount}/hora`;
+      case 'daily':
+        return `${amount}/dia`;
+      case 'fixed':
+      default:
+        return amount;
+    }
   };
 
   if (loading) {
@@ -233,7 +250,7 @@ export default function AnnouncementDetail() {
               </div>
               
               <div className="flex items-center gap-2">
-                {announcement.featured && (
+                {announcement.isFeatured && (
                   <Badge className="bg-yellow-500 text-white">Destacat</Badge>
                 )}
                 <Badge className={announcement.type === "offer" ? "bg-green-500 text-white" : "bg-blue-500 text-white"}>
@@ -260,12 +277,7 @@ export default function AnnouncementDetail() {
             <div>
               <h3 className="text-lg font-semibold mb-3">Preu</h3>
               <div className="text-2xl font-bold text-primary">
-                {announcement.type === "offer" 
-                  ? announcement.price ? `€${announcement.price}` : 'Preu a consultar'
-                  : announcement.budget 
-                    ? `€${announcement.budget.min} - €${announcement.budget.max}`
-                    : 'Pressupost a definir'
-                }
+                {formatPrice(announcement.price)}
               </div>
             </div>
 
@@ -278,7 +290,7 @@ export default function AnnouncementDetail() {
                     <div className="flex items-center gap-2">
                       <Tag className="h-4 w-4 text-gray-500" />
                       <span className="text-gray-600">Categoria:</span>
-                      <Badge variant="secondary">{announcement.category.name}</Badge>
+                      <Badge variant="secondary">{announcement.category}</Badge>
                     </div>
                   )}
                   <div className="flex items-center gap-2">
@@ -296,10 +308,8 @@ export default function AnnouncementDetail() {
                       <MapPin className="h-4 w-4 text-gray-500" />
                       <span className="text-gray-600">Ubicació:</span>
                       <span>
-                        {typeof announcement.location === 'string' 
-                          ? announcement.location 
-                          : `${announcement.location.city}, ${announcement.location.country}${announcement.location.allowRemote ? ' (Remot disponible)' : ''}`
-                        }
+                        {`${announcement.location.city}, ${announcement.location.country}`}
+                        {announcement.location.allowRemote && ' (Remot disponible)'}
                       </span>
                     </div>
                   )}
@@ -307,7 +317,7 @@ export default function AnnouncementDetail() {
               </div>
 
               {/* Contacte */}
-              {announcement.contact && !isOwner && (
+              {!isOwner && (
                 <div>
                   <h3 className="text-lg font-semibold mb-3">Contacte</h3>
                   <div className="space-y-3">
@@ -327,19 +337,6 @@ export default function AnnouncementDetail() {
                         </a>
                       </div>
                     )}
-                    {announcement.contact.whatsapp && (
-                      <div className="flex items-center gap-2">
-                        <MessageCircle className="h-4 w-4 text-gray-500" />
-                        <a 
-                          href={`https://wa.me/${announcement.contact.whatsapp.replace(/\D/g, '')}`} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="text-primary hover:underline"
-                        >
-                          WhatsApp: {announcement.contact.whatsapp}
-                        </a>
-                      </div>
-                    )}
                   </div>
                 </div>
               )}
@@ -351,13 +348,13 @@ export default function AnnouncementDetail() {
                 <h3 className="text-lg font-semibold mb-3">Interessat?</h3>
                 <div className="flex gap-3">
                   <Button 
-                    onClick={() => window.open(`mailto:${announcement.contact?.email || announcement.author.firstName}`, '_blank')}
+                    onClick={() => window.open(`mailto:${announcement.contact.email || ''}`, '_blank')}
                     className="flex-1"
                   >
                     <Mail className="h-4 w-4 mr-2" />
                     Enviar Correu
                   </Button>
-                  {announcement.contact?.phone && (
+                  {announcement.contact.phone && (
                     <Button 
                       variant="outline"
                       onClick={() => window.open(`tel:${announcement.contact.phone}`, '_blank')}
@@ -365,16 +362,6 @@ export default function AnnouncementDetail() {
                     >
                       <Phone className="h-4 w-4 mr-2" />
                       Trucar
-                    </Button>
-                  )}
-                  {announcement.contact?.whatsapp && (
-                    <Button 
-                      variant="outline"
-                      onClick={() => window.open(`https://wa.me/${announcement.contact.whatsapp.replace(/\D/g, '')}`, '_blank')}
-                      className="flex-1"
-                    >
-                      <MessageCircle className="h-4 w-4 mr-2" />
-                      WhatsApp
                     </Button>
                   )}
                 </div>

@@ -6,9 +6,8 @@ import { PageWrapper } from "@/components/PageWrapper";
 import CompanyProfile from "@/components/CompanyProfile";
 import { getJobOffersByCompany } from "@/api/jobOffers";
 import { getAdvisoriesByCompany } from "@/api/advisories";
-import { getCompanyById, getCompanies } from "@/api/companies";
+import { getCompanies } from "@/api/companies";
 import { useUserProfile } from "@/hooks/useUser";
-import { useCompanySlugMapping } from "@/hooks/useSlugMapping";
 
 export default function CompanyDetail() {
   const { slugId } = useParams<{ slugId: string }>();
@@ -18,7 +17,6 @@ export default function CompanyDetail() {
   const [advisories, setAdvisories] = useState<any[]>([]);
   const { user: currentUser } = useUserProfile();
   const [loading, setLoading] = useState(true);
-  const { updateCompanyMappings, getCompanyIdBySlug } = useCompanySlugMapping();
 
   useEffect(() => {
     const fetchCompanyData = async () => {
@@ -30,35 +28,38 @@ export default function CompanyDetail() {
       try {
         setLoading(true);
         
-        // Primer, obtenir totes les empreses per actualitzar el mapeig
+        // Obtenir totes les empreses i buscar la que coincideixi amb el slug
         const allCompaniesResponse = await getCompanies();
         if (!allCompaniesResponse.success) {
           navigate('/companies');
           return;
         }
         
-        updateCompanyMappings(allCompaniesResponse.data);
+        // Buscar l'empresa que coincideixi amb el slug
+        const company = allCompaniesResponse.data.find((comp: any) => {
+          const companySlug = comp.name
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^a-z0-9\s-]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .trim()
+            .replace(/^-+|-+$/g, '');
+          return companySlug === slugId || `${companySlug}-2` === slugId || `${companySlug}-3` === slugId;
+        });
         
-        // Obtenir l'ID de l'empresa utilitzant el slug
-        const companyId = getCompanyIdBySlug(slugId);
-        if (!companyId) {
-          navigate('/companies');
-          return;
-        }
-        
-        // Obtenir dades de l'empresa
-        const companyResponse = await getCompanyById(companyId);
-        if (!companyResponse.success) {
+        if (!company) {
           navigate('/companies');
           return;
         }
 
-        setSelectedCompany(companyResponse.data);
+        setSelectedCompany(company);
 
         // Obtener ofertas de trabajo y asesorías en paralelo
         const [offersResponse, advisoriesResponse] = await Promise.all([
-          getJobOffersByCompany(companyId),
-          getAdvisoriesByCompany(companyId)
+          getJobOffersByCompany(company._id),
+          getAdvisoriesByCompany(company._id)
         ]);
         
         setJobOffers(offersResponse.data || []);

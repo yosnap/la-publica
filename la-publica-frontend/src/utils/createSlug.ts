@@ -11,6 +11,18 @@ export const createSlug = (text: string): string => {
     .replace(/^-+|-+$/g, ''); // Eliminar guions al principi i final
 };
 
+// Funció simple per crear URL d'empresa
+export const createCompanyUrl = (name: string): string => {
+  const slug = createSlug(name);
+  return `/empresa/${slug}`;
+};
+
+// Funció simple per crear URL d'anunci
+export const createAnnouncementUrl = (title: string): string => {
+  const slug = createSlug(title);
+  return `/anunci/${slug}`;
+};
+
 // Funció per generar slug únic amb numeració si hi ha duplicats
 export const createUniqueSlug = (text: string, existingSlugs: string[]): string => {
   const baseSlug = createSlug(text);

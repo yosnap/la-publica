@@ -10,7 +10,7 @@ import { PageWrapper } from "@/components/PageWrapper";
 import { getCompanies, Company } from "@/api/companies";
 import { useUserProfile } from "@/hooks/useUser";
 import { useNavigate } from "react-router-dom";
-import { useCompanySlugMapping } from "@/hooks/useSlugMapping";
+import { createCompanyUrl } from "@/utils/createSlug";
 
 export default function Companies() {
   const navigate = useNavigate();
@@ -20,7 +20,6 @@ export default function Companies() {
   const { user: currentUser } = useUserProfile();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companiesLoading, setCompaniesLoading] = useState(true);
-  const { updateCompanyMappings, getCompanyUrlByName } = useCompanySlugMapping();
 
   useEffect(() => {
     const fetchCompanies = async () => {
@@ -29,7 +28,6 @@ export default function Companies() {
         const response = await getCompanies();
         if (response.success) {
           setCompanies(response.data);
-          updateCompanyMappings(response.data);
         } else {
           console.error('Error fetching companies:', response.error);
         }
@@ -58,7 +56,7 @@ export default function Companies() {
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between mb-2">
                 <h3 className="text-xl font-semibold text-gray-900 hover:text-primary cursor-pointer" 
-                    onClick={() => navigate(getCompanyUrlByName(company.name))}>
+                    onClick={() => navigate(createCompanyUrl(company.name))}>
                   {company.name}
                 </h3>
                 {company.verified.status === 'verified' && (
@@ -100,7 +98,7 @@ export default function Companies() {
               <Button 
                 size="sm" 
                 className="flex-1"
-                onClick={() => navigate(getCompanyUrlByName(company.name))}
+                onClick={() => navigate(createCompanyUrl(company.name))}
               >
                 Veure Perfil
               </Button>

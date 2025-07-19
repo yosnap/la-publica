@@ -13,34 +13,31 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { getImageUrl } from "@/utils/getImageUrl";
 import { toast } from "sonner";
 import { useUserProfile } from "@/hooks/useUser";
-import { useAnnouncementSlugMapping } from "@/hooks/useSlugMapping";
+import { createAnnouncementUrl } from "@/utils/createSlug";
 
 interface Announcement {
   _id: string;
   type: 'offer' | 'demand';
   title: string;
   description: string;
-  category?: {
-    _id: string;
-    name: string;
+  category?: string;
+  price: {
+    amount?: number;
+    currency: string;
+    type: 'fixed' | 'hourly' | 'daily' | 'negotiable';
   };
-  price?: number;
-  budget?: {
-    min: number;
-    max: number;
-  };
-  location?: string | {
+  location?: {
     city: string;
     country: string;
     allowRemote?: boolean;
   };
-  active: boolean;
-  featured: boolean;
+  isActive: boolean;
+  isFeatured: boolean;
   views: number;
-  contact?: {
+  contact: {
     email?: string;
     phone?: string;
-    whatsapp?: string;
+    preferredMethod?: 'email' | 'phone' | 'platform';
   };
   author: {
     _id: string;
@@ -60,7 +57,6 @@ export default function Announcements() {
   const [searchTerm, setSearchTerm] = useState("");
   const [activeFilter, setActiveFilter] = useState("all");
   const [viewMode, setViewMode] = useState("list");
-  const { updateAnnouncementMappings, getAnnouncementUrlByTitle } = useAnnouncementSlugMapping();
 
   // Cargar anuncios
   useEffect(() => {
@@ -73,7 +69,6 @@ export default function Announcements() {
       const response = await getAllAnnouncements();
       if (response.success) {
         setAnnouncements(response.data);
-        updateAnnouncementMappings(response.data);
       }
     } catch (error) {
       toast.error('Error al cargar los anuncios');
@@ -107,11 +102,29 @@ export default function Announcements() {
     if (days === 1) return "Ahir";
     if (days < 7) return `Fa ${days} dies`;
     if (days < 30) return `Fa ${Math.floor(days / 7)} setmanes`;
-    return posted.toLocaleDateString('es-ES');
+    return posted.toLocaleDateString('ca-ES');
+  };
+
+  // Formatear precio
+  const formatPrice = (price: Announcement['price']) => {
+    if (!price.amount || price.type === 'negotiable') {
+      return 'Preu a negociar';
+    }
+    
+    const amount = `€${price.amount}`;
+    switch (price.type) {
+      case 'hourly':
+        return `${amount}/hora`;
+      case 'daily':
+        return `${amount}/dia`;
+      case 'fixed':
+      default:
+        return amount;
+    }
   };
 
   const AnnouncementCard = ({ announcement, isGrid }: { announcement: Announcement, isGrid: boolean }) => (
-    <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(getAnnouncementUrlByTitle(announcement.title))}>
+    <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(createAnnouncementUrl(announcement.title))}>
       <CardContent className={`p-6 ${isGrid ? 'h-full' : ''}`}>
         <div className={`flex ${isGrid ? 'flex-col' : 'items-start'} gap-6`}>
           <div className="flex items-start gap-4 flex-1">
@@ -127,7 +140,7 @@ export default function Announcements() {
                   {announcement.title}
                 </h3>
                 <div className="flex items-center gap-2 ml-2">
-                  {announcement.featured && (
+                  {announcement.isFeatured && (
                     <Badge className="bg-yellow-500 text-white">Destacat</Badge>
                   )}
                   <Badge className={announcement.type === "offer" ? "bg-green-500 text-white" : "bg-blue-500 text-white"}>
@@ -150,7 +163,7 @@ export default function Announcements() {
                 {announcement.category && (
                   <div className="flex items-center gap-1">
                     <Tag className="h-4 w-4" />
-                    <span>{announcement.category.name}</span>
+                    <span>{announcement.category}</span>
                   </div>
                 )}
                 <div className="flex items-center gap-1">
@@ -165,22 +178,15 @@ export default function Announcements() {
                   <div className="flex items-center gap-1">
                     <MapPin className="h-4 w-4" />
                     <span>
-                      {typeof announcement.location === 'string' 
-                        ? announcement.location 
-                        : `${announcement.location.city}, ${announcement.location.country}`
-                      }
+                      {`${announcement.location.city}, ${announcement.location.country}`}
+                      {announcement.location.allowRemote && ' (Remot)'}
                     </span>
                   </div>
                 )}
               </div>
               
               <div className="text-lg font-bold text-primary">
-                {announcement.type === "offer" 
-                  ? announcement.price ? `€${announcement.price}` : 'Preu a consultar'
-                  : announcement.budget 
-                    ? `€${announcement.budget.min} - €${announcement.budget.max}`
-                    : 'Pressupost a definir'
-                }
+                {formatPrice(announcement.price)}
               </div>
             </div>
           </div>
@@ -192,7 +198,7 @@ export default function Announcements() {
                   className="flex-1" 
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigate(getAnnouncementUrlByTitle(announcement.title));
+                    navigate(createAnnouncementUrl(announcement.title));
                   }}
                 >
                   Veure Detalls

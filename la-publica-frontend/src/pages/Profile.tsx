@@ -99,6 +99,32 @@ const getSocialUrl = (url?: string) => {
   return 'https://' + url;
 };
 
+// Función para obtener el badge del rol
+const getRoleBadge = (role?: string) => {
+  switch (role) {
+    case 'admin':
+      return {
+        text: 'Administrador',
+        className: 'bg-red-500 text-white'
+      };
+    case 'colaborador':
+      return {
+        text: 'Col·laborador',
+        className: 'bg-blue-500 text-white'
+      };
+    case 'user':
+      return {
+        text: 'Usuari',
+        className: 'bg-green-500 text-white'
+      };
+    default:
+      return {
+        text: 'Usuari',
+        className: 'bg-gray-500 text-white'
+      };
+  }
+};
+
 const Profile = () => {
   const navigate = useNavigate();
 
@@ -239,7 +265,14 @@ const Profile = () => {
             </Avatar>
           </div>
           
-          <div className="pt-20 text-center space-y-3">
+          <div className="pt-16 text-center space-y-3">
+            {/* Badge del rol centrado debajo del avatar */}
+            <div className="flex justify-center mb-2">
+              <Badge className={getRoleBadge(user.role).className}>
+                {getRoleBadge(user.role).text}
+              </Badge>
+            </div>
+            
             <div>
               <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{user.firstName} {user.lastName}</h1>
               <p className="text-gray-600 dark:text-gray-400 text-lg">{user.bio}</p>
