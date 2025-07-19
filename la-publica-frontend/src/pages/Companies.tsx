@@ -1,28 +1,36 @@
 
 import { useState, useEffect } from "react";
-import { Building2, MapPin, Users, Calendar, Grid, List, Filter, ArrowLeft, Globe, Star } from "lucide-react";
+import { Building2, MapPin, Users, Calendar, Grid, List, Filter, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { PageWrapper } from "@/components/PageWrapper";
-import CompanyProfile from "@/components/CompanyProfile";
-import { getJobOffersByCompany } from "@/api/jobOffers";
-import { getAdvisoriesByCompany } from "@/api/advisories";
 import { getCompanies, Company } from "@/api/companies";
 import { useUserProfile } from "@/hooks/useUser";
+import { useNavigate } from "react-router-dom";
 
+
+// Funció per crear URL amigable en català
+const createFriendlyUrl = (name: string, id: string) => {
+  const slug = name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Eliminar accents
+    .replace(/[^a-z0-9\s-]/g, '') // Només lletres, números, espais i guions
+    .replace(/\s+/g, '-') // Espais a guions
+    .replace(/-+/g, '-') // Múltiples guions a un sol
+    .trim();
+  return `/empresa/${slug}-${id}`;
+};
 
 export default function Companies() {
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const [viewMode, setViewMode] = useState<"list" | "grid">("list");
-  const [selectedCompany, setSelectedCompany] = useState<any>(null);
-  const [jobOffers, setJobOffers] = useState<any[]>([]);
-  const [advisories, setAdvisories] = useState<any[]>([]);
   // Usar el hook centralizado para los datos del usuario
   const { user: currentUser } = useUserProfile();
-  const [loading, setLoading] = useState(false);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companiesLoading, setCompaniesLoading] = useState(true);
 
@@ -45,86 +53,10 @@ export default function Companies() {
     fetchCompanies();
   }, []);
 
-  useEffect(() => {
-    const fetchCompanyData = async () => {
-      if (!selectedCompany) return;
-      
-      setLoading(true);
-      try {
-        const [offersResponse, advisoriesResponse] = await Promise.all([
-          getJobOffersByCompany(selectedCompany._id),
-          getAdvisoriesByCompany(selectedCompany._id)
-        ]);
-        
-        setJobOffers(offersResponse.data || []);
-        setAdvisories(advisoriesResponse.data || []);
-      } catch (error) {
-        console.error('Error fetching company data:', error);
-        setJobOffers([]);
-        setAdvisories([]);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchCompanyData();
-  }, [selectedCompany]);
-
-  console.log("Companies component rendering", { selectedCompany, viewMode });
-
-  if (selectedCompany) {
-    const isOwner = currentUser && currentUser._id === selectedCompany.owner;
-    
-    // Mapear los datos de la empresa real al formato esperado por CompanyProfile
-    const companyData = {
-      _id: selectedCompany._id,
-      name: selectedCompany.name,
-      description: selectedCompany.description,
-      logo: selectedCompany.logo || '',
-      coverImage: selectedCompany.banner || '',
-      location: `${selectedCompany.location.city}, ${selectedCompany.location.country}`,
-      foundedYear: selectedCompany.stats.founded?.toString() || '',
-      website: selectedCompany.website || '',
-      phone: selectedCompany.phone || '',
-      email: selectedCompany.email,
-      employees: selectedCompany.stats.employees?.toString() || '',
-      industry: selectedCompany.category
-    };
-    
-    return (
-      <PageWrapper>
-        <div className="space-y-6">
-          <Button 
-            variant="outline" 
-            onClick={() => {
-              setSelectedCompany(null);
-              setJobOffers([]);
-              setAdvisories([]);
-            }}
-            className="mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Volver a Empresas
-          </Button>
-          {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-500"></div>
-            </div>
-          ) : (
-            <CompanyProfile 
-              companyData={companyData} 
-              isOwner={isOwner}
-              jobOffers={jobOffers}
-              advisories={advisories}
-            />
-          )}
-        </div>
-      </PageWrapper>
-    );
-  }
 
   const CompanyCard = ({ company, isGrid }: { company: Company, isGrid: boolean }) => (
-    <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => setSelectedCompany(company)}>
+    <Card className="hover:shadow-lg transition-shadow">
       <CardContent className={`p-6 ${isGrid ? 'h-full' : ''}`}>
         <div className={`flex ${isGrid ? 'flex-col' : 'items-start'} gap-6`}>
           <div className="flex items-start gap-4 flex-1">
@@ -136,7 +68,10 @@ export default function Companies() {
             </Avatar>
             <div className="flex-1 min-w-0">
               <div className="flex items-start justify-between mb-2">
-                <h3 className="text-xl font-semibold text-gray-900">{company.name}</h3>
+                <h3 className="text-xl font-semibold text-gray-900 hover:text-primary cursor-pointer" 
+                    onClick={() => navigate(createFriendlyUrl(company.name, company._id))}>
+                  {company.name}
+                </h3>
                 {company.verified.status === 'verified' && (
                   <Badge className="bg-green-500 text-white ml-2">Verificada</Badge>
                 )}
@@ -157,7 +92,7 @@ export default function Companies() {
               </div>
               <div className="flex items-center gap-2">
                 <Users className="h-4 w-4 text-gray-400" />
-                <span className="text-gray-600">{company.stats.employees || 'N/A'} empleados</span>
+                <span className="text-gray-600">{company.stats.employees || 'N/A'} empleats</span>
               </div>
               {company.stats.founded && (
                 <div className="flex items-center gap-2">
@@ -173,7 +108,13 @@ export default function Companies() {
               )}
             </div>
             <div className="flex gap-2">
-              <Button size="sm" className="flex-1">Ver Perfil</Button>
+              <Button 
+                size="sm" 
+                className="flex-1"
+                onClick={() => navigate(createFriendlyUrl(company.name, company._id))}
+              >
+                Veure Perfil
+              </Button>
               <Button size="sm" variant="outline" className="flex-1">Contactar</Button>
             </div>
           </div>
