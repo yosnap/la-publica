@@ -1,4 +1,4 @@
-import { Bell, Search, MessageSquare, Plus, Menu, User, Edit, Settings, HelpCircle, LogOut } from "lucide-react";
+import { Bell, Search, MessageSquare, Plus, Menu, User, Edit, Settings, HelpCircle, LogOut, Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,6 +21,7 @@ export function TopNavigation() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -34,7 +35,25 @@ export function TopNavigation() {
       }
     };
     fetchProfile();
+    
+    // Cargar preferencia de modo oscuro
+    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
+    setIsDarkMode(savedDarkMode);
+    if (savedDarkMode) {
+      document.documentElement.classList.add('dark');
+    }
   }, []);
+
+  const toggleDarkMode = () => {
+    const newDarkMode = !isDarkMode;
+    setIsDarkMode(newDarkMode);
+    localStorage.setItem('darkMode', newDarkMode.toString());
+    if (newDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  };
 
   const handleLogout = () => {
      // Eliminar el token del localStorage
@@ -68,6 +87,19 @@ export function TopNavigation() {
           >
             <Plus className="h-4 w-4 mr-2" />
             <span className="hidden sm:inline">Crear Post</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleDarkMode}
+            className="hover:bg-gray-100 dark:hover:bg-gray-700 rounded-xl"
+          >
+            {isDarkMode ? (
+              <Sun className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+            ) : (
+              <Moon className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+            )}
           </Button>
 
           <div className="flex items-center space-x-2">

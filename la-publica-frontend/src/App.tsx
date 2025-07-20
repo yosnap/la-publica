@@ -88,7 +88,7 @@ const App = () => (
                   <Route path="perfil" element={<Profile />} />
                   <Route path="editar-perfil" element={<CompleteProfile />} />
                   <Route path="usuario/:userSlug" element={<UserProfile />} />
-                  <Route path="miembros" element={<Members />} />
+                  <Route path="membres" element={<Members />} />
                   <Route path="groups" element={<Groups />} />
                   <Route path="groups/:id" element={<GroupDetail />} />
                   <Route path="groups/:id/admin" element={<GroupAdmin />} />

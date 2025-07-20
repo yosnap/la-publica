@@ -24,6 +24,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { LatestUpdatesWidget } from "@/components/LatestUpdatesWidget";
+import { GroupsWidget } from "@/components/GroupsWidget";
+import { MembersWidget } from "@/components/MembersWidget";
 import { useNavigate } from "react-router-dom";
 
 
@@ -827,103 +829,9 @@ export default function Members() {
         {/* Sidebar */}
         <div className="space-y-6">
 
-          {/* Latest Updates Widget */}
           <LatestUpdatesWidget />
-
-          {/* Members Widget */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Miembros</CardTitle>
-              <div className="flex gap-2 text-sm">
-                {['newest', 'active', 'popular'].map((filter) => (
-                  <button
-                    key={filter}
-                    onClick={() => setActiveMemberFilter(filter as any)}
-                    className={`px-2 py-1 rounded uppercase tracking-wide text-xs font-medium ${
-                      activeMemberFilter === filter
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    {filter === 'newest' ? 'Nous' : filter === 'active' ? 'Actius' : 'Populars'}
-                  </button>
-                ))}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {filteredUsers.slice(0, 6).map((user) => (
-                <div key={user._id} className="flex items-center gap-3">
-                  <div className="relative">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={user.profilePicture ? getImageUrl(user.profilePicture) : undefined} />
-                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-sm">
-                        {user.firstName[0]}{user.lastName[0]}
-                      </AvatarFallback>
-                    </Avatar>
-                    {user.isActive && (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p 
-                      className="text-sm font-medium text-gray-900 hover:text-primary cursor-pointer truncate"
-                      onClick={() => handleUserClick(user)}
-                    >
-                      {user.firstName} {user.lastName}
-                    </p>
-                  </div>
-                </div>
-              ))}
-              <Button variant="ghost" className="w-full text-sm">
-                VEURE TOT
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Groups Widget */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg">Grups</CardTitle>
-              <div className="flex gap-2 text-sm">
-                {['newest', 'active', 'popular'].map((filter) => (
-                  <button
-                    key={filter}
-                    onClick={() => setActiveGroupFilter(filter as any)}
-                    className={`px-2 py-1 rounded uppercase tracking-wide text-xs font-medium ${
-                      activeGroupFilter === filter
-                        ? 'bg-blue-100 text-blue-600'
-                        : 'text-gray-500 hover:text-gray-700'
-                    }`}
-                  >
-                    {filter === 'newest' ? 'Nous' : filter === 'active' ? 'Actius' : 'Populars'}
-                  </button>
-                ))}
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {MOCK_GROUPS.map((group) => (
-                <div key={group._id} className="flex items-center gap-3">
-                  <Avatar className="h-10 w-10">
-                    <AvatarImage src={group.avatar} />
-                    <AvatarFallback className="bg-gradient-to-br from-purple-500 to-pink-600 text-white text-sm">
-                      {group.name[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {group.name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {group.memberCount} membres
-                    </p>
-                  </div>
-                </div>
-              ))}
-              <Button variant="ghost" className="w-full text-sm">
-                VEURE TOT
-              </Button>
-            </CardContent>
-          </Card>
+          <MembersWidget />
+          <GroupsWidget />
         </div>
         </div>
       </PageWrapper>

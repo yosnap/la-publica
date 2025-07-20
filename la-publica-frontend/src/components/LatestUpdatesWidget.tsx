@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Activity } from "lucide-react";
 import { getImageUrl } from "@/utils/getImageUrl";
-import { fetchPosts } from "@/api/posts";
+import { fetchUserFeed } from "@/api/posts";
 
 interface Post {
   _id: string;
@@ -33,7 +34,7 @@ export function LatestUpdatesWidget() {
   const loadRecentPosts = async () => {
     try {
       setLoading(true);
-      const response = await fetchPosts({ limit: 5 });
+      const response = await fetchUserFeed(1, 10);
       if (response.success) {
         setPosts(response.data || []);
       }
@@ -66,49 +67,64 @@ export function LatestUpdatesWidget() {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Últimes Actualitzacions</CardTitle>
+    <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
+          <Activity className="h-5 w-5 mr-2 text-blue-500" />
+          Últimes Actualitzacions
+        </CardTitle>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">Últimes 10</p>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="px-0">
         {loading ? (
           <div className="flex justify-center py-4">
             <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
           </div>
         ) : posts.length > 0 ? (
           <>
-            {posts.filter(post => post.author && post.author.firstName).map((post) => (
-              <div key={post._id} className="flex items-start gap-3">
-                <Avatar className="h-8 w-8 flex-shrink-0">
-                  <AvatarImage src={post.author?.profilePicture ? getImageUrl(post.author.profilePicture) : undefined} />
-                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
-                    {post.author?.firstName?.[0] || '?'}{post.author?.lastName?.[0] || '?'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    <span className="font-medium">{post.author?.firstName || 'Usuari'}</span>{' '}
-                    ha publicat una actualització
-                  </p>
-                  <div 
-                    className="text-xs text-gray-600 mt-1 line-clamp-2"
-                    dangerouslySetInnerHTML={{ __html: truncateContent(post.content) }}
-                  />
-                  <p className="text-xs text-gray-500 mt-1">
-                    {formatTimeAgo(post.createdAt)}
-                  </p>
+            <div className="space-y-3">
+              {posts.filter(post => post.author && post.author.firstName).slice(0, 10).map((post) => (
+                <div key={post._id} className="flex items-start gap-3 px-6">
+                  <Avatar className="h-8 w-8 flex-shrink-0">
+                    <AvatarImage src={post.author?.profilePicture ? getImageUrl(post.author.profilePicture) : undefined} />
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-purple-600 text-white text-xs">
+                      {post.author?.firstName?.[0] || '?'}{post.author?.lastName?.[0] || '?'}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
+                      <span className="font-medium">{post.author?.firstName || 'Usuari'}</span>{' '}
+                      ha publicat una actualització
+                    </p>
+                    <div 
+                      className="text-xs text-gray-600 dark:text-gray-400 mt-1 line-clamp-2"
+                      dangerouslySetInnerHTML={{ __html: truncateContent(post.content) }}
+                    />
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {formatTimeAgo(post.createdAt)}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
             
-            <Button variant="ghost" className="w-full text-sm mt-4">
-              VEURE TOT
-            </Button>
+            <div className="border-t mt-4 pt-4 px-6">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="w-full text-sm font-medium text-gray-700 dark:text-gray-300"
+              >
+                VEURE TOT
+              </Button>
+            </div>
           </>
         ) : (
-          <p className="text-sm text-gray-500 text-center py-4">
-            No hi ha actualitzacions recents
-          </p>
+          <div className="text-center py-6 px-6">
+            <Activity className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              No hi ha actualitzacions recents
+            </p>
+          </div>
         )}
       </CardContent>
     </Card>

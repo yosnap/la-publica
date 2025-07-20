@@ -1,5 +1,35 @@
 # Changelog
 
+## [1.0.5] - 2025-07-20
+
+### 🎨 Millores de UI/UX
+- **Corregit overflow de tabs en widgets**: Solucionat el problema de desbordament dels tabs en tots els widgets del dashboard
+- **Uniformitzades fonts dels tabs**: Tots els widgets ara tenen mides de font consistents segons el nombre de tabs
+- **Optimitzat spacing dels contenidors**: Ajustats els margens i padding per a una visualització perfecta
+
+### 🔄 Canvis de Ubicació
+- **Widget de perfil traduït**: Migrat el widget "Completa el teu Perfil" del Dashboard a la pàgina de perfil amb traducció completa al català
+- **Botó de tema al header**: Mogut el toggle claro/oscuro del menú lateral al header principal després del botó "Crear Post"
+
+### 📱 Millores de Navegació
+- **Header més funcional**: El botó de canvi de tema ara és més accessible al header principal
+- **Menú lateral simplificat**: Eliminat elements duplicats del sidebar per a una navegació més neta
+
+### 🐛 Correccions
+- **Eliminat padding innecessari**: Corregits problemes d'espaiat en contenidors de widgets
+- **Netejats imports no utilitzats**: Eliminades dependències obsoletes dels components
+- **Consistency de widgets**: Tots els widgets ara segueixen el mateix patró de disseny
+
+### 🌍 Internacionalització
+- **Traducció completa al català**: Tots els nous elements segueixen la localització catalana establerta
+- **Coherència lingüística**: Mantinguda la consistència de terminologia en tota l'aplicació
+
+### 🔧 Canvis Tècnics
+- **ProfileCompletionWidget**: Actualitzat amb la lògica del Dashboard per consistència
+- **TopNavigation**: Integrat sistema de canvi de tema amb persistència en localStorage
+- **AppSidebar**: Netejat i simplificat eliminant funcionalitats duplicades
+- **Widgets responsives**: Tots els widgets segueixen ara el mateix patró de disseny responsiu
+
 ## [1.0.4] - 2025-07-20
 
 ### 🔧 Sistema d'Importació de Dades i Millores del Sistema

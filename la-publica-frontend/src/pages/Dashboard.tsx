@@ -1,4 +1,4 @@
-import { Heart, MessageSquare, Share, MoreHorizontal, Camera, Users, Calendar, User, BookOpen, CheckCircle, Circle, Activity, Clock, Play, Building, UserPlus, Settings, XCircle, Edit, Trash, BellOff, Pin, Download, Flag, Bell } from "lucide-react";
+import { Heart, MessageSquare, Share, MoreHorizontal, Camera, Calendar, User, CheckCircle, Circle, Activity, Clock, Play, Building, UserPlus, Settings, XCircle, Edit, Trash, BellOff, Pin, Download, Flag, Bell, Briefcase, Award } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -12,6 +12,12 @@ import { useEffect, useState } from "react";
 import { getImageUrl } from '@/utils/getImageUrl';
 import { fetchUserFeed, createPost, updatePost, toggleLikePost, commentOnPost, togglePostComments, togglePostPin } from "@/api/posts";
 import { useUserProfile } from "@/hooks/useUser";
+import { getCompanies } from "@/api/companies";
+import { fetchAllUsers } from "@/api/users";
+import { getJobOffers } from "@/api/jobOffers";
+import { getAdvisories } from "@/api/advisories";
+import { useNavigate } from "react-router-dom";
+import apiClient from "@/api/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Paperclip, Image as ImageIcon, Smile, BarChart2, Globe, Lock, Users as UsersIcon } from "lucide-react";
 import {
@@ -31,6 +37,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import { GroupsWidget } from "@/components/GroupsWidget";
+import { AnnouncementsWidget } from "@/components/AnnouncementsWidget";
+import { ForumsWidget } from "@/components/ForumsWidget";
+import { BlogsWidget } from "@/components/BlogsWidget";
+import { FollowingUsersWidget } from "@/components/FollowingUsersWidget";
 
  // Post type for dashboard feed
 export interface Post {
@@ -95,6 +106,15 @@ const Dashboard = () => {
   const [hasMorePosts, setHasMorePosts] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   
+  // Estados para datos reales
+  const [companies, setCompanies] = useState([]);
+  const [collaborators, setCollaborators] = useState([]);
+  const [jobOffers, setJobOffers] = useState([]);
+  const [advisories, setAdvisories] = useState([]);
+  const [loadingWidgets, setLoadingWidgets] = useState(true);
+  
+  const navigate = useNavigate();
+  
    // Estados para herramientas de posts
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -105,7 +125,42 @@ const Dashboard = () => {
   const [selectedMood, setSelectedMood] = useState<{emoji: string, label: string} | null>(null);
   const [showMoodPicker, setShowMoodPicker] = useState(false);
 
-   // Calcular progreso de perfil (removido, se usa la lógica de profileSteps más abajo)
+   // Lógica de progreso de perfil
+  const profileSteps = [
+    {
+      label: "Informació general",
+      complete: [user?.firstName, user?.lastName, user?.email, user?.bio, user?.gender, user?.birthDate].filter(Boolean).length >= 5,
+      total: 6,
+      done: [user?.firstName, user?.lastName, user?.email, user?.bio, user?.gender, user?.birthDate].filter(Boolean).length,
+    },
+    {
+      label: "Experiència laboral",
+      complete: Boolean(user?.workExperience && user?.workExperience.length > 0),
+      total: 3,
+      done: user?.workExperience ? Math.min(user?.workExperience.length, 3) : 0,
+    },
+    {
+      label: "Foto de perfil",
+      complete: Boolean(user?.profilePicture),
+      total: 1,
+      done: user?.profilePicture ? 1 : 0,
+    },
+    {
+      label: "Foto de portada",
+      complete: Boolean(user?.coverPhoto),
+      total: 1,
+      done: user?.coverPhoto ? 1 : 0,
+    },
+    {
+      label: "Xarxes socials",
+      complete: Boolean(user?.socialLinks && (user?.socialLinks.facebook || user?.socialLinks.twitter || user?.socialLinks.youtube)),
+      total: 1,
+      done: user?.socialLinks && (user?.socialLinks.facebook || user?.socialLinks.twitter || user?.socialLinks.youtube) ? 1 : 0,
+    },
+  ];
+  const stepsCompleted = profileSteps.filter(s => s.complete).length;
+  const stepsTotal = profileSteps.length;
+  const percent = Math.round((stepsCompleted / stepsTotal) * 100);
   
    // Debug removido - ya no es necesario
 
@@ -141,101 +196,34 @@ const Dashboard = () => {
     }
   ];
 
-  const blogPosts = [
-    { 
-      title: "Tackle Your closet Spring cleaning", 
-      date: "May 14, 2019", 
-      image: "https://images.unsplash.com/photo-1558618047-3c8c76ca7d13?w=100&h=100&fit=crop",
-      category: "lifestyle"
-    },
-    { 
-      title: "The Truth About Business Blogging", 
-      date: "May 14, 2019", 
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
-      category: "business"
-    },
-    { 
-      title: "10 Tips to stay healthy when...", 
-      date: "May 14, 2019", 
-      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=100&h=100&fit=crop",
-      category: "health"
-    },
-    { 
-      title: "Visiting Amsterdam on a Budget", 
-      date: "May 8, 2019", 
-      image: "https://images.unsplash.com/photo-1534351590666-13e3e96b5017?w=100&h=100&fit=crop",
-      category: "travel"
-    },
-    { 
-      title: "OMA completes renovation of Sotheby's New...", 
-      date: "May 8, 2019", 
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=100&h=100&fit=crop",
-      category: "architecture"
+  // Funciones para cargar datos reales
+  const loadWidgetData = async () => {
+    try {
+      setLoadingWidgets(true);
+      
+      // Cargar datos en paralelo
+      const [companiesRes, usersRes, jobOffersRes, advisoriesRes] = await Promise.all([
+        getCompanies({ limit: 4, verified: true }).catch(() => ({ data: [] })),
+        fetchAllUsers({ sortBy: 'active', limit: 4 }).catch(() => ({ data: [] })),
+        getJobOffers({ limit: 4 }).catch(() => ({ data: [] })),
+        getAdvisories({ limit: 4 }).catch(() => ({ data: [] }))
+      ]);
+      
+      // Asegurar que los datos son arrays válidos
+      setCompanies(Array.isArray(companiesRes.data) ? companiesRes.data.slice(0, 4) : []);
+      setCollaborators(Array.isArray(usersRes.data) ? usersRes.data.filter((u: any) => u.role === 'colaborador').slice(0, 4) : []);
+      setJobOffers(Array.isArray(jobOffersRes.data) ? jobOffersRes.data.slice(0, 4) : []);
+      setAdvisories(Array.isArray(advisoriesRes.data) ? advisoriesRes.data.slice(0, 4) : []);
+      
+    } catch (error) {
+      console.error('Error loading widget data:', error);
+    } finally {
+      setLoadingWidgets(false);
     }
-  ];
+  };
 
-  const myGroups = [
-    { 
-      name: "Desarrolladores React", 
-      members: 234, 
-      image: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=60&h=60&fit=crop",
-      isPrivate: false 
-    },
-    { 
-      name: "Marketing Digital", 
-      members: 156, 
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=60&h=60&fit=crop",
-      isPrivate: true 
-    },
-    { 
-      name: "Emprendedores Tech", 
-      members: 89, 
-      image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=60&h=60&fit=crop",
-      isPrivate: false 
-    }
-  ];
 
-  const companies = [
-    { 
-      name: "Google Inc.", 
-      employees: "100k+", 
-      logo: "https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=60&h=60&fit=crop",
-      industry: "Technology" 
-    },
-    { 
-      name: "Microsoft Corp.", 
-      employees: "200k+", 
-      logo: "https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=60&h=60&fit=crop",
-      industry: "Software" 
-    },
-    { 
-      name: "Tesla Inc.", 
-      employees: "50k+", 
-      logo: "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=60&h=60&fit=crop",
-      industry: "Automotive" 
-    }
-  ];
 
-  const collaborators = [
-    { 
-      name: "Alice Johnson", 
-      role: "Frontend Developer", 
-      avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=60&h=60&fit=crop&crop=face",
-      status: "online" 
-    },
-    { 
-      name: "Bob Smith", 
-      role: "UX Designer", 
-      avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=60&h=60&fit=crop&crop=face",
-      status: "offline" 
-    },
-    { 
-      name: "Carol Davis", 
-      role: "Product Manager", 
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop&crop=face",
-      status: "online" 
-    }
-  ];
 
   const followingUsers = [
     { name: "Alice", avatar: "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=40&h=40&fit=crop&crop=face" },
@@ -294,45 +282,10 @@ const Dashboard = () => {
     }
   ];
 
-   // Steps for profile completion (con subcampos)
-  const profileSteps = [
-    {
-      label: "Información general",
-      complete: [user?.firstName, user?.lastName, user?.email, user?.bio, user?.gender, user?.birthDate].filter(Boolean).length >= 5,  // Completo con al menos 5 de 6 campos
-      total: 6,
-      done: [user?.firstName, user?.lastName, user?.email, user?.bio, user?.gender, user?.birthDate].filter(Boolean).length,
-    },
-    {
-      label: "Experiencia laboral",
-      complete: Boolean(user?.workExperience && user?.workExperience.length > 0),
-      total: 3,
-      done: user?.workExperience ? Math.min(user?.workExperience.length, 3) : 0,
-    },
-    {
-      label: "Foto de perfil",
-      complete: Boolean(user?.profilePicture),
-      total: 1,
-      done: user?.profilePicture ? 1 : 0,
-    },
-    {
-      label: "Foto de portada",
-      complete: Boolean(user?.coverPhoto),
-      total: 1,
-      done: user?.coverPhoto ? 1 : 0,
-    },
-    {
-      label: "Redes sociales",
-      complete: Boolean(user?.socialLinks && (user?.socialLinks.facebook || user?.socialLinks.twitter || user?.socialLinks.youtube)),
-      total: 1,
-      done: user?.socialLinks && (user?.socialLinks.facebook || user?.socialLinks.twitter || user?.socialLinks.youtube) ? 1 : 0,
-    },
-  ];
-  const stepsCompleted = profileSteps.filter(s => s.complete).length;
-  const stepsTotal = profileSteps.length;
-  const percent = Math.round((stepsCompleted / stepsTotal) * 100);
 
    // Fetch posts on mount
   useEffect(() => {
+    // Cargar posts y datos de widgets
     setLoadingPosts(true);
     fetchUserFeed(1, 20) // Cargar 20 posts inicialmente
       .then((res) => {
@@ -340,6 +293,9 @@ const Dashboard = () => {
         setHasMorePosts((res.data || []).length === 20);
       })
       .finally(() => setLoadingPosts(false));
+    
+    // Cargar datos de widgets
+    loadWidgetData();
   }, []);
 
    // Handle post creation
@@ -723,63 +679,11 @@ const Dashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           { /* Columna Izquierda - Widgets */}
           <div className="lg:col-span-3 space-y-6">
-            { /* Mis Grupos Widget */}
-            <Card className="bg-white dark:bg-gray-800/50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 dark:text-gray-100 flex items-center justify-between">
-                  <div className="flex items-center">
-                    <Users className="h-5 w-5 mr-2 text-blue-500" />
-                    Mis Grupos
-                  </div>
-                  <Button variant="ghost" size="sm" className="text-xs text-gray-500 dark:text-gray-400 dark:text-gray-400 hover:text-blue-600">
-                    Ver todos
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {myGroups.map((group, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
-                    <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
-                      <img src={group.image} alt={group.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{group.name}</p>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{group.members} miembros</span>
-                        {group.isPrivate && (
-                          <Badge variant="secondary" className="text-xs">Privado</Badge>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
-            { /* Blog Widget */}
-            <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center">
-                  <BookOpen className="h-5 w-5 mr-2 text-orange-500" />
-                  Blog
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {blogPosts.slice(0, 4).map((post, index) => (
-                  <div key={index} className="flex items-start space-x-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 p-2 rounded-lg">
-                    <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-                      <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2 leading-tight">{post.title}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">{post.date}</p>
-                    </div>
-                  </div>
-                ))}
-                <Button variant="ghost" size="sm" className="w-full text-gray-600 dark:text-gray-400 mt-4 hover:bg-gray-100 dark:hover:bg-gray-800">
-                  VER TODOS
-                </Button>
-              </CardContent>
-            </Card>
+            <FollowingUsersWidget />
+            <GroupsWidget />
+            <AnnouncementsWidget />
+            <ForumsWidget />
+            <BlogsWidget />
           </div>
 
           { /* Columna Central - Activity Feed */}
@@ -1345,10 +1249,10 @@ const Dashboard = () => {
 
           { /* Columna Derecha - Widgets */}
           <div className="lg:col-span-3 space-y-6">
-            { /* Widget Completa tu Perfil */}
+            { /* Widget Completa el teu Perfil */}
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-lg">Completa tu Perfil</CardTitle>
+                <CardTitle className="text-lg">Completa el teu Perfil</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Progress circle */}
@@ -1376,9 +1280,8 @@ const Dashboard = () => {
                       </span>
                     </div>
                   </div>
-                  <p className="text-sm text-gray-600">Completado</p>
+                  <p className="text-sm text-gray-600">Completat</p>
                 </div>
-
                 {/* Progress items */}
                 <div className="space-y-3">
                   {profileSteps.map((step, idx) => (
@@ -1399,7 +1302,6 @@ const Dashboard = () => {
                     </div>
                   ))}
                 </div>
-
                 <Button variant="outline" className="w-full" onClick={() => navigate('/editar-perfil')}>
                   Completar Perfil
                 </Button>
@@ -1411,32 +1313,80 @@ const Dashboard = () => {
                 <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center justify-between">
                   <div className="flex items-center">
                     <Building className="h-5 w-5 mr-2 text-purple-500" />
-                    Empresas
+                    Empreses
                   </div>
-                  <Button variant="ghost" size="sm" className="text-xs text-gray-500 dark:text-gray-400 hover:text-purple-600">
-                    Ver todas
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-purple-600"
+                    onClick={() => navigate('/companies')}
+                  >
+                    Ver totes
                   </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {companies.map((company, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
-                    <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700/50">
-                      <img src={company.logo} alt={company.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{company.name}</p>
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{company.employees} empleados</span>
-                        <span className="text-xs text-gray-400">•</span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">{company.industry}</span>
+                {loadingWidgets ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-center space-x-3 p-2">
+                      <div className="w-10 h-10 rounded-lg bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                      <div className="flex-1">
+                        <div className="h-4 w-32 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1"></div>
+                        <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
                       </div>
                     </div>
+                  ))
+                ) : companies.length > 0 ? (
+                  companies.map((company) => (
+                    <div 
+                      key={company._id} 
+                      className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                      onClick={() => navigate(`/empresa/${company._id}`)}
+                    >
+                      <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700/50">
+                        {company.logo ? (
+                          <img src={getImageUrl(company.logo)} alt={company.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <Building className="h-5 w-5 text-purple-500" />
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{company.name}</p>
+                          {company.verified?.status === 'verified' && (
+                            <Award className="h-3 w-3 text-blue-500" />
+                          )}
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          {company.stats?.employees && (
+                            <span className="text-xs text-gray-500 dark:text-gray-400">{company.stats.employees} empleats</span>
+                          )}
+                          {company.location?.city && (
+                            <>
+                              <span className="text-xs text-gray-400">•</span>
+                              <span className="text-xs text-gray-500 dark:text-gray-400">{company.location.city}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <Building className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No hi ha empreses</p>
                   </div>
-                ))}
-                <Button variant="outline" size="sm" className="w-full mt-3 border-purple-200 dark:border-gray-600 text-purple-600 dark:text-purple-400 hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                )}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full mt-3 border-purple-200 dark:border-gray-600 text-purple-600 dark:text-purple-400 hover:bg-gray-50 dark:hover:bg-gray-700/30"
+                  onClick={() => navigate('/companies')}
+                >
                   <Building className="h-4 w-4 mr-2" />
-                  Explorar Empresas
+                  Explorar Empreses
                 </Button>
               </CardContent>
             </Card>
@@ -1446,35 +1396,235 @@ const Dashboard = () => {
                 <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center justify-between">
                   <div className="flex items-center">
                     <UserPlus className="h-5 w-5 mr-2 text-green-500" />
-                    Colaboradores
+                    Col·laboradors
                   </div>
-                  <Button variant="ghost" size="sm" className="text-xs text-gray-500 dark:text-gray-400 hover:text-green-600">
-                    Ver todos
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-green-600"
+                    onClick={() => navigate('/membres')}
+                  >
+                    Ver tots
                   </Button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                {collaborators.map((collaborator, index) => (
-                  <div key={index} className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer">
-                    <div className="relative">
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={collaborator.avatar} />
-                        <AvatarFallback>{collaborator.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
-                        collaborator.status === 'online' ? 'bg-green-500' : 'bg-gray-400'
-                      }`}></div>
+                {loadingWidgets ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="flex items-center space-x-3 p-2">
+                      <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
+                      <div className="flex-1">
+                        <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1"></div>
+                        <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{collaborator.name}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{collaborator.role}</p>
+                  ))
+                ) : collaborators.length > 0 ? (
+                  collaborators.map((collaborator) => (
+                    <div 
+                      key={collaborator._id} 
+                      className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                      onClick={() => navigate(`/usuario/${collaborator.slug || collaborator._id}`)}
+                    >
+                      <div className="relative">
+                        <Avatar className="h-10 w-10">
+                          <AvatarImage src={getImageUrl(collaborator.profilePicture)} />
+                          <AvatarFallback>{collaborator.firstName?.charAt(0)}{collaborator.lastName?.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
+                          collaborator.isActive ? 'bg-green-500' : 'bg-gray-400'
+                        }`}></div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center space-x-2">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                            {collaborator.firstName} {collaborator.lastName}
+                          </p>
+                          <Badge variant="secondary" className="text-xs">Col·laborador</Badge>
+                        </div>
+                        {collaborator.workExperience?.[0]?.position && (
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            {collaborator.workExperience[0].position}
+                          </p>
+                        )}
+                      </div>
                     </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <UserPlus className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No hi ha col·laboradors</p>
                   </div>
-                ))}
-                <Button variant="outline" size="sm" className="w-full mt-3 border-green-200 dark:border-gray-600 text-green-600 dark:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700/30">
+                )}
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full mt-3 border-green-200 dark:border-gray-600 text-green-600 dark:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700/30"
+                  onClick={() => navigate('/membres')}
+                >
                   <UserPlus className="h-4 w-4 mr-2" />
-                  Invitar Colaboradores
+                  Trobar Col·laboradors
                 </Button>
+              </CardContent>
+            </Card>
+            
+            { /* Ofertas de Trabajo Widget */}
+            <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Briefcase className="h-5 w-5 mr-2 text-blue-500" />
+                    Ofertes de Treball
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600"
+                    onClick={() => navigate('/ofertes')}
+                  >
+                    Ver totes
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {loadingWidgets ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="p-2">
+                      <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1"></div>
+                      <div className="h-3 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                    </div>
+                  ))
+                ) : jobOffers.length > 0 ? (
+                  jobOffers.map((offer) => (
+                    <div 
+                      key={offer._id} 
+                      className="p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                      onClick={() => navigate(`/ofertes/${offer._id}`)}
+                    >
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2">
+                        {offer.title}
+                      </p>
+                      <div className="flex items-center space-x-2 mt-1">
+                        {offer.company?.name && (
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {offer.company.name}
+                          </span>
+                        )}
+                        {offer.location && (
+                          <>
+                            <span className="text-xs text-gray-400">•</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {typeof offer.location === 'string' ? offer.location : offer.location.city}
+                            </span>
+                          </>
+                        )}
+                      </div>
+                      {offer.salary && (
+                        <div className="mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            {offer.salary.min && offer.salary.max 
+                              ? `${offer.salary.min}-${offer.salary.max}€`
+                              : typeof offer.salary === 'object' && offer.salary.amount 
+                                ? `${offer.salary.amount}€`
+                                : 'Salari a convenir'
+                            }
+                          </Badge>
+                        </div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <Briefcase className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No hi ha ofertes disponibles</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+            
+            { /* Asesorías Widget */}
+            <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Activity className="h-5 w-5 mr-2 text-indigo-500" />
+                    Assessoraments
+                  </div>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-indigo-600"
+                    onClick={() => navigate('/assessorament')}
+                  >
+                    Ver tots
+                  </Button>
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {loadingWidgets ? (
+                  Array.from({ length: 3 }).map((_, i) => (
+                    <div key={i} className="p-2">
+                      <div className="h-4 w-full bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1"></div>
+                      <div className="h-3 w-20 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
+                    </div>
+                  ))
+                ) : advisories.length > 0 ? (
+                  advisories.map((advisory) => (
+                    <div 
+                      key={advisory._id} 
+                      className="p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
+                      onClick={() => navigate(`/assessorament/${advisory._id}`)}
+                    >
+                      <p className="text-sm font-medium text-gray-900 dark:text-gray-100 line-clamp-2">
+                        {advisory.title}
+                      </p>
+                      <div className="flex items-center space-x-2 mt-1">
+                        {advisory.company?.name && (
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {advisory.company.name}
+                          </span>
+                        )}
+                        {advisory.duration && (
+                          <>
+                            <span className="text-xs text-gray-400">•</span>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">
+                              {advisory.duration} min
+                            </span>
+                          </>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-2 mt-1">
+                        {advisory.format && (
+                          <Badge variant="secondary" className="text-xs">
+                            {advisory.format === 'video' ? 'Vídeo' : 
+                             advisory.format === 'phone' ? 'Telèfon' : 
+                             advisory.format === 'presential' ? 'Presencial' : 
+                             advisory.format === 'email' ? 'Email' : 'Xat'}
+                          </Badge>
+                        )}
+                        {advisory.pricing?.type === 'free' ? (
+                          <Badge variant="outline" className="text-xs text-green-600">
+                            Gratuït
+                          </Badge>
+                        ) : (advisory.pricing?.hourlyRate || advisory.pricing?.sessionRate) && (
+                          <Badge variant="outline" className="text-xs">
+                            {advisory.pricing?.hourlyRate 
+                              ? `${advisory.pricing.hourlyRate}€/h`
+                              : advisory.pricing?.sessionRate
+                                ? `${advisory.pricing.sessionRate}€/sessió`
+                                : 'Preu a convenir'
+                            }
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-4">
+                    <Activity className="h-8 w-8 text-gray-400 mx-auto mb-2" />
+                    <p className="text-sm text-gray-500 dark:text-gray-400">No hi ha assessoraments disponibles</p>
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>

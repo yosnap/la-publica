@@ -20,6 +20,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ProfileCompletionWidget } from "@/components/ProfileCompletionWidget";
 import { LatestUpdatesWidget } from "@/components/LatestUpdatesWidget";
+import { GroupsWidget } from "@/components/GroupsWidget";
+import { AnnouncementsWidget } from "@/components/AnnouncementsWidget";
+import { ForumsWidget } from "@/components/ForumsWidget";
+import { BlogsWidget } from "@/components/BlogsWidget";
 
 // Tipos
 interface PostType {
@@ -741,6 +745,10 @@ const Profile = () => {
         <div className="space-y-6">
           <ProfileCompletionWidget />
           <LatestUpdatesWidget />
+          <GroupsWidget />
+          <AnnouncementsWidget />
+          <ForumsWidget />
+          <BlogsWidget />
         </div>
       </div>
     </div>

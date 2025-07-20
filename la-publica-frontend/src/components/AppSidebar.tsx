@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag, PanelLeftClose, PanelLeft, Moon, Sun, Database, Layers, HardDrive, BookOpen } from "lucide-react";
+import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag, PanelLeftClose, PanelLeft, Database, Layers, HardDrive, BookOpen } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -32,8 +31,8 @@ const menuItems = [
     icon: User,
   },
   {
-    title: "Miembros",
-    url: "/miembros",
+    title: "Membres",
+    url: "/membres",
     icon: Users,
   },
   {
@@ -166,29 +165,9 @@ export function AppSidebar() {
   const location = useLocation();
   // Usar el hook centralizado para los datos del usuario
   const { user } = useUserProfile();
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const { state } = useSidebar();
 
-  useEffect(() => {
-     // Cargar preferencia de modo oscuro
-    const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-    setIsDarkMode(savedDarkMode);
-    if (savedDarkMode) {
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
 
-  const toggleDarkMode = () => {
-    const newDarkMode = !isDarkMode;
-    setIsDarkMode(newDarkMode);
-    localStorage.setItem('darkMode', newDarkMode.toString());
-    
-    if (newDarkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
 
   const isAdmin = user?.role === 'admin';
 
@@ -218,11 +197,11 @@ export function AppSidebar() {
             <SidebarMenu>
               {menuItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
+                  <SidebarMenuButton
+                    asChild
                     className={`${
-                      location.pathname === item.url 
-                        ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90' 
+                      location.pathname === item.url
+                        ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90'
                         : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                     } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-14 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto`}
                     tooltip={item.title}
@@ -246,11 +225,11 @@ export function AppSidebar() {
             <SidebarMenu>
               {businessItems.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton 
-                    asChild 
+                  <SidebarMenuButton
+                    asChild
                     className={`${
-                      location.pathname === item.url 
-                        ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90' 
+                      location.pathname === item.url
+                        ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90'
                         : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                     } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-14 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto`}
                     tooltip={item.title}
@@ -274,7 +253,7 @@ export function AppSidebar() {
             <SidebarMenu>
               {quickActions.map((action) => (
                 <SidebarMenuItem key={action.title}>
-                  <SidebarMenuButton 
+                  <SidebarMenuButton
                     className="hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-14 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto"
                     tooltip={action.title}
                   >
@@ -299,11 +278,11 @@ export function AppSidebar() {
               <SidebarMenu>
                 {collaboratorItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton 
-                      asChild 
+                    <SidebarMenuButton
+                      asChild
                       className={`${
-                        location.pathname === item.url 
-                          ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90' 
+                        location.pathname === item.url
+                          ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90'
                           : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                       } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-14 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto`}
                       tooltip={item.title}
@@ -333,11 +312,11 @@ export function AppSidebar() {
               <SidebarMenu>
                 {adminItems.map((item) => (
                   <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton 
-                      asChild 
+                    <SidebarMenuButton
+                      asChild
                       className={`${
-                        location.pathname === item.url 
-                          ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90' 
+                        location.pathname === item.url
+                          ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90'
                           : 'hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300'
                       } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-12 group-data-[collapsible=icon]:justify-center`}
                       tooltip={item.title}
@@ -361,11 +340,11 @@ export function AppSidebar() {
           <SidebarGroupContent>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton 
-                  asChild 
+                <SidebarMenuButton
+                  asChild
                   className={`${
-                    location.pathname === "/settings" 
-                      ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90' 
+                    location.pathname === "/settings"
+                      ? 'bg-[#4F8FF7] text-white hover:bg-[#4F8FF7]/90'
                       : 'hover:bg-gray-100 text-gray-700'
                   } rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-14 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto`}
                   tooltip="Configuració"
@@ -374,24 +353,6 @@ export function AppSidebar() {
                     <Settings className="h-5 w-5 flex-shrink-0" />
                     <span className="font-medium group-data-[collapsible=icon]:hidden">Configuració</span>
                   </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  onClick={toggleDarkMode}
-                  className="hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 rounded-xl mb-1 h-12 group-data-[collapsible=icon]:w-14 group-data-[collapsible=icon]:h-14 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:mx-auto"
-                  tooltip={isDarkMode ? "Mode Clar" : "Mode Fosc"}
-                >
-                  <div className="flex items-center space-x-3 px-3 py-2 group-data-[collapsible=icon]:px-0 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:space-x-0">
-                    {isDarkMode ? (
-                      <Sun className="h-5 w-5 flex-shrink-0" />
-                    ) : (
-                      <Moon className="h-5 w-5 flex-shrink-0" />
-                    )}
-                    <span className="font-medium group-data-[collapsible=icon]:hidden">
-                      {isDarkMode ? "Mode Clar" : "Mode Fosc"}
-                    </span>
-                  </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             </SidebarMenu>
