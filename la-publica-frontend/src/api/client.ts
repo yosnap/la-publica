@@ -54,4 +54,39 @@ apiClient.interceptors.request.use(
   }
 );
 
+/**
+ * Interceptor para manejar respuestas, especialmente errores de token expirado
+ */
+apiClient.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    // Manejar token expirado
+    if (error.response?.status === 401) {
+      const message = error.response?.data?.message || error.response?.data?.error || '';
+      
+      // Detectar mensaje de token expirado
+      if (message.toLowerCase().includes('token expir') || 
+          message.toLowerCase().includes('token caducat') ||
+          error.response?.data?.error === 'Token expirado') {
+        
+        // Limpiar datos de autenticación
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userId');
+        
+        // Mostrar mensaje amigable en catalán
+        const userMessage = 'La teva sessió ha expirat. Si us plau, inicia sessió de nou.';
+        
+        // Redirigir al login solo si no estamos ya en la página de login
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = `/login?message=${encodeURIComponent(userMessage)}`;
+        }
+      }
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
 export default apiClient; 

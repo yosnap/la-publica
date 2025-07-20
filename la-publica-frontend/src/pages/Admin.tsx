@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -109,7 +110,8 @@ interface Log {
 }
 
 const Admin = () => {
-  const [activeTab, setActiveTab] = useState('system');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'system');
   const [systemInfo, setSystemInfo] = useState<SystemInfo | null>(null);
   const [logs, setLogs] = useState<Log[]>([]);
   const [loadingSystem, setLoadingSystem] = useState(true);
@@ -206,6 +208,14 @@ const Admin = () => {
     return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
   };
 
+  // Establecer la URL inicial cuando se monta el componente
+  useEffect(() => {
+    const currentTab = searchParams.get('tab');
+    if (!currentTab) {
+      setSearchParams({ tab: 'system' });
+    }
+  }, []);
+
   useEffect(() => {
     if (activeTab === 'system') {
       loadSystemInfo();
@@ -221,7 +231,10 @@ const Admin = () => {
         <p className="text-gray-600 dark:text-gray-400 mt-2">Gestión y monitoreo del sistema</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+      <Tabs value={activeTab} onValueChange={(value) => {
+        setActiveTab(value);
+        setSearchParams({ tab: value });
+      }} className="space-y-4">
         <TabsList>
           <TabsTrigger value="system">Informació del Sistema</TabsTrigger>
           <TabsTrigger value="logs">Registros del Sistema</TabsTrigger>

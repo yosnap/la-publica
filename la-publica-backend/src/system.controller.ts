@@ -73,8 +73,9 @@ export const getSystemInfo = async (req: Request, res: Response) => {
       indexSize: formatBytes(dbStats.indexSize)
     };
 
-    // Dependencias principales
+    // Dependencias principales y versión actual
     const packageJson = require('../package.json');
+    const currentVersion = packageJson.version;
     const dependencies = {
       express: packageJson.dependencies.express,
       mongoose: packageJson.dependencies.mongoose,
@@ -82,11 +83,18 @@ export const getSystemInfo = async (req: Request, res: Response) => {
       node: process.version
     };
 
+    // Actualizar la versión en la base de datos si es diferente
+    if (systemInfo.version !== currentVersion) {
+      systemInfo.version = currentVersion;
+      systemInfo.lastUpdated = new Date();
+      await systemInfo.save();
+    }
+
     return res.json({
       success: true,
       data: {
         system: {
-          version: systemInfo.version,
+          version: currentVersion,
           lastUpdated: systemInfo.lastUpdated,
           environment: process.env.NODE_ENV || 'development',
           settings: systemInfo.settings

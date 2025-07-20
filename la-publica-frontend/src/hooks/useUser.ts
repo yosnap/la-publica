@@ -59,7 +59,16 @@ export const useUserProfile = () => {
         setError('No se pudieron cargar los datos del perfil.');
       }
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Error al cargar el perfil.');
+      // El interceptor del API client ya maneja el token expirado
+      // Solo establecemos el error si no es un 401 de token expirado
+      const isTokenExpired = err.response?.status === 401 && 
+        (err.response?.data?.message?.toLowerCase().includes('token expir') ||
+         err.response?.data?.message?.toLowerCase().includes('token caducat') ||
+         err.response?.data?.error === 'Token expirado');
+      
+      if (!isTokenExpired) {
+        setError(err.response?.data?.message || 'Error al carregar el perfil.');
+      }
     } finally {
       setLoading(false);
     }

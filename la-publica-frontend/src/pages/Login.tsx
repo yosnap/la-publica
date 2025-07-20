@@ -1,10 +1,10 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, EyeOff, LogIn, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, LogIn, AlertCircle, Info } from "lucide-react";
 import apiClient from "@/api/client";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import axios from 'axios';
@@ -15,12 +15,23 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [infoMessage, setInfoMessage] = useState<string | null>(null);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    // Verificar si hay un mensaje en los parámetros de URL
+    const message = searchParams.get('message');
+    if (message) {
+      setInfoMessage(message);
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);  // Limpiar errores anteriores
+    setInfoMessage(null); // Limpiar mensajes informativos
 
     try {
        // Recordar que nuestro backend espera un campo 'login' que puede ser email o username
@@ -59,34 +70,41 @@ const Login = () => {
           <div className="w-16 h-16 bg-[#4F8FF7] rounded-2xl flex items-center justify-center mx-auto mb-4">
             <span className="text-white font-bold text-2xl">LP</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Bienvenido de vuelta</h1>
-          <p className="text-gray-600 mt-2">Inicia sesión en tu cuenta de La pública</p>
+          <h1 className="text-2xl font-bold text-gray-900">Benvingut de nou</h1>
+          <p className="text-gray-600 mt-2">Inicia sessió al teu compte de La Pública</p>
         </div>
 
         <Card className="shadow-lg border-0">
           <CardHeader className="space-y-1 pb-6">
-            <CardTitle className="text-xl font-semibold text-center">Iniciar Sesión</CardTitle>
+            <CardTitle className="text-xl font-semibold text-center">Iniciar Sessió</CardTitle>
             <CardDescription className="text-center">
-              Ingresa tus credenciales para acceder a tu cuenta
+              Introdueix les teves credencials per accedir al teu compte
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {infoMessage && (
+              <Alert className="mb-4 bg-blue-50 border-blue-200">
+                <Info className="h-4 w-4 text-blue-600" />
+                <AlertTitle className="text-blue-800">Informació</AlertTitle>
+                <AlertDescription className="text-blue-700">{infoMessage}</AlertDescription>
+              </Alert>
+            )}
             {error && (
               <Alert variant="destructive" className="mb-4">
                 <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error de autenticación</AlertTitle>
+                <AlertTitle>Error d'autenticació</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-gray-700">
-                  Correo electrónico o Usuario
+                  Correu electrònic o Usuari
                 </Label>
                 <Input
                   id="email"
                   type="text"  // Cambiado a text para permitir usuarios
-                  placeholder="tu@email.com o tu_usuario"
+                  placeholder="el-teu@email.com o el_teu_usuari"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -96,13 +114,13 @@ const Login = () => {
 
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium text-gray-700">
-                  Contraseña
+                  Contrasenya
                 </Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? "text" : "password"}
-                    placeholder="Tu contraseña"
+                    placeholder="La teva contrasenya"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
@@ -128,13 +146,13 @@ const Login = () => {
                     type="checkbox"
                     className="w-4 h-4 text-[#4F8FF7] border-gray-300 rounded focus:ring-[#4F8FF7]"
                   />
-                  <span className="text-gray-600">Recordarme</span>
+                  <span className="text-gray-600">Recorda'm</span>
                 </label>
                 <Link
                   to="/forgot-password"
                   className="text-[#4F8FF7] hover:text-[#4F8FF7]/80 font-medium transition-colors"
                 >
-                  ¿Olvidaste tu contraseña?
+                  Has oblidat la teva contrasenya?
                 </Link>
               </div>
 
@@ -146,12 +164,12 @@ const Login = () => {
                 {isLoading ? (
                   <div className="flex items-center space-x-2">
                     <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                    <span>Iniciando sesión...</span>
+                    <span>Iniciant sessió...</span>
                   </div>
                 ) : (
                   <div className="flex items-center space-x-2">
                     <LogIn className="h-4 w-4" />
-                    <span>Iniciar Sesión</span>
+                    <span>Iniciar Sessió</span>
                   </div>
                 )}
               </Button>
@@ -159,12 +177,12 @@ const Login = () => {
 
             <div className="mt-6 text-center">
               <p className="text-gray-600">
-                ¿No tienes una cuenta?{" "}
+                No tens un compte?{" "}
                 <Link
                   to="/register"
                   className="text-[#4F8FF7] hover:text-[#4F8FF7]/80 font-medium transition-colors"
                 >
-                  Regístrate aquí
+                  Registra't aquí
                 </Link>
               </p>
             </div>
@@ -172,7 +190,7 @@ const Login = () => {
             { /* Divisor */}
             <div className="mt-6 flex items-center">
               <div className="flex-1 border-t border-gray-200"></div>
-              <span className="px-4 text-sm text-gray-500">O continúa con</span>
+              <span className="px-4 text-sm text-gray-500">O continua amb</span>
               <div className="flex-1 border-t border-gray-200"></div>
             </div>
 

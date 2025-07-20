@@ -652,8 +652,570 @@ export const importGranularData = async (req: Request, res: Response) => {
       results[key] = { created: 0, updated: 0, skipped: 0, errors: 0 };
     };
 
-    // Import logic for each data type would go here...
-    // This is a simplified version - full implementation would handle each model
+    // Helper function to handle ObjectId conversions
+    const toObjectId = (id: string | mongoose.Types.ObjectId | undefined): mongoose.Types.ObjectId | undefined => {
+      if (!id) return undefined;
+      if (typeof id === 'string' && mongoose.isValidObjectId(id)) {
+        return new mongoose.Types.ObjectId(id);
+      }
+      if (id instanceof mongoose.Types.ObjectId) {
+        return id;
+      }
+      return undefined;
+    };
+
+    // Import Categories first (as they might be referenced by other entities)
+    if (importCategories && backupData.data.categories) {
+      initResult('categories');
+      for (const categoryData of backupData.data.categories) {
+        try {
+          const { _id, ...data } = categoryData;
+          
+          if (replaceExisting && _id) {
+            await Category.findByIdAndUpdate(_id, data, { upsert: true });
+            results.categories.updated++;
+          } else {
+            const exists = await Category.findOne({ name: data.name, type: data.type });
+            if (!exists) {
+              await Category.create(data);
+              results.categories.created++;
+            } else {
+              results.categories.skipped++;
+            }
+          }
+        } catch (error) {
+          results.categories.errors++;
+          console.error('Error importing category:', error);
+        }
+      }
+    }
+
+    // Import Group Categories
+    if (importGroupCategories && backupData.data.groupCategories) {
+      initResult('groupCategories');
+      for (const categoryData of backupData.data.groupCategories) {
+        try {
+          const { _id, ...data } = categoryData;
+          
+          if (replaceExisting && _id) {
+            await GroupCategory.findByIdAndUpdate(_id, data, { upsert: true });
+            results.groupCategories.updated++;
+          } else {
+            const exists = await GroupCategory.findOne({ name: data.name });
+            if (!exists) {
+              await GroupCategory.create(data);
+              results.groupCategories.created++;
+            } else {
+              results.groupCategories.skipped++;
+            }
+          }
+        } catch (error) {
+          results.groupCategories.errors++;
+          console.error('Error importing group category:', error);
+        }
+      }
+    }
+
+    // Import Forum Categories
+    if (importForumCategories && backupData.data.forumCategories) {
+      initResult('forumCategories');
+      for (const categoryData of backupData.data.forumCategories) {
+        try {
+          const { _id, ...data } = categoryData;
+          
+          if (replaceExisting && _id) {
+            await ForumCategory.findByIdAndUpdate(_id, data, { upsert: true });
+            results.forumCategories.updated++;
+          } else {
+            const exists = await ForumCategory.findOne({ name: data.name });
+            if (!exists) {
+              await ForumCategory.create(data);
+              results.forumCategories.created++;
+            } else {
+              results.forumCategories.skipped++;
+            }
+          }
+        } catch (error) {
+          results.forumCategories.errors++;
+          console.error('Error importing forum category:', error);
+        }
+      }
+    }
+
+    // Import Users
+    if (importUsers && backupData.data.users) {
+      initResult('users');
+      for (const userData of backupData.data.users) {
+        try {
+          const { _id, password, ...data } = userData;
+          // Never import passwords
+          
+          if (replaceExisting && _id) {
+            await User.findByIdAndUpdate(_id, data, { upsert: true });
+            results.users.updated++;
+          } else {
+            const exists = await User.findOne({ $or: [{ email: data.email }, { username: data.username }] });
+            if (!exists) {
+              // Generate a random password for imported users
+              const newUser = new User({
+                ...data,
+                password: Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8)
+              });
+              await newUser.save();
+              results.users.created++;
+            } else {
+              results.users.skipped++;
+            }
+          }
+        } catch (error) {
+          results.users.errors++;
+          console.error('Error importing user:', error);
+        }
+      }
+    }
+
+    // Import Companies
+    if (importCompanies && backupData.data.companies) {
+      initResult('companies');
+      for (const companyData of backupData.data.companies) {
+        try {
+          const { _id, owner, category, ...data } = companyData;
+          
+          const importData: any = { ...data };
+          
+          // Handle owner reference
+          if (owner) {
+            if (typeof owner === 'object' && owner.email) {
+              const ownerUser = await User.findOne({ email: owner.email });
+              if (ownerUser) {
+                importData.owner = ownerUser._id;
+              } else {
+                // Use the current admin user as owner if original owner not found
+                importData.owner = userId;
+              }
+            } else if (typeof owner === 'string') {
+              importData.owner = toObjectId(owner) || userId;
+            }
+          }
+          
+          // Handle category reference
+          if (category && typeof category === 'object' && category.name) {
+            const categoryDoc = await Category.findOne({ name: category.name, type: 'company' });
+            if (categoryDoc) {
+              importData.category = categoryDoc._id;
+            }
+          } else if (category && typeof category === 'string') {
+            importData.category = toObjectId(category);
+          }
+          
+          if (replaceExisting && _id) {
+            await Company.findByIdAndUpdate(_id, importData, { upsert: true });
+            results.companies.updated++;
+          } else {
+            const exists = await Company.findOne({ name: data.name });
+            if (!exists) {
+              await Company.create(importData);
+              results.companies.created++;
+            } else {
+              results.companies.skipped++;
+            }
+          }
+        } catch (error) {
+          results.companies.errors++;
+          console.error('Error importing company:', error);
+        }
+      }
+    }
+
+    // Import Groups
+    if (importGroups && backupData.data.groups) {
+      initResult('groups');
+      for (const groupData of backupData.data.groups) {
+        try {
+          const { _id, creator, category, members, ...data } = groupData;
+          
+          const importData: any = { ...data };
+          
+          // Handle creator reference
+          if (creator) {
+            if (typeof creator === 'object' && creator.email) {
+              const creatorUser = await User.findOne({ email: creator.email });
+              if (creatorUser) {
+                importData.creator = creatorUser._id;
+              } else {
+                importData.creator = userId;
+              }
+            } else if (typeof creator === 'string') {
+              importData.creator = toObjectId(creator) || userId;
+            }
+          }
+          
+          // Handle category reference
+          if (category && typeof category === 'object' && category.name) {
+            const categoryDoc = await GroupCategory.findOne({ name: category.name });
+            if (categoryDoc) {
+              importData.category = categoryDoc._id;
+            }
+          } else if (category && typeof category === 'string') {
+            importData.category = toObjectId(category);
+          }
+          
+          // Handle members array
+          if (members && Array.isArray(members)) {
+            importData.members = members.map(m => toObjectId(m)).filter(Boolean);
+          }
+          
+          if (replaceExisting && _id) {
+            await Group.findByIdAndUpdate(_id, importData, { upsert: true });
+            results.groups.updated++;
+          } else {
+            const exists = await Group.findOne({ name: data.name });
+            if (!exists) {
+              await Group.create(importData);
+              results.groups.created++;
+            } else {
+              results.groups.skipped++;
+            }
+          }
+        } catch (error) {
+          results.groups.errors++;
+          console.error('Error importing group:', error);
+        }
+      }
+    }
+
+    // Import Forums
+    if (importForums && backupData.data.forums) {
+      initResult('forums');
+      for (const forumData of backupData.data.forums) {
+        try {
+          const { _id, creator, category, moderators, ...data } = forumData;
+          
+          const importData: any = { ...data };
+          
+          // Handle creator reference
+          if (creator) {
+            if (typeof creator === 'object' && creator.email) {
+              const creatorUser = await User.findOne({ email: creator.email });
+              if (creatorUser) {
+                importData.creator = creatorUser._id;
+              } else {
+                importData.creator = userId;
+              }
+            } else if (typeof creator === 'string') {
+              importData.creator = toObjectId(creator) || userId;
+            }
+          }
+          
+          // Handle category reference
+          if (category && typeof category === 'object' && category.name) {
+            const categoryDoc = await ForumCategory.findOne({ name: category.name });
+            if (categoryDoc) {
+              importData.category = categoryDoc._id;
+            }
+          } else if (category && typeof category === 'string') {
+            importData.category = toObjectId(category);
+          }
+          
+          // Handle moderators array
+          if (moderators && Array.isArray(moderators)) {
+            importData.moderators = moderators.map(m => toObjectId(m)).filter(Boolean);
+          }
+          
+          if (replaceExisting && _id) {
+            await Forum.findByIdAndUpdate(_id, importData, { upsert: true });
+            results.forums.updated++;
+          } else {
+            const exists = await Forum.findOne({ name: data.name });
+            if (!exists) {
+              await Forum.create(importData);
+              results.forums.created++;
+            } else {
+              results.forums.skipped++;
+            }
+          }
+        } catch (error) {
+          results.forums.errors++;
+          console.error('Error importing forum:', error);
+        }
+      }
+    }
+
+    // Import Job Offers
+    if (importJobOffers && backupData.data.jobOffers) {
+      initResult('jobOffers');
+      for (const offerData of backupData.data.jobOffers) {
+        try {
+          const { _id, company, category, ...data } = offerData;
+          
+          const importData: any = { ...data };
+          
+          // Handle company reference
+          if (company) {
+            if (typeof company === 'object' && company.name) {
+              const companyDoc = await Company.findOne({ name: company.name });
+              if (companyDoc) {
+                importData.company = companyDoc._id;
+              } else {
+                continue; // Skip if company not found
+              }
+            } else if (typeof company === 'string') {
+              const companyId = toObjectId(company);
+              if (companyId) {
+                importData.company = companyId;
+              } else {
+                continue; // Skip if invalid company ID
+              }
+            }
+          }
+          
+          // Handle category reference
+          if (category && typeof category === 'object' && category.name) {
+            const categoryDoc = await Category.findOne({ name: category.name, type: 'job' });
+            if (categoryDoc) {
+              importData.category = categoryDoc._id;
+            }
+          } else if (category && typeof category === 'string') {
+            importData.category = toObjectId(category);
+          }
+          
+          if (replaceExisting && _id) {
+            await JobOffer.findByIdAndUpdate(_id, importData, { upsert: true });
+            results.jobOffers.updated++;
+          } else {
+            await JobOffer.create(importData);
+            results.jobOffers.created++;
+          }
+        } catch (error) {
+          results.jobOffers.errors++;
+          console.error('Error importing job offer:', error);
+        }
+      }
+    }
+
+    // Import Announcements
+    if (importAnnouncements && backupData.data.announcements) {
+      initResult('announcements');
+      for (const announcementData of backupData.data.announcements) {
+        try {
+          const { _id, author, category, ...data } = announcementData;
+          
+          const importData: any = { ...data };
+          
+          // Handle author reference
+          if (author) {
+            if (typeof author === 'object' && author.email) {
+              const authorUser = await User.findOne({ email: author.email });
+              if (authorUser) {
+                importData.author = authorUser._id;
+              } else {
+                importData.author = userId;
+              }
+            } else if (typeof author === 'string') {
+              importData.author = toObjectId(author) || userId;
+            }
+          }
+          
+          // Handle category reference
+          if (category && typeof category === 'object' && category.name) {
+            const categoryDoc = await Category.findOne({ name: category.name, type: 'announcement' });
+            if (categoryDoc) {
+              importData.category = categoryDoc._id;
+            }
+          } else if (category && typeof category === 'string') {
+            importData.category = toObjectId(category);
+          }
+          
+          if (replaceExisting && _id) {
+            await Announcement.findByIdAndUpdate(_id, importData, { upsert: true });
+            results.announcements.updated++;
+          } else {
+            await Announcement.create(importData);
+            results.announcements.created++;
+          }
+        } catch (error) {
+          results.announcements.errors++;
+          console.error('Error importing announcement:', error);
+        }
+      }
+    }
+
+    // Import Advisories
+    if (importAdvisories && backupData.data.advisories) {
+      initResult('advisories');
+      for (const advisoryData of backupData.data.advisories) {
+        try {
+          const { _id, company, category, ...data } = advisoryData;
+          
+          const importData: any = { ...data };
+          
+          // Handle company reference
+          if (company) {
+            if (typeof company === 'object' && company.name) {
+              const companyDoc = await Company.findOne({ name: company.name });
+              if (companyDoc) {
+                importData.company = companyDoc._id;
+              } else {
+                continue; // Skip if company not found
+              }
+            } else if (typeof company === 'string') {
+              const companyId = toObjectId(company);
+              if (companyId) {
+                importData.company = companyId;
+              } else {
+                continue; // Skip if invalid company ID
+              }
+            }
+          }
+          
+          // Handle category reference
+          if (category && typeof category === 'object' && category.name) {
+            const categoryDoc = await Category.findOne({ name: category.name, type: 'advisory' });
+            if (categoryDoc) {
+              importData.category = categoryDoc._id;
+            }
+          } else if (category && typeof category === 'string') {
+            importData.category = toObjectId(category);
+          }
+          
+          if (replaceExisting && _id) {
+            await Advisory.findByIdAndUpdate(_id, importData, { upsert: true });
+            results.advisories.updated++;
+          } else {
+            await Advisory.create(importData);
+            results.advisories.created++;
+          }
+        } catch (error) {
+          results.advisories.errors++;
+          console.error('Error importing advisory:', error);
+        }
+      }
+    }
+
+    // Import Blogs
+    if (importBlogs && backupData.data.blogs) {
+      initResult('blogs');
+      for (const blogData of backupData.data.blogs) {
+        try {
+          const { _id, author, category, tags, ...data } = blogData;
+          
+          const importData: any = { ...data };
+          
+          // Handle author reference
+          if (author) {
+            if (typeof author === 'object' && author.email) {
+              const authorUser = await User.findOne({ email: author.email });
+              if (authorUser) {
+                importData.author = authorUser._id;
+              } else {
+                importData.author = userId;
+              }
+            } else if (typeof author === 'string') {
+              importData.author = toObjectId(author) || userId;
+            }
+          }
+          
+          // Handle category reference
+          if (category && typeof category === 'object' && category.name) {
+            const categoryDoc = await Category.findOne({ name: category.name });
+            if (categoryDoc) {
+              importData.category = categoryDoc._id;
+            }
+          } else if (category && typeof category === 'string') {
+            importData.category = toObjectId(category);
+          }
+          
+          // Ensure tags is an array
+          if (tags && Array.isArray(tags)) {
+            importData.tags = tags;
+          }
+          
+          if (replaceExisting && _id) {
+            await Blog.findByIdAndUpdate(_id, importData, { upsert: true });
+            results.blogs.updated++;
+          } else {
+            const exists = await Blog.findOne({ title: data.title, author: importData.author });
+            if (!exists) {
+              await Blog.create(importData);
+              results.blogs.created++;
+            } else {
+              results.blogs.skipped++;
+            }
+          }
+        } catch (error) {
+          results.blogs.errors++;
+          console.error('Error importing blog:', error);
+        }
+      }
+    }
+
+    // Import Posts (after users)
+    if (importPosts && backupData.data.posts) {
+      initResult('posts');
+      for (const postData of backupData.data.posts) {
+        try {
+          const { _id, author, comments, likes, ...data } = postData;
+          
+          const importData: any = { ...data };
+          
+          // Handle author reference
+          if (author) {
+            if (typeof author === 'object' && author.email) {
+              const authorUser = await User.findOne({ email: author.email });
+              if (authorUser) {
+                importData.author = authorUser._id;
+              } else {
+                importData.author = userId;
+              }
+            } else if (typeof author === 'string') {
+              importData.author = toObjectId(author) || userId;
+            }
+          }
+          
+          // Handle likes array
+          if (likes && Array.isArray(likes)) {
+            importData.likes = likes.map(l => toObjectId(l)).filter(Boolean);
+          }
+          
+          // Handle comments array
+          if (comments && Array.isArray(comments)) {
+            importData.comments = [];
+            for (const comment of comments) {
+              const commentData: any = {
+                text: comment.text,
+                createdAt: comment.createdAt || new Date()
+              };
+              
+              if (comment.author) {
+                if (typeof comment.author === 'object' && comment.author.email) {
+                  const commentAuthor = await User.findOne({ email: comment.author.email });
+                  if (commentAuthor) {
+                    commentData.author = commentAuthor._id;
+                  } else {
+                    commentData.author = userId;
+                  }
+                } else if (typeof comment.author === 'string') {
+                  commentData.author = toObjectId(comment.author) || userId;
+                }
+              }
+              
+              importData.comments.push(commentData);
+            }
+          }
+          
+          if (replaceExisting && _id) {
+            await Post.findByIdAndUpdate(_id, importData, { upsert: true });
+            results.posts.updated++;
+          } else {
+            await Post.create(importData);
+            results.posts.created++;
+          }
+        } catch (error) {
+          results.posts.errors++;
+          console.error('Error importing post:', error);
+        }
+      }
+    }
 
     return res.json({
       success: true,

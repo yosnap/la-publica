@@ -453,7 +453,7 @@ const ForumModeration = () => {
                               <div className="flex items-center gap-2 mb-2">
                                 <Badge variant="destructive">{report.reason}</Badge>
                                 <span className="text-sm text-gray-600">
-                                  por {report.reportedBy.firstName} {report.reportedBy.lastName}
+                                  por {report.reportedBy?.firstName || 'Usuari'} {report.reportedBy?.lastName || 'Desconegut'}
                                 </span>
                               </div>
                               {report.description && (

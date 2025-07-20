@@ -1,5 +1,48 @@
 # Changelog
 
+## [1.0.4] - 2025-07-20
+
+### 🔧 Sistema d'Importació de Dades i Millores del Sistema
+
+#### Funcionalitats Principals
+- **Sistema complet d'importació de dades granular**:
+  - Implementació completa de la funcionalitat d'importació que abans era només un stub
+  - Suport per importar categories, usuaris, empreses, grups, fòrums, ofertes de treball, anuncis, assessoraments, blogs i posts
+  - Resolució automàtica de referències (usuaris per email, categories per nom)
+  - Mecanismes de fallback (usar admin com propietari quan l'original no es troba)
+  - Validació de dades i gestió d'errors robusta
+  - Opcions flexibles d'importació amb resolució de conflictes
+
+- **Millores del panell d'administració**:
+  - Versió del sistema mostrada dinàmicament des del package.json
+  - URL routing adequat per les pestanyes del sistema (ara es reflexa a la URL)
+  - Actualització automàtica de la versió a la base de dades quan canvia
+
+- **Gestió d'autenticació millorada**:
+  - Millor gestió d'errors de token expirat
+  - Missatges d'error amigables en català
+  - Redirecció automàtica al login amb missatge informatiu quan el token expira
+  - Intercepció adequada d'errors d'autenticació al frontend
+
+#### Tests i Qualitat
+- **Suite de tests completa per la importació**:
+  - Tests unitaris amb Jest i MongoDB in-memory
+  - Verificació d'autenticació, validació de dades i imports exitosos
+  - Cobertura de casos d'error i situacions límit
+  - Tests de cicle complet export-import
+
+#### Correccions i Millores Tècniques
+- **Dependències actualitzades**:
+  - Instal·lació de supertest, mongodb-memory-server per testing
+  - Millores en la gestió d'errors del sistema
+  - Optimització de la resolució de referències durant la importació
+
+#### Canvis d'Interfície
+- **Panell d'administració**:
+  - Tab "Informació del Sistema" ara reflexa la URL correctament
+  - Versió sempre actualitzada automàticament
+  - Millor navegació entre pestanyes amb URLs persistents
+
 ## [1.0.3] - 2025-07-19
 
 ### 🔗 Sistema Social Avançat - Seccions de Miembres
