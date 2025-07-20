@@ -25,11 +25,19 @@ export class JWTService {
   // Generar token de acceso
   static generateAccessToken(payload: { userId: string; email: string; role: 'user' | 'admin' | 'colaborador' | 'editor' }): string {
     const plainPayload = { ...payload };
-    return jwt.sign(plainPayload, this.getSecret(), {
+    const token = jwt.sign(plainPayload, this.getSecret(), {
       expiresIn: JWT_EXPIRES_IN,
       issuer: 'la-publica-api',
       audience: 'la-publica-users'
     });
+    
+    // Debug logging en desarrollo
+    if (process.env.NODE_ENV === 'development') {
+      const expirationDate = new Date(Date.now() + (JWT_EXPIRES_IN * 1000));
+      console.log(`🔑 Token generado para ${payload.email}, expira: ${expirationDate.toLocaleString()} (${JWT_EXPIRES_IN} segundos)`);
+    }
+    
+    return token;
   }
 
   // Verificar token
@@ -42,9 +50,22 @@ export class JWTService {
       return decoded;
     } catch (error) {
       if (error instanceof jwt.TokenExpiredError) {
+        // Debug logging en desarrollo
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`⚠️ Token expirado detectado: ${error.message}`);
+          const decoded = jwt.decode(token) as any;
+          if (decoded?.exp) {
+            const expiredAt = new Date(decoded.exp * 1000);
+            console.log(`   Expiró en: ${expiredAt.toLocaleString()}`);
+            console.log(`   Tiempo actual: ${new Date().toLocaleString()}`);
+          }
+        }
         throw new Error('Token expirado');
       }
       if (error instanceof jwt.JsonWebTokenError) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log(`⚠️ Token inválido: ${error.message}`);
+        }
         throw new Error('Token inválido');
       }
       throw new Error('Error verificando token');

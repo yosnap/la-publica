@@ -8,7 +8,8 @@ import {
   followOrUnfollowUser,
   getFollowers,
   getFollowing,
-  getProfile
+  getProfile,
+  checkToken
 } from './users.controller';
 import { authenticate } from './middleware/auth';
 import { authorize } from './middleware/authorize';
@@ -17,6 +18,11 @@ const router = Router();
 
 // Ruta para obtener el perfil del usuario autenticado
 router.get('/profile', authenticate, getProfile);
+
+// Debug endpoint para verificar token (solo desarrollo)
+if (process.env.NODE_ENV === 'development') {
+  router.get('/check-token', authenticate, checkToken);
+}
 
 // Listar usuarios
 router.get('/', listUsers);

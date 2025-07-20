@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import User from './user.model';
 import { validate, updateProfileSchema } from './utils/validation';
+import { JWTService } from './utils/jwt';
 
 // Listar todos los usuarios
 export const listUsers = async (req: Request, res: Response) => {
@@ -305,5 +306,63 @@ export const getProfile = async (req: Request, res: Response, next: NextFunction
     return res.status(200).json({ success: true, data: user });
   } catch (error) {
     return next(error);
+  }
+};
+
+/**
+ * Debug endpoint para verificar token (solo desarrollo)
+ */
+export const checkToken = async (req: Request, res: Response) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({
+        success: false,
+        message: 'No token provided'
+      });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = JWTService.decodeToken(token);
+    
+    if (!decoded || !decoded.exp) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid token'
+      });
+    }
+
+    const expirationTime = decoded.exp * 1000;
+    const currentTime = Date.now();
+    const timeLeft = expirationTime - currentTime;
+    const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+    const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+    const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+
+    res.json({
+      success: true,
+      data: {
+        tokenValid: timeLeft > 0,
+        expiresAt: new Date(expirationTime).toISOString(),
+        currentTime: new Date(currentTime).toISOString(),
+        timeLeft: {
+          total: timeLeft,
+          days: daysLeft,
+          hours: hoursLeft,
+          minutes: minutesLeft
+        },
+        user: {
+          userId: decoded.userId,
+          email: decoded.email,
+          role: decoded.role
+        }
+      }
+    });
+  } catch (error: any) {
+    res.status(500).json({
+      success: false,
+      message: 'Error checking token',
+      error: error.message
+    });
   }
 }; 
