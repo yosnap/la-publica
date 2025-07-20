@@ -312,7 +312,7 @@ export const getProfile = async (req: Request, res: Response, next: NextFunction
 /**
  * Debug endpoint para verificar token (solo desarrollo)
  */
-export const checkToken = async (req: Request, res: Response) => {
+export const checkToken = async (req: Request, res: Response): Promise<Response | void> => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -339,7 +339,7 @@ export const checkToken = async (req: Request, res: Response) => {
     const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         tokenValid: timeLeft > 0,
@@ -359,7 +359,7 @@ export const checkToken = async (req: Request, res: Response) => {
       }
     });
   } catch (error: any) {
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: 'Error checking token',
       error: error.message
