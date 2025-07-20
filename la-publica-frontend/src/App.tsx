@@ -51,6 +51,7 @@ import AdvisoryDetail from "./pages/AdvisoryDetail";
 import Blogs from "./pages/Blogs";
 import BlogDetail from "./pages/BlogDetail";
 import CreateBlog from "./pages/CreateBlog";
+import UserProfile from "./pages/UserProfile";
 
 const queryClient = new QueryClient();
 
@@ -86,6 +87,7 @@ const App = () => (
                   <Route index element={<Dashboard />} />
                   <Route path="perfil" element={<Profile />} />
                   <Route path="editar-perfil" element={<CompleteProfile />} />
+                  <Route path="usuario/:userSlug" element={<UserProfile />} />
                   <Route path="miembros" element={<Members />} />
                   <Route path="groups" element={<Groups />} />
                   <Route path="groups/:id" element={<GroupDetail />} />

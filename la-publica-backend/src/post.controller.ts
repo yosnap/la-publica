@@ -6,24 +6,41 @@ import User from './user.model';
 export const createPost = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId;
-    const { content, image, mood } = req.body;
+    const { content, image, mood, targetUserId } = req.body;
 
-    console.log('Received post data:', { content, image, mood }); // Debug
+    console.log('🔄 CREATING POST - Received data:', { content: content?.slice(0, 30), image, mood, targetUserId }); // Debug
 
     if (!content) {
       return res.status(400).json({ success: false, message: 'El contingut és requerit' });
     }
 
-    const post = new Post({
+    // Si hay targetUserId, verificar que el usuario objetivo existe
+    if (targetUserId) {
+      const targetUser = await User.findById(targetUserId);
+      if (!targetUser) {
+        return res.status(404).json({ success: false, message: 'Usuari objectiu no trobat' });
+      }
+    }
+
+    const postDataToSave = {
       content,
       author: userId,
       ...(image && { image }),
-      ...(mood && { mood })
-    });
+      ...(mood && { mood }),
+      ...(targetUserId && { targetUser: targetUserId })
+    };
+    
+    console.log('💾 SAVING POST with data:', postDataToSave);
+    
+    const post = new Post(postDataToSave);
     await post.save();
     
-    // Poblar el autor para devolverlo en la respuesta
-    const populatedPost = await Post.findById(post._id).populate('author', 'username firstName lastName profilePicture');
+    console.log('✅ POST SAVED with ID:', post._id, 'targetUser:', post.targetUser);
+    
+    // Poblar el autor y targetUser para devolverlo en la respuesta
+    const populatedPost = await Post.findById(post._id)
+      .populate('author', 'username firstName lastName profilePicture')
+      .populate('targetUser', 'username firstName lastName profilePicture');
 
     return res.status(201).json({
       success: true,
@@ -40,7 +57,17 @@ export const listPosts = async (req: Request, res: Response) => {
   try {
     const posts = await Post.find()
       .populate('author', 'username firstName lastName profilePicture') // Poblar datos del autor
+      .populate('targetUser', 'username firstName lastName profilePicture') // Poblar usuario objetivo
       .sort({ createdAt: -1 }); // Ordenar por más reciente
+
+    console.log('📋 LISTING POSTS - Total found:', posts.length);
+    const recentPosts = posts.slice(0, 3);
+    recentPosts.forEach((post, i) => {
+      const postId = post._id ? post._id.toString().slice(-6) : 'unknown';
+      const authorName = (post.author as any)?.firstName || 'Unknown';
+      const targetName = (post.targetUser as any)?.firstName || 'Feed';
+      console.log(`${i+1}. ${postId} - ${authorName} → ${targetName}`);
+    });
 
     return res.json({
       success: true,
@@ -56,6 +83,7 @@ export const getPostById = async (req: Request, res: Response) => {
   try {
     const post = await Post.findById(req.params.id)
       .populate('author', 'username firstName lastName profilePicture')
+      .populate('targetUser', 'username firstName lastName profilePicture')
       .populate('comments.author', 'username firstName lastName profilePicture'); // Poblar autores de comentarios
 
     if (!post) {
@@ -90,7 +118,9 @@ export const updatePost = async (req: Request, res: Response) => {
     post.content = content;
     await post.save();
     
-    const populatedPost = await Post.findById(post._id).populate('author', 'username firstName lastName profilePicture');
+    const populatedPost = await Post.findById(post._id)
+      .populate('author', 'username firstName lastName profilePicture')
+      .populate('targetUser', 'username firstName lastName profilePicture');
 
 
     return res.json({
@@ -156,6 +186,7 @@ export const likePost = async (req: Request, res: Response) => {
     // Devolver el post actualizado
     const populatedPost = await Post.findById(post._id)
       .populate('author', 'username firstName lastName profilePicture')
+      .populate('targetUser', 'username firstName lastName profilePicture')
       .populate('comments.author', 'username firstName lastName profilePicture');
 
     return res.json({
@@ -198,6 +229,7 @@ export const commentOnPost = async (req: Request, res: Response) => {
     // Devolver el post actualizado
     const populatedPost = await Post.findById(post._id)
       .populate('author', 'username firstName lastName profilePicture')
+      .populate('targetUser', 'username firstName lastName profilePicture')
       .populate('comments.author', 'username firstName lastName profilePicture');
 
     return res.json({
@@ -224,6 +256,7 @@ export const getUserFeed = async (req: Request, res: Response) => {
       .skip(skip)
       .limit(limit)
       .populate('author', 'username firstName lastName profilePicture')
+      .populate('targetUser', 'username firstName lastName profilePicture')
       .populate('pinnedBy', 'username firstName lastName')
       .populate({
         path: 'comments',
@@ -275,6 +308,7 @@ export const toggleComments = async (req: Request, res: Response) => {
 
     const populatedPost = await Post.findById(post._id)
       .populate('author', 'username firstName lastName profilePicture')
+      .populate('targetUser', 'username firstName lastName profilePicture')
       .populate('comments.author', 'username firstName lastName profilePicture');
 
     return res.json({
@@ -315,6 +349,7 @@ export const togglePinPost = async (req: Request, res: Response) => {
 
     const populatedPost = await Post.findById(post._id)
       .populate('author', 'username firstName lastName profilePicture')
+      .populate('targetUser', 'username firstName lastName profilePicture')
       .populate('pinnedBy', 'username firstName lastName')
       .populate('comments.author', 'username firstName lastName profilePicture');
 

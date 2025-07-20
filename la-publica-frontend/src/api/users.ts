@@ -5,6 +5,7 @@ export interface User {
   firstName: string;
   lastName: string;
   username: string;
+  slug: string;
   email: string;
   profilePicture?: string;
   role: 'user' | 'colaborador' | 'admin';
@@ -44,6 +45,18 @@ export const getUserFollowers = async (userId: string) => {
 export const getUserFollowing = async (userId: string) => {
   const response = await apiClient.get(`/api/users/${userId}/following`);
   return response.data;
+};
+
+// Get user by ID
+export const getUserById = async (userId: string) => {
+  const response = await apiClient.get(`/api/users/${userId}`);
+  return response.data.data; // Extract the data field from the API response
+};
+
+// Get user by slug
+export const getUserBySlug = async (userSlug: string) => {
+  const response = await apiClient.get(`/api/users/slug/${userSlug}`);
+  return response.data.data; // Extract the data field from the API response
 };
 
 // Send message to user (placeholder for messaging system)

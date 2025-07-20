@@ -15,12 +15,17 @@ export const fetchUserFeed = async (page = 1, limit = 10) => {
 };
 
  // Create a new post
-export const createPost = async (content: string, image?: string, mood?: {emoji: string, label: string}) => {
-  const response = await apiClient.post('/api/posts', { 
-    content,
-    ...(image && { image }),
-    ...(mood && { mood })
-  });
+export const createPost = async (postData: { content: string; image?: string; mood?: {emoji: string, label: string}; targetUserId?: string } | string, image?: string, mood?: {emoji: string, label: string}) => {
+  // Support both old signature (string content) and new signature (object)
+  const data = typeof postData === 'string' 
+    ? { 
+        content: postData,
+        ...(image && { image }),
+        ...(mood && { mood })
+      }
+    : postData;
+    
+  const response = await apiClient.post('/api/posts', data);
   return response.data;
 };
 
@@ -57,6 +62,12 @@ export const togglePostComments = async (id: string) => {
  // Fijar/desfijar post en el feed
 export const togglePostPin = async (id: string) => {
   const response = await apiClient.patch(`/api/posts/${id}/toggle-pin`);
+  return response.data;
+};
+
+ // Eliminar un post
+export const deletePost = async (id: string) => {
+  const response = await apiClient.delete(`/api/posts/${id}`);
   return response.data;
 };
 

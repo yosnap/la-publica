@@ -92,6 +92,29 @@ export const getUserById = async (req: Request, res: Response) => {
   }
 };
 
+// Ver usuario por slug
+export const getUserBySlug = async (req: Request, res: Response) => {
+  try {
+    const user = await User.findOne({ slug: req.params.slug }, '-password');
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuari no trobat'
+      });
+    }
+    return res.json({
+      success: true,
+      data: user
+    });
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: 'Error en buscar usuari',
+      error: error.message
+    });
+  }
+};
+
 // Editar perfil del usuario autenticado
 export const updateProfile = async (req: Request, res: Response) => {
   try {

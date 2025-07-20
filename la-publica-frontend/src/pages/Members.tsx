@@ -267,10 +267,8 @@ export default function Members() {
     if (user._id === currentUser?._id) {
       navigate(`/perfil`);
     } else {
-      // For other users, navigate to their profile page
-      // TODO: Implement individual user profile pages
-      // For now, just navigate to general profile - this should be changed to /usuari/${user._id} or /perfil/${user.username}
-      navigate(`/perfil`);
+      // For other users, navigate to their individual profile page using slug
+      navigate(`/usuario/${user.slug}`);
     }
   };
 

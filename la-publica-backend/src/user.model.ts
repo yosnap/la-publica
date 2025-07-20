@@ -12,6 +12,7 @@ export interface IUser extends Document {
   isActive: boolean;
   isEmailVerified: boolean;
   username: string;
+  slug: string;
   bio?: string;
   location?: string;
   phone?: string;
@@ -67,6 +68,7 @@ const UserSchema = new Schema<IUser>(
     isActive: { type: Boolean, default: true },
     isEmailVerified: { type: Boolean, default: false },
     username: { type: String, required: true, unique: true, index: true, trim: true },
+    slug: { type: String, unique: true, index: true, trim: true, lowercase: true },
     bio: { type: String, maxlength: 250 },
     location: { type: String, trim: true, maxlength: 100 },
     phone: { type: String, trim: true },
@@ -91,6 +93,36 @@ const UserSchema = new Schema<IUser>(
 
 // Add a text index to the fields for searching
 UserSchema.index({ firstName: 'text', lastName: 'text', username: 'text' });
+
+// Function to generate slug from firstName and lastName
+function generateSlug(firstName: string, lastName: string): string {
+  return `${firstName}-${lastName}`
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Remove accents
+    .replace(/[^a-z0-9\s-]/g, '') // Remove special characters
+    .replace(/\s+/g, '-') // Replace spaces with hyphens
+    .replace(/-+/g, '-') // Replace multiple hyphens with single
+    .trim();
+}
+
+// Pre-save middleware to generate slug
+UserSchema.pre('save', async function(next) {
+  if (!this.slug || this.isNew || this.isModified('firstName') || this.isModified('lastName')) {
+    let baseSlug = generateSlug(this.firstName, this.lastName);
+    let slug = baseSlug;
+    let counter = 1;
+    
+    // Check for existing slugs and add number if needed
+    while (await User.findOne({ slug, _id: { $ne: this._id } })) {
+      slug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+    
+    this.slug = slug;
+  }
+  next();
+});
 
 // Exportar el modelo
 const User = mongoose.model<IUser>('User', UserSchema);

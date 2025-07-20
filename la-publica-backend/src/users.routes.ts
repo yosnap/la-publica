@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   listUsers,
   getUserById,
+  getUserBySlug,
   updateProfile,
   deleteUser,
   followOrUnfollowUser,
@@ -19,6 +20,8 @@ router.get('/profile', authenticate, getProfile);
 
 // Listar usuarios
 router.get('/', listUsers);
+// Ver usuario por slug
+router.get('/slug/:slug', getUserBySlug);
 // Ver usuario por ID
 router.get('/:id', getUserById);
 // Editar perfil (requiere autenticación)

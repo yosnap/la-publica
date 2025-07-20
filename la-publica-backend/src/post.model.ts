@@ -18,6 +18,7 @@ export interface IPost extends Document {
     emoji: string;
     label: string;
   };
+  targetUser?: mongoose.Types.ObjectId; // Usuario en cuyo muro se publicó (para posts en muros)
   commentsDisabled: boolean;
   pinned: boolean;
   pinnedBy?: mongoose.Types.ObjectId;
@@ -77,6 +78,11 @@ const PostSchema = new Schema<IPost>(
         type: String,
         required: false
       }
+    },
+    targetUser: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: false
     },
     commentsDisabled: {
       type: Boolean,

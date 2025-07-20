@@ -1,4 +1,4 @@
-import { Heart, MessageSquare, Share, MoreHorizontal, Camera, Users, Calendar, User, BookOpen, CheckCircle, Activity, Clock, Play, Building, UserPlus, Settings, XCircle, Edit, Trash, BellOff, Pin, Download, Flag, Bell } from "lucide-react";
+import { Heart, MessageSquare, Share, MoreHorizontal, Camera, Users, Calendar, User, BookOpen, CheckCircle, Circle, Activity, Clock, Play, Building, UserPlus, Settings, XCircle, Edit, Trash, BellOff, Pin, Download, Flag, Bell } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -1346,51 +1346,61 @@ const Dashboard = () => {
           { /* Columna Derecha - Widgets */}
           <div className="lg:col-span-3 space-y-6">
             { /* Widget Completa tu Perfil */}
-            <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="pb-2">
-                <CardTitle className="text-center text-base font-semibold text-gray-900 dark:text-gray-100">Completa tu Perfil</CardTitle>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">Completa tu Perfil</CardTitle>
               </CardHeader>
-              <CardContent className="flex flex-col items-center gap-4">
-                <div className="relative flex flex-col items-center w-full">
-                  <SemiCircularProgress value={percent} size={180} strokeWidth={14} color="#2563eb">
-                    <span className="text-sm text-gray-400 dark:text-gray-400 font-medium">Completado</span>
-                  </SemiCircularProgress>
+              <CardContent className="space-y-4">
+                {/* Progress circle */}
+                <div className="flex flex-col items-center space-y-2">
+                  <div className="relative w-20 h-20">
+                    <svg className="w-20 h-20 transform -rotate-90" viewBox="0 0 36 36">
+                      <path
+                        className="stroke-gray-200"
+                        fill="none"
+                        strokeWidth="3"
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                      <path
+                        className="stroke-green-500"
+                        fill="none"
+                        strokeWidth="3"
+                        strokeDasharray={`${percent}, 100`}
+                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      />
+                    </svg>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-xl font-bold text-gray-900">
+                        {percent}
+                        <span className="text-sm text-gray-500">%</span>
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600">Completado</p>
                 </div>
-                <ul className="w-full flex flex-col gap-0 relative pl-2 pr-4 mb-2 mt-2">
+
+                {/* Progress items */}
+                <div className="space-y-3">
                   {profileSteps.map((step, idx) => (
-                    <li key={idx} className="flex items-center gap-3 min-h-[28px] relative">
-                      { /* Stepper vertical line */}
-                      {idx < profileSteps.length - 1 && (
-                        <span className="absolute left-2 top-6 w-px h-[24px] bg-gray-200 dark:bg-gray-600 z-0" />
-                      )}
-                      { /* Step icon */}
-                      <span className="relative z-10 flex items-center justify-center h-5 w-5">
+                    <div key={idx} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
                         {step.complete ? (
-                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                            <circle cx="10" cy="10" r="9" stroke="#2563eb" strokeWidth="2" fill="none" />
-                            <path d="M6 10.5L9 13.5L14 8.5" stroke="#2563eb" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
+                          <CheckCircle className="h-4 w-4 text-green-500" />
                         ) : (
-                          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" className="dark:opacity-60">
-                            <circle cx="10" cy="10" r="9" stroke="#d1d5db" strokeWidth="2" fill="none" />
-                          </svg>
+                          <Circle className="h-4 w-4 text-gray-400" />
                         )}
-                      </span>
-                      { /* Step label and count */}
-                      <span className={
-                        step.complete
-                          ? "font-semibold text-[#2563eb] flex-1 text-base"
-                          : "text-gray-400 dark:text-gray-500 flex-1 text-base"
-                      }>
-                        {step.label}
-                      </span>
-                      <span className={step.complete ? "font-semibold text-[#2563eb] text-xs" : "text-gray-400 dark:text-gray-500 text-xs"}>
+                        <span className={`text-sm ${step.complete ? 'text-gray-900' : 'text-gray-600'}`}>
+                          {step.label}
+                        </span>
+                      </div>
+                      <span className="text-sm font-medium text-green-600">
                         {step.done}/{step.total}
                       </span>
-                    </li>
+                    </div>
                   ))}
-                </ul>
-                <Button variant="outline" className="w-full" onClick={() => window.location.href = '/editar-perfil'}>
+                </div>
+
+                <Button variant="outline" className="w-full" onClick={() => navigate('/editar-perfil')}>
                   Completar Perfil
                 </Button>
               </CardContent>
