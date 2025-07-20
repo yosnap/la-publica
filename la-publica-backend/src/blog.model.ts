@@ -91,8 +91,7 @@ const blogSchema = new Schema<IBlog>({
   timestamps: true
 });
 
-// Índices para optimizar búsquedas
-blogSchema.index({ slug: 1 });
+// Índices para optimizar búsquedas (slug ya tiene unique: true que crea automáticamente índice)
 blogSchema.index({ status: 1, publishedAt: -1 });
 blogSchema.index({ category: 1, status: 1 });
 blogSchema.index({ author: 1 });

@@ -47,8 +47,7 @@ const ForumCategorySchema = new Schema<IForumCategory>(
   }
 );
 
-// Índices
-ForumCategorySchema.index({ name: 1 });
+// Índices (name ya tiene unique: true que crea automáticamente índice)
 ForumCategorySchema.index({ isActive: 1 });
 
 // Exportar el modelo
