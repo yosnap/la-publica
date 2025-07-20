@@ -13,8 +13,8 @@ RUN npm ci
 # Copy source code
 COPY . .
 
-# Build TypeScript
-RUN npm run build
+# Build TypeScript with increased memory
+RUN NODE_OPTIONS="--max-old-space-size=4096" npm run build
 
 # Production stage
 FROM node:18-alpine

@@ -5,7 +5,8 @@
   "main": "dist/server.js",
   "scripts": {
     "start": "node dist/server.js",
-    "build": "tsc",
+    "build": "node --max-old-space-size=4096 node_modules/typescript/bin/tsc",
+    "build:local": "tsc",
     "dev": "nodemon src/server.ts",
     "test": "jest",
     "lint": "eslint . --ext .ts",
