@@ -9,6 +9,7 @@ import ForumPost from './forumPost.model';
 import JobOffer from './jobOffer.model';
 import Announcement from './announcement.model';
 import Advisory from './advisory.model';
+import Blog from './blog.model';
 import Category from './category.model';
 import GroupCategory from './groupCategory.model';
 import ForumCategory from './forumCategory.model';
@@ -525,6 +526,9 @@ export const bulkUpdateItems = async (req: Request, res: Response) => {
       case 'JobOffer': Model = JobOffer; break;
       case 'Announcement': Model = Announcement; break;
       case 'Advisory': Model = Advisory; break;
+      case 'Blog': Model = Blog; break;
+      case 'ForumPost': Model = ForumPost; break;
+      case 'GroupPost': Model = GroupPost; break;
       default:
         return res.status(400).json({
           success: false,
@@ -617,6 +621,27 @@ export const bulkDeleteItems = async (req: Request, res: Response) => {
           result = await Advisory.updateMany({ _id: { $in: itemIds } }, { isActive: false });
         }
         break;
+      case 'Blog':
+        if (permanent) {
+          result = await Blog.deleteMany({ _id: { $in: itemIds } });
+        } else {
+          result = await Blog.updateMany({ _id: { $in: itemIds } }, { isActive: false });
+        }
+        break;
+      case 'ForumPost':
+        if (permanent) {
+          result = await ForumPost.deleteMany({ _id: { $in: itemIds } });
+        } else {
+          result = await ForumPost.updateMany({ _id: { $in: itemIds } }, { isActive: false });
+        }
+        break;
+      case 'GroupPost':
+        if (permanent) {
+          result = await GroupPost.deleteMany({ _id: { $in: itemIds } });
+        } else {
+          result = await GroupPost.updateMany({ _id: { $in: itemIds } }, { isActive: false });
+        }
+        break;
       default:
         return res.status(400).json({
           success: false,
@@ -690,6 +715,27 @@ export const assignAuthor = async (req: Request, res: Response) => {
         break;
       case 'Announcement':
         item = await Announcement.findByIdAndUpdate(
+          itemId,
+          { author: authorId },
+          { new: true }
+        ).populate('author', 'firstName lastName email');
+        break;
+      case 'Blog':
+        item = await Blog.findByIdAndUpdate(
+          itemId,
+          { author: authorId },
+          { new: true }
+        ).populate('author', 'firstName lastName email');
+        break;
+      case 'ForumPost':
+        item = await ForumPost.findByIdAndUpdate(
+          itemId,
+          { author: authorId },
+          { new: true }
+        ).populate('author', 'firstName lastName email');
+        break;
+      case 'GroupPost':
+        item = await GroupPost.findByIdAndUpdate(
           itemId,
           { author: authorId },
           { new: true }
