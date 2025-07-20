@@ -108,15 +108,29 @@ app.options('*', cors({
 // Rate limiting
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: process.env.NODE_ENV === 'production' ? 100 : 1000, // más permisivo en desarrollo
+  max: process.env.NODE_ENV === 'production' ? 500 : 2000, // más permisivo para importaciones
   message: { error: 'Demasiadas solicitudes, intenta más tarde' },
   skip: (req) => {
-    // Skipear rate limit para algunas rutas en desarrollo
+    // Skipear rate limit para rutas específicas
+    const skipRoutes = [
+      '/api/users/profile', 
+      '/api/health', 
+      '/api/info',
+      '/api/granular-backup/export',
+      '/api/granular-backup/import'
+    ];
+    
+    // En desarrollo, ser más permisivo
     if (process.env.NODE_ENV !== 'production') {
-      const skipRoutes = ['/api/users/profile', '/api/health', '/api/info'];
       return skipRoutes.some(route => req.path === route);
     }
-    return false;
+    
+    // En producción, solo skipear rutas críticas de backup/import
+    const productionSkipRoutes = [
+      '/api/granular-backup/export',
+      '/api/granular-backup/import'
+    ];
+    return productionSkipRoutes.some(route => req.path === route);
   }
 });
 

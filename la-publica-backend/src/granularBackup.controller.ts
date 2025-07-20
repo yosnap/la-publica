@@ -613,10 +613,15 @@ export const getBackupPreview = async (req: Request, res: Response) => {
 // Import granular data
 export const importGranularData = async (req: Request, res: Response) => {
   try {
+    // Aumentar timeout para importaciones largas
+    req.setTimeout(300000); // 5 minutos
+    
     const userRole = (req as any).user?.role;
     const userId = (req as any).user?.userId;
     
     if (!checkAdminPermission(userRole, res)) return;
+    
+    console.log('🔄 Iniciando importación granular de datos...');
 
     const { backupData, options = {} } = req.body;
     
@@ -666,6 +671,7 @@ export const importGranularData = async (req: Request, res: Response) => {
 
     // Import Categories first (as they might be referenced by other entities)
     if (importCategories && backupData.data.categories) {
+      console.log(`📂 Importando ${backupData.data.categories.length} categorías...`);
       initResult('categories');
       for (const categoryData of backupData.data.categories) {
         try {
@@ -744,6 +750,7 @@ export const importGranularData = async (req: Request, res: Response) => {
 
     // Import Users
     if (importUsers && backupData.data.users) {
+      console.log(`👥 Importando ${backupData.data.users.length} usuarios...`);
       initResult('users');
       for (const userData of backupData.data.users) {
         try {
@@ -1217,6 +1224,8 @@ export const importGranularData = async (req: Request, res: Response) => {
       }
     }
 
+    console.log('✅ Importación completada exitosamente:', results);
+    
     return res.json({
       success: true,
       message: 'Dades importades exitosament',
