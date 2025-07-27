@@ -1,8 +1,18 @@
 import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { JWTPayload } from '../types';
 
-// JWT_EXPIRES_IN en formato string compatible con jsonwebtoken (por defecto 7 días)
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
+// JWT_EXPIRES_IN - manejar tanto string como número
+const getExpiresIn = (): string | number => {
+  const envValue = process.env.JWT_EXPIRES_IN || '7d';
+  // Si es un número (en segundos), convertir a número
+  if (/^\d+$/.test(envValue)) {
+    return parseInt(envValue, 10);
+  }
+  // Si es un string como "7d", mantener como string
+  return envValue;
+};
+
+const JWT_EXPIRES_IN = getExpiresIn();
 
 export class JWTService {
   /**
