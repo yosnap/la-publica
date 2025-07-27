@@ -53,7 +53,6 @@ import Blogs from "./pages/Blogs";
 import BlogDetail from "./pages/BlogDetail";
 import CreateBlog from "./pages/CreateBlog";
 import UserProfile from "./pages/UserProfile";
-import { TokenMonitor, useTokenMonitor } from "./components/debug/TokenMonitor";
 
 const queryClient = new QueryClient();
 
@@ -72,8 +71,6 @@ const RegisterRoute = () => {
 }
 
 const App = () => {
-  const { visible } = useTokenMonitor();
-
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
@@ -139,7 +136,6 @@ const App = () => {
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
-            <TokenMonitor visible={visible} intervalSeconds={30} />
             <Toaster />
           </div>
         </SidebarProvider>
