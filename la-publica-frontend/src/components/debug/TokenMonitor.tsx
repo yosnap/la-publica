@@ -160,7 +160,7 @@ export const TokenMonitor: React.FC<TokenMonitorProps> = ({
 
 // Hook para usar en desarrollo
 export const useTokenMonitor = () => {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true); // Mostrar por defecto para debugging
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
