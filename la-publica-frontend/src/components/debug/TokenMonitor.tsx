@@ -164,9 +164,10 @@ export const useTokenMonitor = () => {
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      // Ctrl + Shift + T para toggle del monitor
-      if (e.ctrlKey && e.shiftKey && e.key === 'T') {
+      // Alt + Shift + J para toggle del monitor (JWT)
+      if (e.altKey && e.shiftKey && e.key === 'J') {
         setVisible(prev => !prev);
+        console.log('🔍 TokenMonitor toggled:', !visible);
       }
     };
 
