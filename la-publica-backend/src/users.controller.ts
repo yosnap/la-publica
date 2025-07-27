@@ -315,7 +315,13 @@ export const getProfile = async (req: Request, res: Response, next: NextFunction
 export const checkToken = async (req: Request, res: Response): Promise<Response | void> => {
   try {
     const authHeader = req.headers.authorization;
+    const timestamp = new Date().toISOString();
+    const ip = req.ip || req.connection.remoteAddress || 'unknown';
+    
+    console.log(`🔍 [${timestamp}] Token check requested from IP: ${ip}`);
+    
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.log(`🚫 [${timestamp}] No token provided in check-token request`);
       return res.status(401).json({
         success: false,
         message: 'No token provided'
@@ -323,9 +329,24 @@ export const checkToken = async (req: Request, res: Response): Promise<Response 
     }
 
     const token = authHeader.split(' ')[1];
+    console.log(`🔍 [${timestamp}] Checking token: ${token.substring(0, 10)}...${token.substring(token.length - 10)}`);
+    
+    // Try to verify token first
+    let isTokenValid = false;
+    let verificationError = null;
+    try {
+      JWTService.verifyToken(token);
+      isTokenValid = true;
+      console.log(`✅ [${timestamp}] Token verification: VALID`);
+    } catch (error: any) {
+      verificationError = error.message;
+      console.log(`❌ [${timestamp}] Token verification: FAILED - ${error.message}`);
+    }
+    
     const decoded = JWTService.decodeToken(token);
     
     if (!decoded || !decoded.exp) {
+      console.log(`🚫 [${timestamp}] Token decode failed or no expiration`);
       return res.status(400).json({
         success: false,
         message: 'Invalid token'
@@ -333,32 +354,55 @@ export const checkToken = async (req: Request, res: Response): Promise<Response 
     }
 
     const expirationTime = decoded.exp * 1000;
+    const issuedTime = decoded.iat * 1000;
     const currentTime = Date.now();
     const timeLeft = expirationTime - currentTime;
     const daysLeft = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
     const hoursLeft = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
     const minutesLeft = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
 
-    return res.json({
+    const response = {
       success: true,
       data: {
-        tokenValid: timeLeft > 0,
+        tokenValid: isTokenValid,
+        verificationError,
         expiresAt: new Date(expirationTime).toISOString(),
+        issuedAt: new Date(issuedTime).toISOString(),
         currentTime: new Date(currentTime).toISOString(),
+        serverTimezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         timeLeft: {
           total: timeLeft,
           days: daysLeft,
           hours: hoursLeft,
-          minutes: minutesLeft
+          minutes: minutesLeft,
+          expired: timeLeft <= 0
         },
         user: {
           userId: decoded.userId,
           email: decoded.email,
           role: decoded.role
+        },
+        jwt: {
+          issuer: decoded.iss,
+          audience: decoded.aud
+        },
+        environment: {
+          nodeEnv: process.env.NODE_ENV,
+          jwtExpiresIn: process.env.JWT_EXPIRES_IN
         }
       }
+    };
+
+    console.log(`📊 [${timestamp}] Token check result:`, {
+      email: decoded.email,
+      valid: isTokenValid,
+      timeLeft: `${daysLeft}d ${hoursLeft}h ${minutesLeft}m`,
+      expired: timeLeft <= 0
     });
+
+    return res.json(response);
   } catch (error: any) {
+    console.error(`💥 [${new Date().toISOString()}] Error in checkToken:`, error);
     return res.status(500).json({
       success: false,
       message: 'Error checking token',

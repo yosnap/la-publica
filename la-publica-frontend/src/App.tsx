@@ -53,6 +53,7 @@ import Blogs from "./pages/Blogs";
 import BlogDetail from "./pages/BlogDetail";
 import CreateBlog from "./pages/CreateBlog";
 import UserProfile from "./pages/UserProfile";
+import { TokenMonitor, useTokenMonitor } from "./components/debug/TokenMonitor";
 
 const queryClient = new QueryClient();
 
@@ -70,15 +71,18 @@ const RegisterRoute = () => {
   return isAuthenticated ? <Navigate to="/" replace /> : <Register />;
 }
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <SidebarProvider>
-          <div className="min-h-screen flex w-full bg-gray-50 dark:bg-gray-900">
-            <Routes>
+const App = () => {
+  const { visible } = useTokenMonitor();
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <SidebarProvider>
+            <div className="min-h-screen flex w-full bg-gray-50 dark:bg-gray-900">
+              <Routes>
               <Route path="/install" element={<Install />} />
               <Route path="/login" element={<LoginRoute />} />
               <Route path="/register" element={<RegisterRoute />} />
@@ -135,12 +139,14 @@ const App = () => (
               </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <TokenMonitor visible={visible} intervalSeconds={30} />
             <Toaster />
           </div>
         </SidebarProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
