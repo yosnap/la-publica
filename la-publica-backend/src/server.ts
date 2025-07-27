@@ -28,40 +28,69 @@ import categoriesRoutes from './categories.routes';
 import blogsRoutes from './blogs.routes';
 import granularBackupRoutes from './granularBackup.routes';
 import adminDataRoutes from './adminData.routes';
+import installRoutes from './install.routes';
+import debugRoutes from './debug.routes';
 import { errorHandler } from './middleware/errorHandler';
 import 'dotenv/config';
 
 const app = express();
 const server = createServer(app);
-const io = new Server(server, {
-  cors: {
-    origin: process.env.FRONTEND_URL || 'http://localhost:8080',
-    credentials: true
-  }
-});
 
 const PORT = process.env.PORT || 5050;
+const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8080';
 
-// Configuración CORS para producción
-const corsOrigins = process.env.NODE_ENV === 'production'
-  ? [
+// Configuración dinámica de CORS basada en variables de entorno
+const getCorsOrigins = () => {
+  if (process.env.NODE_ENV === 'production') {
+    // En producción, usar solo las URLs oficiales
+    return [
       'https://web.lapublica.cat',
       'https://www.lapublica.cat',
       'https://lapublica.cat'
-    ]
-  : [
-      'http://localhost:8080',
-      'http://localhost:8081', 
-      'http://localhost:5173',
-      'http://localhost:3000'
     ];
+  } else {
+    // En desarrollo, usar la URL del frontend configurada
+    const developmentOrigins = [FRONTEND_URL];
+
+    // Agregar orígenes adicionales si están configurados
+    if (process.env.CORS_ADDITIONAL_ORIGINS) {
+      const additionalOrigins = process.env.CORS_ADDITIONAL_ORIGINS.split(',').map(origin => origin.trim());
+      developmentOrigins.push(...additionalOrigins);
+    }
+
+    // Agregar puertos de desarrollo comunes solo si no están ya incluidos
+    const commonPorts = ['8080', '8081', '5173', '8083', '3000'];
+    commonPorts.forEach(port => {
+      const url = `http://localhost:${port}`;
+      if (!developmentOrigins.includes(url)) {
+        developmentOrigins.push(url);
+      }
+    });
+
+    return developmentOrigins;
+  }
+};
+
+const corsOrigins = getCorsOrigins();
+
+// Log de configuración CORS solo en desarrollo
+if (process.env.NODE_ENV === 'development') {
+  console.log('🌐 CORS orígenes permitidos:', corsOrigins);
+}
+
+const io = new Server(server, {
+  cors: {
+    origin: corsOrigins,
+    credentials: true
+  }
+});
 
 // CORS debe ser el primer middleware
 app.use(cors({
   origin: function (origin, callback) {
     // Permitir requests sin origin (como apps móviles o Postman)
     if (!origin) return callback(null, true);
-    
+
     if (corsOrigins.includes(origin)) {
       return callback(null, true);
     } else {
@@ -72,8 +101,8 @@ app.use(cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: [
-    'Content-Type', 
-    'Authorization', 
+    'Content-Type',
+    'Authorization',
     'X-Requested-With',
     'Accept',
     'Origin'
@@ -96,8 +125,8 @@ app.options('*', cors({
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   allowedHeaders: [
-    'Content-Type', 
-    'Authorization', 
+    'Content-Type',
+    'Authorization',
     'X-Requested-With',
     'Accept',
     'Origin'
@@ -113,18 +142,18 @@ const limiter = rateLimit({
   skip: (req) => {
     // Skipear rate limit para rutas específicas
     const skipRoutes = [
-      '/api/users/profile', 
-      '/api/health', 
+      '/api/users/profile',
+      '/api/health',
       '/api/info',
       '/api/granular-backup/export',
       '/api/granular-backup/import'
     ];
-    
+
     // En desarrollo, ser más permisivo
     if (process.env.NODE_ENV !== 'production') {
       return skipRoutes.some(route => req.path === route);
     }
-    
+
     // En producción, solo skipear rutas críticas de backup/import
     const productionSkipRoutes = [
       '/api/granular-backup/export',
@@ -152,6 +181,9 @@ app.use('/uploads', (req, res, next) => {
   res.setHeader('Cross-Origin-Resource-Policy', 'cross-origin');
   next();
 }, express.static(path.join(__dirname, '../uploads')));
+
+// === RUTAS DE INSTALACIÓN (deben ir ANTES que las otras rutas) ===
+app.use('/api/install', installRoutes);
 
 // Rutas de autenticación
 app.use('/api/auth', authRoutes);
@@ -209,6 +241,11 @@ app.use('/api/admin-data', adminDataRoutes);
 // Rutas del sistema (admin)
 import systemRoutes from './system.routes';
 app.use('/api/system', systemRoutes);
+
+// Debug routes (solo en desarrollo)
+if (process.env.NODE_ENV === 'development') {
+  app.use('/api/debug', debugRoutes);
+}
 
 // Health check
 app.get('/api/health', (req, res) => {

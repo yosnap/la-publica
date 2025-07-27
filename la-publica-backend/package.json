@@ -11,7 +11,13 @@
     "test": "jest",
     "lint": "eslint . --ext .ts",
     "deploy:railway": "railway up",
-    "deploy:vps": "npm run build && pm2 restart la-publica-api"
+    "deploy:vps": "npm run build && pm2 restart la-publica-api",
+    "init-db": "node scripts/init-database.js",
+    "list-users": "node scripts/list-users.js",
+    "restore-backup": "node scripts/restore-backup.js",
+    "check-install": "curl -s http://localhost:5050/api/install/status | jq",
+    "seed:categories": "node scripts/seed-categories.js",
+    "seed:groups": "node scripts/seedGroups.js"
   },
   "dependencies": {
     "axios": "^1.10.0",

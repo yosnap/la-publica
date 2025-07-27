@@ -1,4 +1,5 @@
 import axios from 'axios';
+import TokenDebugService from '@/utils/tokenDebug';
 
  // La URL base de nuestra API del backend, configurable por entorno
 const API_BASE_URL = import.meta.env.VITE_API_URL;
@@ -40,13 +41,13 @@ apiClient.interceptors.request.use(
     if (config.url) {
       config.url = buildApiUrl(config.url);
     }
-    
+
      // Añadir token JWT
     const token = localStorage.getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
-    
+
     return config;
   },
   (error) => {
@@ -62,31 +63,56 @@ apiClient.interceptors.response.use(
     return response;
   },
   (error) => {
+    // Logging detallado para debugging de sesiones
+    const isProduction = import.meta.env.MODE === 'production';
+    const currentTime = new Date().toISOString();
+    const currentPath = window.location.pathname;
+
+    if (!isProduction) {
+      console.group(`🔍 API Error Debug - ${currentTime}`);
+      console.log('Status:', error.response?.status);
+      console.log('URL:', error.config?.url);
+      console.log('Method:', error.config?.method?.toUpperCase());
+      console.log('Current Path:', currentPath);
+      console.log('Response Data:', error.response?.data);
+      console.log('Auth Token Present:', !!localStorage.getItem('authToken'));
+      console.groupEnd();
+    }
+
     // Manejar token expirado
     if (error.response?.status === 401) {
       const message = error.response?.data?.message || error.response?.data?.error || '';
-      
+
       // Detectar mensaje de token expirado
-      if (message.toLowerCase().includes('token expir') || 
+      if (message.toLowerCase().includes('token expir') ||
           message.toLowerCase().includes('token caducat') ||
-          error.response?.data?.error === 'Token expirado') {
-        
+          error.response?.data?.error === 'Token expirado' ||
+          message.toLowerCase().includes('token invàlid') ||
+          message.toLowerCase().includes('token invalid')) {
+
+        // Logging específico para logout automático
+        console.warn(`🚪 Logout automático detectado - ${currentTime}`);
+        console.warn('Razón:', message);
+        console.warn('Path actual:', currentPath);
+        console.warn('Token presente antes del logout:', !!localStorage.getItem('authToken'));
+
         // Limpiar datos de autenticación
         localStorage.removeItem('authToken');
         localStorage.removeItem('userId');
-        
+
         // Mostrar mensaje amigable en catalán
         const userMessage = 'La teva sessió ha expirat. Si us plau, inicia sessió de nou.';
-        
+
         // Redirigir al login solo si no estamos ya en la página de login
         if (!window.location.pathname.includes('/login')) {
+          console.info('🔄 Redirigiendo al login desde:', currentPath);
           window.location.href = `/login?message=${encodeURIComponent(userMessage)}`;
         }
       }
     }
-    
+
     return Promise.reject(error);
   }
 );
 
-export default apiClient; 
+export default apiClient;

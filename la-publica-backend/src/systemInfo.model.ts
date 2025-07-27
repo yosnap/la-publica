@@ -6,6 +6,8 @@ export interface ISystemInfo extends Document {
   settings: {
     maintenanceMode: boolean;
     registrationEnabled: boolean;
+    installationCompleted?: boolean;
+    installationDate?: Date;
     [key: string]: any;
   };
 }
@@ -14,7 +16,7 @@ const systemInfoSchema = new Schema<ISystemInfo>({
   version: {
     type: String,
     required: true,
-    default: '1.0.3'
+    default: '1.0.4'
   },
   lastUpdated: {
     type: Date,
@@ -28,6 +30,13 @@ const systemInfoSchema = new Schema<ISystemInfo>({
     registrationEnabled: {
       type: Boolean,
       default: true
+    },
+    installationCompleted: {
+      type: Boolean,
+      default: false
+    },
+    installationDate: {
+      type: Date
     }
   }
 }, {

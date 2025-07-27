@@ -48,6 +48,7 @@ import JobOfferForm from "./pages/JobOfferForm";
 import JobOfferDetail from "./pages/JobOfferDetail";
 import AdvisoryForm from "./pages/AdvisoryForm";
 import AdvisoryDetail from "./pages/AdvisoryDetail";
+import Install from "./pages/Install";
 import Blogs from "./pages/Blogs";
 import BlogDetail from "./pages/BlogDetail";
 import CreateBlog from "./pages/CreateBlog";
@@ -78,6 +79,7 @@ const App = () => (
         <SidebarProvider>
           <div className="min-h-screen flex w-full bg-gray-50 dark:bg-gray-900">
             <Routes>
+              <Route path="/install" element={<Install />} />
               <Route path="/login" element={<LoginRoute />} />
               <Route path="/register" element={<RegisterRoute />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />

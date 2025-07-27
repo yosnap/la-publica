@@ -1,14 +1,14 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { 
-  Users, 
-  Settings, 
-  Crown, 
-  Shield, 
-  Globe, 
-  Lock, 
-  Calendar, 
-  MapPin, 
+import {
+  Users,
+  Settings,
+  Crown,
+  Shield,
+  Globe,
+  Lock,
+  Calendar,
+  MapPin,
   ExternalLink,
   UserPlus,
   UserMinus,
@@ -70,7 +70,7 @@ const GroupDetail = () => {
 
   const loadGroupDetails = async () => {
     if (!id) return;
-    
+
     try {
       setLoading(true);
       const response = await fetchGroupById(id);
@@ -101,7 +101,7 @@ const GroupDetail = () => {
          // Extraer userId del token
         const payload = JSON.parse(atob(token.split('.')[1]));
         setCurrentUserId(payload.userId);
-        
+
          // Obtener perfil completo del usuario
         import('@/api/client').then(({ default: apiClient }) => {
           apiClient.get('/users/profile').then(response => {
@@ -120,7 +120,7 @@ const GroupDetail = () => {
 
   const loadGroupPosts = async () => {
     if (!id) return;
-    
+
     try {
       setLoadingPosts(true);
       const response = await fetchGroupPosts(id, { page: 1, limit: 20 });
@@ -139,7 +139,7 @@ const GroupDetail = () => {
 
   const handleJoinGroup = async () => {
     if (!group) return;
-    
+
     try {
       setJoining(true);
       const response = await joinGroup(group._id);
@@ -157,7 +157,7 @@ const GroupDetail = () => {
   const handleLeaveGroup = async () => {
     if (!group) return;
     if (!confirm("¿Estás seguro de que quieres salir de este grupo?")) return;
-    
+
     try {
       setLeaving(true);
       const response = await leaveGroup(group._id);
@@ -174,7 +174,7 @@ const GroupDetail = () => {
 
   const handleRoleChange = async (memberId: string, newRole: string) => {
     if (!group) return;
-    
+
     try {
       const response = await updateMemberRole(group._id, memberId, newRole);
       if (response.success) {
@@ -250,8 +250,8 @@ const GroupDetail = () => {
           { /* Imagen de portada */}
           {group.coverImage ? (
             <div className="h-48 w-full rounded-xl overflow-hidden bg-gradient-to-r from-blue-500 to-purple-600">
-              <img 
-                src={getImageUrl(group.coverImage)} 
+              <img
+                src={getImageUrl(group.coverImage)}
                 alt="Portada del grupo"
                 className="w-full h-full object-cover"
               />
@@ -259,15 +259,15 @@ const GroupDetail = () => {
           ) : (
             <div className="h-48 w-full rounded-xl bg-gradient-to-r from-blue-500 to-purple-600" />
           )}
-          
+
           { /* Información del grupo superpuesta */}
           <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent rounded-b-xl p-6">
             <div className="flex items-end space-x-4">
               { /* Imagen del grupo */}
               <div className="w-20 h-20 rounded-xl overflow-hidden bg-white border-4 border-white">
                 {group.image ? (
-                  <img 
-                    src={getImageUrl(group.image)} 
+                  <img
+                    src={getImageUrl(group.image)}
                     alt={group.name}
                     className="w-full h-full object-cover"
                   />
@@ -277,15 +277,27 @@ const GroupDetail = () => {
                   </div>
                 )}
               </div>
-              
+
               { /* Información básica */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center space-x-2 mb-2">
                   <h1 className="text-2xl font-bold text-white truncate">{group.name}</h1>
                   {group.privacy === "private" && (
-                    <Badge variant="secondary" className="bg-white /20 text-white border-white/30">
+                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
                       <Lock className="h-3 w-3 mr-1" />
                       Privado
+                    </Badge>
+                  )}
+                  {group.userRole === "admin" && (
+                    <Badge variant="secondary" className="bg-yellow-500/20 text-yellow-100 border-yellow-500/30">
+                      <Crown className="h-3 w-3 mr-1" />
+                      Administrador
+                    </Badge>
+                  )}
+                  {group.userRole === "moderator" && (
+                    <Badge variant="secondary" className="bg-blue-500/20 text-blue-100 border-blue-500/30">
+                      <Shield className="h-3 w-3 mr-1" />
+                      Moderador
                     </Badge>
                   )}
                 </div>
@@ -296,7 +308,7 @@ const GroupDetail = () => {
                   </div>
                   {group.category && typeof group.category === 'object' && (
                     <div className="flex items-center">
-                      <div 
+                      <div
                         className="w-3 h-3 rounded-full mr-1"
                         style={{ backgroundColor: group.category.color }}
                       />
@@ -305,11 +317,11 @@ const GroupDetail = () => {
                   )}
                 </div>
               </div>
-              
+
               { /* Acciones */}
               <div className="flex items-center space-x-2">
                 {!isMember ? (
-                  <Button 
+                  <Button
                     onClick={handleJoinGroup}
                     disabled={joining}
                     className="bg-white text-gray-900 hover:bg-gray-100"
@@ -320,8 +332,8 @@ const GroupDetail = () => {
                 ) : (
                   <>
                     {group.userRole === "admin" && (
-                      <Button 
-                        variant="secondary" 
+                      <Button
+                        variant="secondary"
                         className="bg-white/20 text-white hover:bg-white/30"
                         onClick={() => navigate(`/groups/${id}/admin`)}
                       >
@@ -410,7 +422,7 @@ const GroupDetail = () => {
                         {isMember ? "Sé el primero en publicar" : "No hay posts aún"}
                       </h3>
                       <p className="text-gray-500">
-                        {isMember 
+                        {isMember
                           ? "Comparte algo interesante con el grupo."
                           : "Los posts del grupo aparecerán aquí cuando los miembros publiquen contenido."
                         }
@@ -440,7 +452,7 @@ const GroupDetail = () => {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <p className="text-gray-700 leading-relaxed">{group.description}</p>
-                    
+
                     { /* Tags */}
                     {group.tags && group.tags.length > 0 && (
                       <div>
@@ -481,9 +493,9 @@ const GroupDetail = () => {
                       {group.website && (
                         <div className="flex items-center space-x-2">
                           <ExternalLink className="h-4 w-4 text-gray-400" />
-                          <a 
-                            href={group.website} 
-                            target="_blank" 
+                          <a
+                            href={group.website}
+                            target="_blank"
                             rel="noopener noreferrer"
                             className="text-sm text-blue-600 hover:underline"
                           >
@@ -526,7 +538,7 @@ const GroupDetail = () => {
                                 {getRoleIcon(member.role)}
                               </div>
                               <div className="flex items-center space-x-2 text-sm text-gray-500">
-                                <Badge 
+                                <Badge
                                   variant={member.role === 'admin' ? 'default' : 'secondary'}
                                   className={
                                     member.role === 'admin' ? 'bg-yellow-100 text-yellow-800' :
@@ -542,7 +554,7 @@ const GroupDetail = () => {
                               </div>
                             </div>
                           </div>
-                          
+
                           {canManageMembers && member.role !== 'admin' && (
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
@@ -552,14 +564,14 @@ const GroupDetail = () => {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent>
                                 {member.role !== 'moderator' && (
-                                  <DropdownMenuItem 
+                                  <DropdownMenuItem
                                     onClick={() => handleRoleChange(member.user._id, 'moderator')}
                                   >
                                     Hacer Moderador
                                   </DropdownMenuItem>
                                 )}
                                 {member.role === 'moderator' && (
-                                  <DropdownMenuItem 
+                                  <DropdownMenuItem
                                     onClick={() => handleRoleChange(member.user._id, 'member')}
                                   >
                                     Quitar Moderador
