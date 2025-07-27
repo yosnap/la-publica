@@ -1,8 +1,8 @@
 import jwt, { Secret } from 'jsonwebtoken';
 import { JWTPayload } from '../types';
 
-// JWT_EXPIRES_IN en segundos (por defecto 7 días)
-const JWT_EXPIRES_IN = parseInt(process.env.JWT_EXPIRES_IN || '604800', 10);
+// JWT_EXPIRES_IN en formato string compatible con jsonwebtoken (por defecto 7 días)
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 export class JWTService {
   /**
@@ -33,8 +33,10 @@ export class JWTService {
     
     // Debug logging en desarrollo
     if (process.env.NODE_ENV === 'development') {
-      const expirationDate = new Date(Date.now() + (JWT_EXPIRES_IN * 1000));
-      console.log(`🔑 Token generado para ${payload.email}, expira: ${expirationDate.toLocaleString()} (${JWT_EXPIRES_IN} segundos)`);
+      // Calcular fecha de expiración basada en el token generado
+      const decoded = jwt.decode(token) as any;
+      const expirationDate = decoded?.exp ? new Date(decoded.exp * 1000) : null;
+      console.log(`🔑 Token generado para ${payload.email}, expira: ${expirationDate?.toLocaleString() || 'fecha desconocida'} (duración: ${JWT_EXPIRES_IN})`);
     }
     
     return token;
