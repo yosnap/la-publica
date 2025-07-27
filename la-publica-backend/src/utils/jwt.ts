@@ -1,4 +1,4 @@
-import jwt, { Secret } from 'jsonwebtoken';
+import jwt, { Secret, SignOptions } from 'jsonwebtoken';
 import { JWTPayload } from '../types';
 
 // JWT_EXPIRES_IN en formato string compatible con jsonwebtoken (por defecto 7 días)
@@ -25,11 +25,12 @@ export class JWTService {
   // Generar token de acceso
   static generateAccessToken(payload: { userId: string; email: string; role: 'user' | 'admin' | 'colaborador' | 'editor' }): string {
     const plainPayload = { ...payload };
-    const token = jwt.sign(plainPayload, this.getSecret(), {
-      expiresIn: JWT_EXPIRES_IN as string | number,
+    const options: SignOptions = {
+      expiresIn: JWT_EXPIRES_IN,
       issuer: 'la-publica-api',
       audience: 'la-publica-users'
-    });
+    };
+    const token = jwt.sign(plainPayload, this.getSecret(), options);
     
     // Debug logging en desarrollo
     if (process.env.NODE_ENV === 'development') {
