@@ -9,6 +9,8 @@ export interface JWTPayload {
   role: 'user' | 'admin' | 'colaborador' | 'editor';
   iat: number;
   exp: number;
+  iss?: string; // issuer
+  aud?: string; // audience
 }
 
 /**

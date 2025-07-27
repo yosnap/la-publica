@@ -26,7 +26,7 @@ export class JWTService {
   static generateAccessToken(payload: { userId: string; email: string; role: 'user' | 'admin' | 'colaborador' | 'editor' }): string {
     const plainPayload = { ...payload };
     const token = jwt.sign(plainPayload, this.getSecret(), {
-      expiresIn: JWT_EXPIRES_IN,
+      expiresIn: JWT_EXPIRES_IN as string | number,
       issuer: 'la-publica-api',
       audience: 'la-publica-users'
     });
