@@ -145,6 +145,13 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange,
     },
   }, [users]);
 
+  // Actualizar el contenido del editor cuando cambie el value prop
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
+
   const insertEmoji = useCallback((emoji: string) => {
     if (editor) {
       editor.chain().focus().insertContent(emoji).run();
