@@ -14,7 +14,7 @@ export const CircularProgress: React.FC<CircularProgressProps> = ({
   value,
   size = 96,
   strokeWidth = 8,
-  color = "#3b82f6",  // Tailwind blue-500
+  color = "#4F8FF7",  // Tailwind blue-500
   bgColor = "#e5e7eb",  // Tailwind gray-200
   className = ""
 }) => {

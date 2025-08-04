@@ -15,7 +15,7 @@ export const SemiCircularProgress: React.FC<SemiCircularProgressProps> = ({
   value,
   size = 120,
   strokeWidth = 10,
-  color = "#2563eb",  // Tailwind blue-600
+  color = "#4F8FF7",  // Tailwind blue-600
   bgColor = "#e5e7eb",  // Tailwind gray-200
   className = "",
   children

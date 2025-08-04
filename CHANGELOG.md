@@ -1,5 +1,57 @@
 # Changelog
 
+## [1.0.5] - 2025-08-04
+
+### 🔐 Sistema de SuperAdmin i Gestió d'Usuaris
+
+#### Funcionalitats Principals
+- **Nou sistema de SuperAdmin configurable des de .env**:
+  - Credencials configurables per variables d'entorn
+  - Rol 'superadmin' amb accés complet al sistema
+  - Protecció contra modificació/eliminació del superadmin
+  - Millor seguretat per no perdre mai l'accés al sistema
+
+- **Nova pàgina de Gestió d'Usuaris (`/admin/user-management`)**:
+  - Panel complet per gestionar tots els usuaris del sistema
+  - Estadístiques en temps real (total, actius, inactius, per rol)
+  - Cerca i filtres avançats per rol i estat
+  - Funcionalitats CRUD completes per usuaris
+  - Canvi de contrasenya per qualsevol usuari
+  - Canvi de rol (excepte superadmin)
+  - Activar/desactivar usuaris
+  - Eliminació d'usuaris (excepte superadmin)
+  - Paginació per manejar grans quantitats d'usuaris
+
+#### Millores d'Interfície
+- **Eliminada pestanya d'usuaris de Gestió de Dades**:
+  - Simplificat el component DataManagement.tsx
+  - Evitar duplicació de funcionalitats
+  - Ara la gestió d'usuaris està centralitzada en una sola ubicació
+
+- **Corregit warning de Dialog Description**:
+  - Afegida DialogDescription a tots els diàlegs per millorar accessibilitat
+  - Compliment amb estàndards d'aria-describedby
+
+#### Actualitzacions de Seguretat
+- **Control d'accés millorat**:
+  - Rutes de superadmin accessibles per 'admin' i 'superadmin'
+  - Verificacions de permisos en tots els endpoints
+  - Protecció del compte superadmin contra modificacions
+
+#### Canvis Tècnics
+- **Backend**:
+  - Nou controlador `superadmin.controller.ts` amb totes les operacions d'usuaris
+  - Nou enrutador `superadmin.routes.ts` amb endpoints protegits
+  - Actualitzat model User per incloure rol 'superadmin'
+  - Actualitzats tipus TypeScript per suportar nou rol
+  - Corregit error de TypeScript en JWT service per acceptar 'superadmin'
+
+- **Frontend**:
+  - Nou component `UserManagement.tsx` amb interfície completa
+  - Actualitzat sidebar per incloure nou enllaç de gestió d'usuaris
+  - Corregit error de React Select amb value="" (canviat a "all")
+  - Millores en la gestió d'estats i filtres
+
 ## [1.0.5] - 2025-07-20
 
 ### 🎨 Millores de UI/UX

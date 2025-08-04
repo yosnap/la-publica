@@ -53,6 +53,7 @@ import Blogs from "./pages/Blogs";
 import BlogDetail from "./pages/BlogDetail";
 import CreateBlog from "./pages/CreateBlog";
 import UserProfile from "./pages/UserProfile";
+import UserManagement from "./pages/admin/UserManagement";
 
 const queryClient = new QueryClient();
 
@@ -123,6 +124,7 @@ const App = () => {
                   <Route path="admin/platform-backup" element={<PlatformBackup />} />
                   <Route path="admin/granular-backup" element={<GranularBackup />} />
                   <Route path="admin/data-management" element={<DataManagement />} />
+                  <Route path="admin/user-management" element={<UserManagement />} />
                   <Route path="colaborador/empresas" element={<MyCompanies />} />
                   <Route path="colaborador/ofertas" element={<MyJobOffers />} />
                   <Route path="colaborador/ofertas/create" element={<JobOfferForm />} />

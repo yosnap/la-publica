@@ -23,8 +23,8 @@ async function updateUserPassword(email, newPassword) {
       return;
     }
 
-    // Hashear nueva contraseña
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    // Hashear nueva contraseña (usando 12 rounds como el sistema)
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
     
     // Actualizar contraseña
     await User.updateOne(

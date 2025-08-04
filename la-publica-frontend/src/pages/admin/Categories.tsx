@@ -53,7 +53,7 @@ const Categories = () => {
   const [formData, setFormData] = useState<CreateCategoryData>({
     name: "",
     description: "",
-    color: "#3B82F6",
+    color: "#4F8FF7",
     icon: "Tag",
     type: "company",
     parentCategory: undefined,
@@ -206,7 +206,7 @@ const Categories = () => {
     setFormData({
       name: "",
       description: "",
-      color: "#3B82F6",
+      color: "#4F8FF7",
       icon: "Tag",
       type: selectedType as any,
       parentCategory: undefined,
@@ -219,7 +219,7 @@ const Categories = () => {
     setFormData({
       name: category.name,
       description: category.description || "",
-      color: category.color || "#3B82F6",
+      color: category.color || "#4F8FF7",
       icon: category.icon || "Tag",
       type: category.type,
       parentCategory: category.parentCategory || undefined,
@@ -341,7 +341,7 @@ const Categories = () => {
                       <Input
                         value={formData.color}
                         onChange={(e) => setFormData({...formData, color: e.target.value})}
-                        placeholder="#3B82F6"
+                        placeholder="#4F8FF7"
                       />
                     </div>
                   </div>
@@ -604,7 +604,7 @@ const Categories = () => {
                       <Input
                         value={formData.color}
                         onChange={(e) => setFormData({...formData, color: e.target.value})}
-                        placeholder="#3B82F6"
+                        placeholder="#4F8FF7"
                       />
                     </div>
                   </div>

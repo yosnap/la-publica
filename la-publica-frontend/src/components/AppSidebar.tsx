@@ -159,6 +159,11 @@ const adminItems = [
     url: "/admin/data-management",
     icon: Settings,
   },
+  {
+    title: "Gestió d'Usuaris",
+    url: "/admin/user-management",
+    icon: Users,
+  },
 ];
 
 export function AppSidebar() {
@@ -169,7 +174,7 @@ export function AppSidebar() {
 
 
 
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
   return (
     <Sidebar className="border-r border-gray-200 bg-white dark:bg-gray-900 dark:border-gray-700" collapsible="icon" style={{ "--sidebar-width-icon": "4rem" } as React.CSSProperties}>

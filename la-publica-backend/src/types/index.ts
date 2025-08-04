@@ -6,7 +6,7 @@ import { Request } from 'express';
 export interface JWTPayload {
   userId: string;
   email: string;
-  role: 'user' | 'admin' | 'colaborador' | 'editor';
+  role: 'user' | 'admin' | 'colaborador' | 'editor' | 'superadmin';
   iat: number;
   exp: number;
   iss?: string; // issuer
@@ -65,7 +65,8 @@ export enum UserRole {
   COLABORADOR = 'colaborador',
   EDITOR = 'editor',
   MODERATOR = 'moderator',
-  ADMIN = 'admin'
+  ADMIN = 'admin',
+  SUPERADMIN = 'superadmin'
 }
 
 export interface NotificationPreferences {

@@ -64,7 +64,7 @@ import {
 } from "@/api/adminData";
 import { getCategoriesTree } from "@/api/categories";
 
-type DataType = 'users' | 'posts' | 'companies' | 'groups' | 'forums' | 'jobOffers' | 'announcements' | 'advisories';
+type DataType = 'posts' | 'companies' | 'groups' | 'forums' | 'jobOffers' | 'announcements' | 'advisories';
 
 interface DataTypeConfig {
   key: DataType;
@@ -78,16 +78,6 @@ interface DataTypeConfig {
 }
 
 const dataTypes: DataTypeConfig[] = [
-  {
-    key: 'users',
-    label: 'Usuaris',
-    icon: Users,
-    endpoint: getUsers,
-    canEdit: true,
-    canDelete: true,
-    canAssignAuthor: false,
-    canAssignCategory: false
-  },
   {
     key: 'posts',
     label: 'Posts',
@@ -161,7 +151,7 @@ const dataTypes: DataTypeConfig[] = [
 ];
 
 export default function DataManagement() {
-  const [activeTab, setActiveTab] = useState<DataType>('users');
+  const [activeTab, setActiveTab] = useState<DataType>('posts');
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -268,9 +258,7 @@ export default function DataManagement() {
     }
 
     try {
-      if (activeTab === 'users') {
-        await deleteUser(item._id, permanent);
-      } else if (activeTab === 'posts') {
+      if (activeTab === 'posts') {
         await deletePost(item._id, permanent);
       }
       
@@ -489,7 +477,7 @@ export default function DataManagement() {
 
         {/* Data Type Tabs */}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as DataType)}>
-          <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
+          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7">
             {dataTypes.map(dataType => {
               const Icon = dataType.icon;
               return (

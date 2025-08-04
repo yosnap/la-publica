@@ -30,6 +30,7 @@ import granularBackupRoutes from './granularBackup.routes';
 import adminDataRoutes from './adminData.routes';
 import installRoutes from './install.routes';
 import debugRoutes from './debug.routes';
+import superadminRoutes from './superadmin.routes';
 import { errorHandler } from './middleware/errorHandler';
 import 'dotenv/config';
 
@@ -237,6 +238,9 @@ app.use('/api/granular-backup', granularBackupRoutes);
 
 // Rutas de administración de datos (admin)
 app.use('/api/admin-data', adminDataRoutes);
+
+// Rutas de superadmin
+app.use('/api/superadmin', superadminRoutes);
 
 // Rutas del sistema (admin)
 import systemRoutes from './system.routes';

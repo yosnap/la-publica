@@ -5,7 +5,7 @@ import { AuthenticatedRequest } from '../types';
  * Middleware para autorizar el acceso basado en roles de usuario.
  * @param allowedRoles Un array de roles que tienen permiso para acceder a la ruta.
  */
-export const authorize = (allowedRoles: Array<'user' | 'admin' | 'colaborador' | 'editor'>) => {
+export const authorize = (allowedRoles: Array<'user' | 'admin' | 'colaborador' | 'editor' | 'superadmin'>) => {
   return (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
       res.status(401).json({
@@ -16,6 +16,12 @@ export const authorize = (allowedRoles: Array<'user' | 'admin' | 'colaborador' |
     }
 
     const userRole = req.user.role;
+
+    // SuperAdmin tiene acceso a todo
+    if (userRole === 'superadmin') {
+      next();
+      return;
+    }
 
     if (!allowedRoles.includes(userRole)) {
       res.status(403).json({
