@@ -181,8 +181,8 @@ export function AppSidebar() {
       <SidebarHeader className="p-4 border-b border-gray-100 dark:border-gray-700">
         <div className="flex items-center justify-between group-data-[collapsible=icon]:justify-center">
           <div className="flex items-center space-x-3">
-            <div className="w-8 h-8 bg-[#4F8FF7] rounded-lg flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-bold text-sm">LP</span>
+            <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+              <img src="/icon-01.png" alt="La Pública" className="w-8 h-8 object-contain" />
             </div>
             <div className="group-data-[collapsible=icon]:hidden">
               <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">La pública</h2>

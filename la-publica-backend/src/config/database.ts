@@ -17,9 +17,9 @@ class Database {
     try {
       const options = {
         maxPoolSize: 10,
-        serverSelectionTimeoutMS: this.isDevelopment ? 10000 : 5000,
+        serverSelectionTimeoutMS: this.isDevelopment ? 10000 : 30000, // Más tiempo para producción
         socketTimeoutMS: 45000,
-        bufferCommands: false,
+        bufferCommands: true, // Cambiar a true para producción
         autoCreate: true, // Crear BD automáticamente si no existe
         autoIndex: this.isDevelopment, // Solo crear índices automáticamente en desarrollo
       };

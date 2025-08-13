@@ -1095,7 +1095,7 @@ const Dashboard = () => {
                       { /* Imagen si existe */}
                       {post.image && (
                         <div className="mb-4">
-                          <img src={post.image} alt="Imagen del post" className="w-full h-64 object-cover rounded-lg" />
+                          <img src={getImageUrl(post.image)} alt="Imagen del post" className="w-full h-64 object-cover rounded-lg" />
                       </div>
                     )}
                     <div className="flex items-center space-x-6 pt-2">

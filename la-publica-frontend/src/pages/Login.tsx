@@ -67,8 +67,17 @@ const Login = () => {
       <div className="w-full max-w-md">
         { /* Logo y título */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-[#4F8FF7] rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-2xl">LP</span>
+          <div className="w-32 h-16 flex items-center justify-center mx-auto mb-4">
+            <img 
+              src="/lapublica-logo-01.jpg" 
+              alt="La Pública" 
+              className="h-16 w-auto object-contain dark:hidden" 
+            />
+            <img 
+              src="/lapublica-logo-dark.png" 
+              alt="La Pública" 
+              className="h-16 w-auto object-contain hidden dark:block" 
+            />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Benvingut de nou</h1>
           <p className="text-gray-600 mt-2">Inicia sessió al teu compte de La Pública</p>

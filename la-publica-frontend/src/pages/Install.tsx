@@ -213,7 +213,18 @@ export default function InstallPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <Settings className="h-12 w-12 text-blue-600" />
+            <div className="w-32 h-16 flex items-center justify-center">
+              <img 
+                src="/lapublica-logo-01.jpg" 
+                alt="La Pública" 
+                className="h-16 w-auto object-contain dark:hidden" 
+              />
+              <img 
+                src="/lapublica-logo-dark.png" 
+                alt="La Pública" 
+                className="h-16 w-auto object-contain hidden dark:block" 
+              />
+            </div>
           </div>
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             Instalación de La Pública

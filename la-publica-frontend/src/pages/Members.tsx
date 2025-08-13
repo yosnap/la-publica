@@ -10,7 +10,7 @@ import { PageWrapper } from "@/components/PageWrapper";
 import { toast } from "sonner";
 import { getImageUrl } from "@/utils/getImageUrl";
 import { useUserProfile } from "@/hooks/useUser";
-import { fetchAllUsers, toggleFollowUser, sendUserMessage, User } from "@/api/users";
+import { fetchAllUsers, toggleFollowUser, sendUserMessage, User as UserType } from "@/api/users";
 import { 
   DropdownMenu,
   DropdownMenuContent,
@@ -52,7 +52,7 @@ export default function Members() {
   const [activeTab, setActiveTab] = useState<"all" | "connections" | "following" | "followers">("all");
   const [activeMemberFilter, setActiveMemberFilter] = useState<"newest" | "active" | "popular">("newest");
   const [activeGroupFilter, setActiveGroupFilter] = useState<"newest" | "active" | "popular">("newest");
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<UserType[]>([]);
   const [loading, setLoading] = useState(true);
   const [pendingConnections, setPendingConnections] = useState<string[]>([]); // Solicitudes que yo envié
   const [acceptedConnections, setAcceptedConnections] = useState<string[]>([]); // Conexiones aceptadas (bidireccional)
@@ -108,23 +108,23 @@ export default function Members() {
         // Sync bidirectional connections
         if (newGlobal[currentUser._id]) {
           // For each accepted connection, ensure it's bidirectional
-          newGlobal[currentUser._id].accepted.forEach(connectedUserId => {
-            if (newGlobal[connectedUserId] && !newGlobal[connectedUserId].accepted.includes(currentUser._id)) {
-              newGlobal[connectedUserId].accepted.push(currentUser._id);
+          newGlobal[currentUser._id].accepted.forEach(connectedUserTypeId => {
+            if (newGlobal[connectedUserTypeId] && !newGlobal[connectedUserTypeId].accepted.includes(currentUser._id)) {
+              newGlobal[connectedUserTypeId].accepted.push(currentUser._id);
             }
           });
           
           // For each outgoing request, add as incoming to the other user
-          newGlobal[currentUser._id].pendingOut.forEach(targetUserId => {
-            if (newGlobal[targetUserId] && !newGlobal[targetUserId].pendingIn.includes(currentUser._id)) {
-              newGlobal[targetUserId].pendingIn.push(currentUser._id);
+          newGlobal[currentUser._id].pendingOut.forEach(targetUserTypeId => {
+            if (newGlobal[targetUserTypeId] && !newGlobal[targetUserTypeId].pendingIn.includes(currentUser._id)) {
+              newGlobal[targetUserTypeId].pendingIn.push(currentUser._id);
             }
           });
           
           // For each incoming request, add as outgoing from the other user
-          newGlobal[currentUser._id].pendingIn.forEach(fromUserId => {
-            if (newGlobal[fromUserId] && !newGlobal[fromUserId].pendingOut.includes(currentUser._id)) {
-              newGlobal[fromUserId].pendingOut.push(currentUser._id);
+          newGlobal[currentUser._id].pendingIn.forEach(fromUserTypeId => {
+            if (newGlobal[fromUserTypeId] && !newGlobal[fromUserTypeId].pendingOut.includes(currentUser._id)) {
+              newGlobal[fromUserTypeId].pendingOut.push(currentUser._id);
             }
           });
         }
@@ -161,9 +161,9 @@ export default function Members() {
     }
   };
 
-  const handleFollowUser = async (userId: string) => {
+  const handleFollowUserType = async (userId: string) => {
     try {
-      const response = await toggleFollowUser(userId);
+      const response = await toggleFollowUserType(userId);
       toast.success(response.message || 'Estat de seguiment actualitzat');
       // Reload users to update follow state
       await loadUsers();
@@ -178,7 +178,7 @@ export default function Members() {
     toast.info('Sistema de missatges per implementar');
   };
 
-  const handleConnectUser = async (userId: string) => {
+  const handleConnectUserType = async (userId: string) => {
     try {
       if (!currentUser) return;
       
@@ -240,8 +240,8 @@ export default function Members() {
   };
 
   const handleCancelRequest = async (userId: string) => {
-    // This is now handled by handleConnectUser
-    await handleConnectUser(userId);
+    // This is now handled by handleConnectUserType
+    await handleConnectUserType(userId);
   };
 
   const formatJoinDate = (dateString: string) => {
@@ -264,7 +264,7 @@ export default function Members() {
     );
   };
 
-  const handleUserClick = (user: User) => {
+  const handleUserTypeClick = (user: UserType) => {
     // If it's the current user, navigate to their own profile
     if (user._id === currentUser?._id) {
       navigate(`/perfil`);
@@ -342,13 +342,13 @@ export default function Members() {
     return filtered;
   };
 
-  const isFollowingUser = (userId: string) => {
+  const isFollowingUserType = (userId: string) => {
     return currentUser?.following?.includes(userId) || false;
   };
 
   const getFollowButtonText = (userId: string) => {
     if (userId === currentUser?._id) return 'Tu';
-    return isFollowingUser(userId) ? 'Deixar de Seguir' : 'Seguir';
+    return isFollowingUserType(userId) ? 'Deixar de Seguir' : 'Seguir';
   };
 
   const getConnectionStatus = (userId: string) => {
@@ -393,7 +393,7 @@ export default function Members() {
     return !rejectedConnections.includes(userId);
   };
 
-  const UserCard = ({ user, isGrid }: { user: User; isGrid: boolean }) => (
+  const UserTypeCard = ({ user, isGrid }: { user: UserType; isGrid: boolean }) => (
     <Card className={`hover:shadow-lg transition-shadow ${isGrid ? 'h-full' : ''}`}>
       <CardContent className={`p-6 ${isGrid ? 'text-center' : 'flex items-start gap-4'}`}>
         <div className={`${isGrid ? 'flex flex-col items-center' : 'flex-shrink-0'}`}>
@@ -416,7 +416,7 @@ export default function Members() {
             <div className={`${isGrid ? '' : 'flex-1 min-w-0'}`}>
               <h3 
                 className={`font-semibold text-gray-900 hover:text-primary cursor-pointer ${isGrid ? 'text-lg mb-1' : 'text-base mb-1'}`}
-                onClick={() => handleUserClick(user)}
+                onClick={() => handleUserTypeClick(user)}
               >
                 {user.firstName} {user.lastName}
               </h3>
@@ -445,12 +445,12 @@ export default function Members() {
                     <MessageSquare className="h-4 w-4 mr-2" />
                     Enviar Missatge
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => handleFollowUser(user._id)}>
+                  <DropdownMenuItem onClick={() => handleFollowUserType(user._id)}>
                     <UserPlus className="h-4 w-4 mr-2" />
                     {getFollowButtonText(user._id)}
                   </DropdownMenuItem>
                   {canConnect(user._id) && (
-                    <DropdownMenuItem onClick={() => handleConnectUser(user._id)}>
+                    <DropdownMenuItem onClick={() => handleConnectUserType(user._id)}>
                       {(() => {
                         const IconComponent = getConnectionButtonIcon(user._id);
                         return IconComponent ? <IconComponent className="h-4 w-4 mr-2" /> : null;
@@ -491,14 +491,14 @@ export default function Members() {
                     <Button 
                       variant="outline"
                       size="sm" 
-                      onClick={() => handleFollowUser(user._id)}
+                      onClick={() => handleFollowUserType(user._id)}
                       className="flex-1"
                     >
-                      <Radio className={`h-4 w-4 ${isFollowingUser(user._id) ? 'text-primary' : 'text-gray-400'}`} />
+                      <Radio className={`h-4 w-4 ${isFollowingUserType(user._id) ? 'text-primary' : 'text-gray-400'}`} />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>{isFollowingUser(user._id) ? 'Deixar de seguir' : 'Seguir actualitzacions'}</p>
+                    <p>{isFollowingUserType(user._id) ? 'Deixar de seguir' : 'Seguir actualitzacions'}</p>
                   </TooltipContent>
                 </Tooltip>
                 {canConnect(user._id) && (
@@ -510,7 +510,7 @@ export default function Members() {
                           getConnectionStatus(user._id) === 'pending' ? "secondary" : "outline"
                         } 
                         size="sm" 
-                        onClick={() => handleConnectUser(user._id)}
+                        onClick={() => handleConnectUserType(user._id)}
                         className="flex-1"
                       >
                         {(() => {
@@ -720,7 +720,7 @@ export default function Members() {
                           : 'grid-cols-1'
                       }`}>
                         {outgoingRequests.map((user) => (
-                          <UserCard key={user._id} user={user} isGrid={viewMode === "grid"} />
+                          <UserTypeCard key={user._id} user={user} isGrid={viewMode === "grid"} />
                         ))}
                       </div>
                     </div>
@@ -742,7 +742,7 @@ export default function Members() {
                           : 'grid-cols-1'
                       }`}>
                         {incomingRequests.map((user) => (
-                          <UserCard key={user._id} user={user} isGrid={viewMode === "grid"} />
+                          <UserTypeCard key={user._id} user={user} isGrid={viewMode === "grid"} />
                         ))}
                       </div>
                     </div>
@@ -770,7 +770,7 @@ export default function Members() {
                       : 'grid-cols-1'
                   }`}>
                     {paginatedUsers.map((user) => (
-                      <UserCard key={user._id} user={user} isGrid={viewMode === "grid"} />
+                      <UserTypeCard key={user._id} user={user} isGrid={viewMode === "grid"} />
                     ))}
                   </div>
                   

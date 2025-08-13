@@ -292,7 +292,7 @@ export const GroupPostCard = ({
               {post.images.map((image, index) => (
                 <img
                   key={index}
-                  src={image}
+                  src={getImageUrl(image)}
                   alt={`Imagen ${index + 1}`}
                   className="w-full h-48 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
                 />

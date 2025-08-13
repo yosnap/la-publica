@@ -75,7 +75,7 @@ export const getSystemInfo = async (req: Request, res: Response) => {
 
     // Dependencias principales y versión actual
     const packageJson = require('../package.json');
-    const currentVersion = packageJson.version;
+    const currentVersion = packageJson.version || '1.0.5';
     const dependencies = {
       express: packageJson.dependencies.express,
       mongoose: packageJson.dependencies.mongoose,

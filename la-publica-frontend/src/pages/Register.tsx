@@ -58,8 +58,17 @@ const Register = () => {
     <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 bg-[#4F8FF7] rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <span className="text-white font-bold text-2xl">LP</span>
+          <div className="w-32 h-16 flex items-center justify-center mx-auto mb-4">
+            <img 
+              src="/lapublica-logo-01.jpg" 
+              alt="La Pública" 
+              className="h-16 w-auto object-contain dark:hidden" 
+            />
+            <img 
+              src="/lapublica-logo-dark.png" 
+              alt="La Pública" 
+              className="h-16 w-auto object-contain hidden dark:block" 
+            />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Crea el teu compte</h1>
           <p className="text-gray-600 mt-2">Uneix-te a La pública per començar a connectar</p>
