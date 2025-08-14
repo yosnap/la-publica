@@ -11,7 +11,7 @@ ARG VITE_PUBLIC_URL
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm ci
 
 # Copy source code
 COPY . .
