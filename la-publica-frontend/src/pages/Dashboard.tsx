@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { CircularProgress } from "@/components/ui/circular-progress";
@@ -26,6 +26,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
   DialogClose
 } from "@/components/ui/dialog";
 import {
@@ -36,7 +37,6 @@ import {
   DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
-import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { GroupsWidget } from "@/components/GroupsWidget";
 import { AnnouncementsWidget } from "@/components/AnnouncementsWidget";
 import { ForumsWidget } from "@/components/ForumsWidget";
@@ -721,6 +721,9 @@ const Dashboard = () => {
               <DialogContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
                 <DialogHeader>
                   <DialogTitle className="text-gray-900 dark:text-gray-100">Crear una publicación</DialogTitle>
+                  <DialogDescription className="text-gray-600 dark:text-gray-400">
+                    Comparteix alguna cosa amb la comunitat
+                  </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleCreatePostModal} className="space-y-4">
                   <div className="flex items-center gap-3 mb-2">
@@ -1183,30 +1186,26 @@ const Dashboard = () => {
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
-                            <div className="flex space-x-2">
-                              <Textarea
+                            <div className="space-y-2">
+                              <RichTextEditor
                                 placeholder="Escriu un comentari..."
                                 value={commentText[post._id] || ""}
-                                onChange={(e) => setCommentText(prev => ({ 
+                                onChange={(value) => setCommentText(prev => ({ 
                                   ...prev, 
-                                  [post._id]: e.target.value 
+                                  [post._id]: value 
                                 }))}
-                                className="min-h-[40px] py-2 px-3 text-sm resize-none"
-                                onKeyDown={(e) => {
-                                  if (e.key === 'Enter' && !e.shiftKey) {
-                                    e.preventDefault();
-                                    handleSubmitComment(post._id);
-                                  }
-                                }}
+                                className="min-h-[60px]"
                               />
-                              <Button
-                                size="sm"
-                                onClick={() => handleSubmitComment(post._id)}
-                                disabled={submittingComment[post._id] || !commentText[post._id]?.trim()}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-4"
-                              >
-                                {submittingComment[post._id] ? "..." : "Enviar"}
-                              </Button>
+                              <div className="flex justify-end">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleSubmitComment(post._id)}
+                                  disabled={submittingComment[post._id] || !commentText[post._id]?.trim()}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white px-4"
+                                >
+                                  {submittingComment[post._id] ? "..." : "Enviar"}
+                                </Button>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1635,6 +1634,9 @@ const Dashboard = () => {
         <DialogContent className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700">
           <DialogHeader>
             <DialogTitle className="text-gray-900 dark:text-gray-100">Editar publicación</DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
+              Modifica el contingut de la teva publicació
+            </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleSaveEdit} className="space-y-4">
             <div className="flex items-center gap-3 mb-2">

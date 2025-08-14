@@ -100,6 +100,88 @@
   }
 }
 
+/* Custom Tippy styles for mentions */
+.tippy-box[data-theme~='light'] {
+  background-color: transparent;
+  box-shadow: none;
+  z-index: 999999 !important;
+  pointer-events: auto !important;
+}
+
+.tippy-box[data-theme~='light'] > .tippy-content {
+  padding: 0;
+  background-color: transparent;
+  pointer-events: auto !important;
+  overflow: visible !important;
+}
+
+.tippy-box[data-theme~='light'] .tippy-arrow {
+  display: none;
+}
+
+/* Ensure mention list is clickable in modals */
+.tippy-box[data-theme~='light'] [role="tooltip"] {
+  pointer-events: auto !important;
+}
+
+/* Force mention list to be above dialog */
+[data-mention-list="true"] {
+  position: relative;
+  z-index: 999999 !important;
+  pointer-events: auto !important;
+}
+
+/* Mention styling for atomic deletion */
+.mention {
+  background: #e0e7ff;
+  border-radius: 4px;
+  padding: 1px 4px;
+  margin: 0 1px;
+  text-decoration: none !important;
+  white-space: nowrap;
+  display: inline-block;
+  user-select: all; /* Select entire mention when clicked */
+}
+
+.dark .mention {
+  background: #3730a3;
+  color: #c7d2fe;
+}
+
+/* Custom scrollbar for mention list */
+[data-mention-list="true"] ul {
+  scrollbar-width: thin;
+  scrollbar-color: #d1d5db #f3f4f6;
+  overflow-y: auto !important;
+  pointer-events: auto !important;
+}
+
+[data-mention-list="true"] ul::-webkit-scrollbar {
+  width: 12px;
+  background: #f9fafb;
+}
+
+[data-mention-list="true"] ul::-webkit-scrollbar-track {
+  background: #f3f4f6;
+  border-radius: 6px;
+  margin: 4px 0;
+}
+
+[data-mention-list="true"] ul::-webkit-scrollbar-thumb {
+  background: #9ca3af;
+  border-radius: 6px;
+  border: 2px solid #f3f4f6;
+  min-height: 20px;
+}
+
+[data-mention-list="true"] ul::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+[data-mention-list="true"] ul::-webkit-scrollbar-thumb:active {
+  background: #6b7280;
+}
+
 .phone-input-custom .PhoneInputInput,
 .phone-input-custom .PhoneInputCountry {
   border: none !important;

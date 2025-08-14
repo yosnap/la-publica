@@ -1,13 +1,13 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { Paperclip, Image as ImageIcon, Smile, BarChart2, Globe, Lock, Users as UsersIcon } from "lucide-react";
 import { getImageUrl } from '@/utils/getImageUrl';
 import { createPost } from "@/api/posts";
-import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import { RichTextEditor, RichTextEditorRef } from "@/components/ui/rich-text-editor";
 import { toast } from "sonner";
 import apiClient from '@/api/client';
 
@@ -33,7 +33,9 @@ export function CreatePostInput({
 }: CreatePostInputProps) {
   const [modalOpen, setModalOpen] = useState(false);
   const [newPostContent, setNewPostContent] = useState("");
+  const editorRef = useRef<RichTextEditorRef>(null);
   const [posting, setPosting] = useState(false);
+  const [editorKey, setEditorKey] = useState(0);
   const [privacy, setPrivacy] = useState("public");
   
   // Estados para herramientas de posts
@@ -189,6 +191,7 @@ export function CreatePostInput({
   // Función para limpiar formulario de post
   const clearPostForm = () => {
     setNewPostContent("");
+    setEditorKey(prev => prev + 1); // Forzar recreación del editor
     setSelectedImage(null);
     setImagePreview(null);
     setSelectedFile(null);
@@ -199,7 +202,12 @@ export function CreatePostInput({
   };
 
   return (
-    <Dialog open={modalOpen} onOpenChange={setModalOpen}>
+    <Dialog open={modalOpen} onOpenChange={(open) => {
+      setModalOpen(open);
+      if (!open) {
+        clearPostForm(); // Limpiar cuando se cierre el modal por cualquier razón
+      }
+    }}>
       <DialogTrigger asChild>
         <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm cursor-pointer hover:shadow-md transition-shadow">
           <CardContent className="p-4 flex items-center gap-4">
@@ -224,6 +232,12 @@ export function CreatePostInput({
           <DialogTitle className="text-gray-900 dark:text-gray-100">
             {targetUser ? `Escribir en el muro de ${targetUser.firstName}` : 'Crear una publicación'}
           </DialogTitle>
+          <DialogDescription className="text-gray-600 dark:text-gray-400">
+            {targetUser 
+              ? `Comparteix alguna cosa al mur de ${targetUser.firstName}`
+              : 'Comparteix alguna cosa amb la comunitat'
+            }
+          </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleCreatePost} className="space-y-4">
@@ -273,6 +287,8 @@ export function CreatePostInput({
           </div>
           
           <RichTextEditor
+            key={`editor-${editorKey}`}
+            ref={editorRef}
             value={newPostContent}
             onChange={setNewPostContent}
             placeholder={targetUser 

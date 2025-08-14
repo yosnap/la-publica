@@ -22,7 +22,7 @@ import { getUserBySlug } from "@/api/users";
 import { FollowingUsersWidget } from "@/components/FollowingUsersWidget";
 import { LatestUpdatesWidget } from "@/components/LatestUpdatesWidget";
 import { CreatePostInput } from "@/components/CreatePostInput";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { toast } from "sonner";
 
 // Tipos
@@ -779,30 +779,26 @@ export default function UserProfile() {
                                 </AvatarFallback>
                               </Avatar>
                               <div className="flex-1">
-                                <div className="flex space-x-2">
-                                  <Textarea
+                                <div className="space-y-2">
+                                  <RichTextEditor
                                     placeholder="Escriu un comentari..."
                                     value={commentText[post._id] || ""}
-                                    onChange={(e) => setCommentText(prev => ({ 
+                                    onChange={(value) => setCommentText(prev => ({ 
                                       ...prev, 
-                                      [post._id]: e.target.value 
+                                      [post._id]: value 
                                     }))}
-                                    className="min-h-[40px] py-2 px-3 text-sm resize-none"
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter' && !e.shiftKey) {
-                                        e.preventDefault();
-                                        handleSubmitComment(post._id);
-                                      }
-                                    }}
+                                    className="min-h-[60px]"
                                   />
-                                  <Button
-                                    size="sm"
-                                    onClick={() => handleSubmitComment(post._id)}
-                                    disabled={submittingComment[post._id] || !commentText[post._id]?.trim()}
-                                    className="bg-blue-600 hover:bg-blue-700 text-white px-4"
-                                  >
-                                    {submittingComment[post._id] ? "..." : "Enviar"}
-                                  </Button>
+                                  <div className="flex justify-end">
+                                    <Button
+                                      size="sm"
+                                      onClick={() => handleSubmitComment(post._id)}
+                                      disabled={submittingComment[post._id] || !commentText[post._id]?.trim()}
+                                      className="bg-blue-600 hover:bg-blue-700 text-white px-4"
+                                    >
+                                      {submittingComment[post._id] ? "..." : "Enviar"}
+                                    </Button>
+                                  </div>
                                 </div>
                               </div>
                             </div>

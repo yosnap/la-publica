@@ -16,7 +16,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -352,11 +352,11 @@ export const GroupPostCard = ({
                     <AvatarFallback>TU</AvatarFallback>
                   </Avatar>
                   <div className="flex-1 space-y-2">
-                    <Textarea
+                    <RichTextEditor
                       value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
+                      onChange={(value) => setNewComment(value)}
                       placeholder="Escribe un comentario..."
-                      className="min-h-[60px] resize-none"
+                      className="min-h-[60px]"
                     />
                     <div className="flex justify-end">
                       <Button

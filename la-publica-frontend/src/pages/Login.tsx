@@ -67,16 +67,16 @@ const Login = () => {
       <div className="w-full max-w-md">
         { /* Logo y título */}
         <div className="text-center mb-8">
-          <div className="w-32 h-16 flex items-center justify-center mx-auto mb-4">
+          <div className="w-full max-w-lg h-64 flex items-center justify-center mx-auto mb-6">
             <img 
-              src="/lapublica-logo-01.jpg" 
+              src="/lapublica-logo-light.svg" 
               alt="La Pública" 
-              className="h-16 w-auto object-contain dark:hidden" 
+              className="h-64 w-auto object-contain dark:hidden" 
             />
             <img 
-              src="/lapublica-logo-dark.png" 
+              src="/lapublica-logo-dark.svg" 
               alt="La Pública" 
-              className="h-16 w-auto object-contain hidden dark:block" 
+              className="h-64 w-auto object-contain hidden dark:block" 
             />
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Benvingut de nou</h1>

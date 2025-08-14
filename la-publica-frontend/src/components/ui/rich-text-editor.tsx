@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useImperativeHandle, forwardRef } from "react";
 import { useEditor, EditorContent, ReactRenderer } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
@@ -21,6 +21,12 @@ interface RichTextEditorProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  key?: string;
+}
+
+export interface RichTextEditorRef {
+  clear: () => void;
+  reset: () => void;
 }
 
 interface User {
@@ -34,9 +40,8 @@ interface User {
 
 const emojis = ['😀', '😃', '😄', '😁', '😅', '😂', '🤣', '😊', '😇', '🙂', '😍', '🥰', '😘', '😗', '😙', '😚', '😋', '😛', '😝', '😜', '🤪', '🤨', '🧐', '🤓', '😎', '🥸', '🤩', '🥳', '😏', '😒', '😞', '😔', '😟', '😕', '🙁', '☹️', '😣', '😖', '😫', '😩', '🥺', '😢', '😭', '😤', '😠', '😡', '🤬', '🤯', '😳', '🥵', '🥶', '😱', '😨', '😰', '😥', '😓', '🤗', '🤔', '🤭', '🤫', '🤥', '😶', '😐', '😑', '😬', '🙄', '😯', '😦', '😧', '😮', '😲', '🥱', '😴', '🤤', '😪', '😵', '🤐', '🥴', '🤢', '🤮', '🤧', '😷', '🤒', '🤕', '🤑', '🤠', '😈', '👿', '👹', '👺', '🤡', '💩', '👻', '💀', '☠️', '👽', '👾', '🤖', '🎃', '😺', '😸', '😹', '😻', '😼', '😽', '🙀', '😿', '😾', '👋', '🤚', '🖐️', '✋', '🖖', '👌', '🤌', '🤏', '✌️', '🤞', '🤟', '🤘', '🤙', '👈', '👉', '👆', '🖕', '👇', '☝️', '👍', '👎', '✊', '👊', '🤛', '🤜', '👏', '🙌', '👐', '🤝', '🙏', '✍️', '💅', '🤳', '💪', '🦾', '🦵', '🦿', '🦶', '👣', '👂', '🦻', '👃', '🫀', '🫁', '🧠', '🦷', '🦴', '👀', '👁️', '👅', '👄', '💋', '🩸', '❤️', '🧡', '💛', '💚', '💙', '💜', '🖤', '🤍', '🤎', '💔', '❣️', '💕', '💞', '💓', '💗', '💖', '💘', '💝', '💟', '☮️', '✝️', '☪️', '🕉️', '☸️', '✡️', '🔯', '🕎', '☯️', '☦️', '🛐', '⛎', '♈', '♉', '♊', '♋', '♌', '♍', '♎', '♏', '♐', '♑', '♒', '♓', '🆔', '⚛️', '🉑', '☢️', '☣️', '📴', '📳', '🈶', '🈚', '🈸', '🈺', '🈷️', '✴️', '🆚', '💮', '🉐', '㊙️', '㊗️', '🈴', '🈵', '🈹', '🈲', '🅰️', '🅱️', '🆎', '🆑', '🅾️', '🆘'];
 
-export const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange, placeholder, className }) => {
+export const RichTextEditor = forwardRef<RichTextEditorRef, RichTextEditorProps>(({ value, onChange, placeholder, className }, ref) => {
   const [users, setUsers] = useState<User[]>([]);
-  const [mentionSuggestions, setMentionSuggestions] = useState<User[]>([]);
 
    // Load users once when component mounts
   useEffect(() => {
@@ -63,19 +68,34 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange,
         HTMLAttributes: {
           class: 'mention text-blue-600 dark:text-blue-400 font-medium cursor-pointer hover:underline',
         },
-        renderLabel({ options, node }) {
+        renderText({ node }) {
           return `@${node.attrs.label ?? node.attrs.id}`;
         },
+        renderHTML({ node }) {
+          return [
+            'span',
+            {
+              class: 'mention text-blue-600 dark:text-blue-400 font-medium cursor-pointer hover:underline',
+              'data-type': 'mention',
+              'data-id': node.attrs.id,
+              'data-label': node.attrs.label,
+            },
+            `@${node.attrs.label ?? node.attrs.id}`,
+          ];
+        },
+        deleteTriggerWithBackspace: true,
         suggestion: {
+          char: '@',
+          allowSpaces: false,
           items: ({ query }) => {
-            if (!query) return [];
+            if (!query) return users.slice(0, 8);
             
             const lowercaseQuery = query.toLowerCase();
             return users.filter(user => 
               user.username?.toLowerCase().includes(lowercaseQuery) ||
               user.email?.toLowerCase().includes(lowercaseQuery) ||
               `${user.firstName} ${user.lastName}`.toLowerCase().includes(lowercaseQuery)
-            ).slice(0, 5);
+            ).slice(0, 8);
           },
 
           render: () => {
@@ -93,14 +113,50 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange,
                   editor: props.editor,
                 });
 
+                // Detectar si estamos dentro de un Dialog
+                const isInDialog = document.querySelector('[role="dialog"]') !== null;
+                
                 popup = tippy('body', {
                   getReferenceClientRect: props.clientRect,
-                  appendTo: () => document.body,
+                  appendTo: () => {
+                    // Si estamos en un dialog, appendear al dialog en lugar del body
+                    if (isInDialog) {
+                      const dialog = document.querySelector('[role="dialog"]');
+                      return dialog || document.body;
+                    }
+                    return document.body;
+                  },
                   content: component.element,
                   showOnCreate: true,
                   interactive: true,
                   trigger: 'manual',
                   placement: 'bottom-start',
+                  theme: 'light',
+                  arrow: false,
+                  animation: false,
+                  duration: 0,
+                  zIndex: isInDialog ? 9999 : 1000, // z-index más bajo dentro del dialog
+                  hideOnClick: false,
+                  allowHTML: true,
+                  maxWidth: 'none',
+                  popperOptions: {
+                    strategy: 'absolute', // Usar absolute en lugar de fixed dentro del dialog
+                    modifiers: [
+                      {
+                        name: 'preventOverflow',
+                        options: {
+                          boundary: isInDialog ? 'clippingParents' : 'viewport',
+                          padding: 8,
+                        },
+                      },
+                      {
+                        name: 'flip',
+                        options: {
+                          fallbackPlacements: ['top-start', 'bottom-end', 'top-end'],
+                        },
+                      },
+                    ],
+                  },
                 });
               },
 
@@ -126,7 +182,9 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange,
               },
 
               onExit() {
-                popup[0].destroy();
+                if (popup[0] && !popup[0].state.isDestroyed) {
+                  popup[0].destroy();
+                }
                 component.destroy();
               },
             };
@@ -151,6 +209,23 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange,
       editor.commands.setContent(value);
     }
   }, [value, editor]);
+
+  // Exponer funciones del editor al componente padre
+  useImperativeHandle(ref, () => ({
+    clear: () => {
+      if (editor) {
+        editor.commands.clearContent();
+        onChange('');
+      }
+    },
+    reset: () => {
+      if (editor) {
+        editor.commands.clearContent();
+        editor.commands.focus();
+        onChange('');
+      }
+    }
+  }), [editor, onChange]);
 
   const insertEmoji = useCallback((emoji: string) => {
     if (editor) {
@@ -242,4 +317,6 @@ export const RichTextEditor: React.FC<RichTextEditorProps> = ({ value, onChange,
       </div>
     </div>
   );
-};
+});
+
+RichTextEditor.displayName = 'RichTextEditor';

@@ -1,4 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useState, useEffect } from 'react';
+import { getImageUrl } from '@/utils/getImageUrl';
 
 interface User {
   _id: string;
@@ -61,41 +62,61 @@ export const MentionList = forwardRef<any, MentionListProps>((props, ref) => {
   }));
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-2 max-w-xs">
+    <div className="bg-white border border-gray-200 rounded-lg shadow-md p-1 w-72" data-mention-list="true">
       {props.items.length ? (
-        <ul className="space-y-1">
+        <ul className="overflow-y-auto" style={{ maxHeight: '160px' }}>
           {props.items.map((item, index) => (
             <li
               key={item._id}
-              className={`p-2 rounded cursor-pointer transition-colors ${
+              className={`px-3 py-2 rounded cursor-pointer transition-colors ${
                 index === selectedIndex
-                  ? 'bg-blue-100 dark:bg-blue-900/50 ring-1 ring-blue-500'
-                  : 'hover:bg-gray-50 dark:hover:bg-gray-700/50'
+                  ? 'bg-blue-50 text-blue-900'
+                  : 'hover:bg-gray-50 text-gray-900'
               }`}
-              onClick={() => selectItem(index)}
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                selectItem(index);
+              }}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+              }}
+              onPointerDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                selectItem(index);
+              }}
             >
-              <div>
-                <div className={`text-sm font-medium ${
-                  index === selectedIndex 
-                    ? 'text-blue-900 dark:text-blue-100' 
-                    : 'text-gray-900 dark:text-gray-100'
-                }`}>
-                  {item.firstName} {item.lastName}
-                </div>
-                <div className={`text-xs ${
-                  index === selectedIndex 
-                    ? 'text-blue-700 dark:text-blue-300' 
-                    : 'text-gray-500 dark:text-gray-400'
-                }`}>
-                  @{item.username}
+              <div className="flex items-center space-x-2">
+                {item.profilePicture ? (
+                  <img 
+                    src={getImageUrl(item.profilePicture)} 
+                    alt={item.firstName}
+                    className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-6 h-6 rounded-full bg-gray-200 flex items-center justify-center flex-shrink-0">
+                    <span className="text-xs text-gray-600 font-medium">
+                      {item.firstName?.[0]}{item.lastName?.[0]}
+                    </span>
+                  </div>
+                )}
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium truncate">
+                    {item.firstName} {item.lastName}
+                  </div>
+                  <div className="text-xs text-gray-500 truncate">
+                    @{item.username}
+                  </div>
                 </div>
               </div>
             </li>
           ))}
         </ul>
       ) : (
-        <div className="text-gray-500 dark:text-gray-400 text-sm p-2">
-          No se encontraron usuarios
+        <div className="text-gray-500 text-sm px-3 py-2">
+          No s'han trobat usuaris
         </div>
       )}
     </div>

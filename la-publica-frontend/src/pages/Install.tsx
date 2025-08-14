@@ -213,16 +213,16 @@ export default function InstallPage() {
         {/* Header */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center mb-4">
-            <div className="w-32 h-16 flex items-center justify-center">
+            <div className="w-full max-w-lg h-64 flex items-center justify-center">
               <img 
-                src="/lapublica-logo-01.jpg" 
+                src="/lapublica-logo-light.svg" 
                 alt="La Pública" 
-                className="h-16 w-auto object-contain dark:hidden" 
+                className="h-64 w-auto object-contain dark:hidden" 
               />
               <img 
-                src="/lapublica-logo-dark.png" 
+                src="/lapublica-logo-dark.svg" 
                 alt="La Pública" 
-                className="h-16 w-auto object-contain hidden dark:block" 
+                className="h-64 w-auto object-contain hidden dark:block" 
               />
             </div>
           </div>
