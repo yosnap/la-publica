@@ -18,6 +18,7 @@ import { CoverPhotoSection } from "@/components/profile/CoverPhotoSection";
 import { SkillsSection } from "@/components/profile/SkillsSection";
 import { toast } from "sonner";
 import { getImageUrl } from '@/utils/getImageUrl';
+import { convertImageByType, isImageFile } from '@/utils/imageUtils';
 
 interface WorkExperience {
   jobTitle: string;
@@ -176,8 +177,19 @@ const CompleteProfile = () => {
     const toastId = toast.loading("Subiendo imagen...");
     setIsLoading(true);
     try {
+      // Validar y convertir imagen a WebP
+      if (!isImageFile(file)) {
+        toast.error('El archivo debe ser una imagen válida', { id: toastId });
+        return;
+      }
+
+      // Convertir a WebP con configuración apropiada según el tipo
+      const configType = imageType === 'profile' ? 'profile' : 'cover';
+      const webpBlob = await convertImageByType(file, configType);
+      const webpFile = new File([webpBlob], `${imageType}.webp`, { type: 'image/webp' });
+      
       const formData = new FormData();
-      formData.append('image', file);
+      formData.append('image', webpFile);
       const res = await apiClient.post('/uploads/image', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });

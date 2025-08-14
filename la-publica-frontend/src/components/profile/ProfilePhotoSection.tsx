@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { toast } from 'sonner';
 import apiClient from '@/api/client';
 import { getImageUrl } from '@/utils/getImageUrl';
+import { convertCroppedImageToWebP, isImageFile, ImageConfigs } from '@/utils/imageUtils';
 
 interface ProfilePhotoSectionProps {
   profileImageUrl?: string;
@@ -55,6 +56,11 @@ export const ProfilePhotoSection: React.FC<ProfilePhotoSectionProps> = ({ profil
 
    // Procesar archivo o imagen base64
   const handleFile = (file: File) => {
+    if (!isImageFile(file)) {
+      toast.error('El archivo debe ser una imagen válida');
+      return;
+    }
+    
     const reader = new FileReader();
     reader.onload = () => {
       setImageSrc(reader.result as string);
@@ -73,9 +79,10 @@ export const ProfilePhotoSection: React.FC<ProfilePhotoSectionProps> = ({ profil
     if (!imageSrc || !croppedAreaPixels) return;
     setCropping(true);
     try {
-      const croppedBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+      // Usar la nueva utilidad para convertir a WebP con configuración optimizada
+      const croppedBlob = await convertCroppedImageToWebP(imageSrc, croppedAreaPixels, ImageConfigs.profile);
       const formData = new FormData();
-      formData.append('image', croppedBlob, 'profile.jpg');
+      formData.append('image', croppedBlob, 'profile.webp');
       const res = await apiClient.post('/uploads/image', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -83,7 +90,7 @@ export const ProfilePhotoSection: React.FC<ProfilePhotoSectionProps> = ({ profil
       });
       const data = res.data;
       if (data.imageUrl) {
-        toast.success('Foto de perfil actualizada');
+        toast.success('Foto de perfil actualizada y optimizada en WebP');
         onProfileImageChange(data.imageUrl);
         setImageSrc(null);
       } else {
@@ -234,33 +241,4 @@ export const ProfilePhotoSection: React.FC<ProfilePhotoSectionProps> = ({ profil
   );
 };
 
- // Utilidad para recortar la imagen
-function getCroppedImg(imageSrc: string, crop: CropArea): Promise<Blob> {
-  return new Promise((resolve, reject) => {
-    const image = new window.Image();
-    image.src = imageSrc;
-    image.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = crop.width;
-      canvas.height = crop.height;
-      const ctx = canvas.getContext('2d');
-      if (!ctx) return reject();
-      ctx.drawImage(
-        image,
-        crop.x,
-        crop.y,
-        crop.width,
-        crop.height,
-        0,
-        0,
-        crop.width,
-        crop.height
-      );
-      canvas.toBlob((blob) => {
-        if (blob) resolve(blob);
-        else reject();
-      }, 'image/jpeg');
-    };
-    image.onerror = reject;
-  });
-}
+// La función getCroppedImg ha sido reemplazada por la utilidad convertCroppedImageToWebP de imageUtils.ts

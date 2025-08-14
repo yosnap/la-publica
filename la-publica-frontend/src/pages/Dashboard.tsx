@@ -1,4 +1,4 @@
-import { Heart, MessageSquare, Share, MoreHorizontal, Camera, Calendar, User, CheckCircle, Circle, Activity, Clock, Play, Building, UserPlus, Settings, XCircle, Edit, Trash, BellOff, Pin, Download, Flag, Bell, Briefcase, Award } from "lucide-react";
+import { Heart, MessageSquare, Share, MoreHorizontal, Camera, Calendar, User, CheckCircle, Circle, Activity, Clock, Play, Building, Settings, XCircle, Edit, Trash, BellOff, Pin, Download, Flag, Bell, Briefcase, Award } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -42,6 +42,7 @@ import { AnnouncementsWidget } from "@/components/AnnouncementsWidget";
 import { ForumsWidget } from "@/components/ForumsWidget";
 import { BlogsWidget } from "@/components/BlogsWidget";
 import { FollowingUsersWidget } from "@/components/FollowingUsersWidget";
+import { convertImageByType, isImageFile } from '@/utils/imageUtils';
 
  // Post type for dashboard feed
 export interface Post {
@@ -86,7 +87,7 @@ export interface Post {
 const Dashboard = () => {
   // Usar el hook centralizado para los datos del usuario
   const { user, loading } = useUserProfile();
-  
+
   const [posts, setPosts] = useState<Post[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
   const [creatingPost, setCreatingPost] = useState(false);
@@ -105,16 +106,15 @@ const Dashboard = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMorePosts, setHasMorePosts] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  
+
   // Estados para datos reales
   const [companies, setCompanies] = useState([]);
-  const [collaborators, setCollaborators] = useState([]);
   const [jobOffers, setJobOffers] = useState([]);
   const [advisories, setAdvisories] = useState([]);
   const [loadingWidgets, setLoadingWidgets] = useState(true);
-  
+
   const navigate = useNavigate();
-  
+
    // Estados para herramientas de posts
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -161,7 +161,7 @@ const Dashboard = () => {
   const stepsCompleted = profileSteps.filter(s => s.complete).length;
   const stepsTotal = profileSteps.length;
   const percent = Math.round((stepsCompleted / stepsTotal) * 100);
-  
+
    // Debug removido - ya no es necesario
 
   const activities = [
@@ -200,21 +200,19 @@ const Dashboard = () => {
   const loadWidgetData = async () => {
     try {
       setLoadingWidgets(true);
-      
+
       // Cargar datos en paralelo
-      const [companiesRes, usersRes, jobOffersRes, advisoriesRes] = await Promise.all([
+      const [companiesRes, jobOffersRes, advisoriesRes] = await Promise.all([
         getCompanies({ limit: 4, verified: true }).catch(() => ({ data: [] })),
-        fetchAllUsers({ sortBy: 'active', limit: 4 }).catch(() => ({ data: [] })),
         getJobOffers({ limit: 4 }).catch(() => ({ data: [] })),
         getAdvisories({ limit: 4 }).catch(() => ({ data: [] }))
       ]);
-      
+
       // Asegurar que los datos son arrays válidos
       setCompanies(Array.isArray(companiesRes.data) ? companiesRes.data.slice(0, 4) : []);
-      setCollaborators(Array.isArray(usersRes.data) ? usersRes.data.filter((u: any) => u.role === 'colaborador').slice(0, 4) : []);
       setJobOffers(Array.isArray(jobOffersRes.data) ? jobOffersRes.data.slice(0, 4) : []);
       setAdvisories(Array.isArray(advisoriesRes.data) ? advisoriesRes.data.slice(0, 4) : []);
-      
+
     } catch (error) {
       console.error('Error loading widget data:', error);
     } finally {
@@ -293,7 +291,7 @@ const Dashboard = () => {
         setHasMorePosts((res.data || []).length === 20);
       })
       .finally(() => setLoadingPosts(false));
-    
+
     // Cargar datos de widgets
     loadWidgetData();
   }, []);
@@ -331,11 +329,11 @@ const Dashboard = () => {
     e.preventDefault();
     if (!newPostContent.trim()) return;
     setPosting(true);
-    
+
     try {
       let imageUrl = null;
-      
-       // Subir imagen si existe
+
+       // Subir imagen si existe (ya convertida a WebP)
       if (selectedImage) {
         const formData = new FormData();
         formData.append('image', selectedImage);
@@ -360,11 +358,11 @@ const Dashboard = () => {
 
       console.log('Sending mood:', selectedMood);  // Debug
       await createPost(postData.content, imageUrl, selectedMood);
-      
+
       clearPostForm();
       setModalOpen(false);
       toast.success("Post publicado exitosamente");
-      
+
        // Refresh posts after creation - volver a cargar desde el principio
       setLoadingPosts(true);
       setCurrentPage(1);
@@ -425,9 +423,9 @@ const Dashboard = () => {
       const response = await toggleLikePost(postId);
       if (response.success) {
          // Actualizar el post en el estado local
-        setPosts(prevPosts => 
-          prevPosts.map(post => 
-            post._id === postId 
+        setPosts(prevPosts =>
+          prevPosts.map(post =>
+            post._id === postId
               ? { ...post, likes: response.data.likes }
               : post
           )
@@ -449,14 +447,14 @@ const Dashboard = () => {
     if (!text) return;
 
     setSubmittingComment(prev => ({ ...prev, [postId]: true }));
-    
+
     try {
       const response = await commentOnPost(postId, text);
       if (response.success) {
          // Actualizar el post en el estado local
-        setPosts(prevPosts => 
-          prevPosts.map(post => 
-            post._id === postId 
+        setPosts(prevPosts =>
+          prevPosts.map(post =>
+            post._id === postId
               ? { ...post, comments: response.data.comments }
               : post
           )
@@ -496,19 +494,38 @@ const Dashboard = () => {
   };
 
    // Función para manejar selección de imagen
-  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {  // 5MB limit
         toast.error("La imagen no puede ser mayor a 5MB");
         return;
       }
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      
+      try {
+        if (!isImageFile(file)) {
+          toast.error('El archivo debe ser una imagen válida');
+          return;
+        }
+
+        // Convertir a WebP con configuración optimizada para posts
+        const webpBlob = await convertImageByType(file, 'post');
+        const webpFile = new File([webpBlob], `post-image.webp`, { type: 'image/webp' });
+        
+        setSelectedImage(webpFile);
+        
+        // Crear preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setImagePreview(e.target?.result as string);
+        };
+        reader.readAsDataURL(webpFile);
+        
+        toast.success('Imagen convertida a WebP para mejor rendimiento');
+      } catch (error) {
+        console.error('Error al convertir imagen:', error);
+        toast.error('Error al procesar la imagen');
+      }
     }
   };
 
@@ -597,9 +614,9 @@ const Dashboard = () => {
     try {
       const response = await togglePostComments(postId);
       if (response.success) {
-        setPosts(prevPosts => 
-          prevPosts.map(post => 
-            post._id === postId 
+        setPosts(prevPosts =>
+          prevPosts.map(post =>
+            post._id === postId
               ? { ...post, commentsDisabled: response.data.commentsDisabled }
               : post
           )
@@ -616,11 +633,11 @@ const Dashboard = () => {
     try {
       const response = await togglePostPin(postId);
       if (response.success) {
-        setPosts(prevPosts => 
-          prevPosts.map(post => 
-            post._id === postId 
-              ? { 
-                  ...post, 
+        setPosts(prevPosts =>
+          prevPosts.map(post =>
+            post._id === postId
+              ? {
+                  ...post,
                   pinned: response.data.pinned,
                   pinnedBy: response.data.pinnedBy,
                   pinnedAt: response.data.pinnedAt
@@ -629,7 +646,7 @@ const Dashboard = () => {
           )
         );
         toast.success(response.message);
-        
+
          // Reordenar posts para mostrar fijados al principio
         if (response.data.pinned) {
           setPosts(prevPosts => {
@@ -652,13 +669,13 @@ const Dashboard = () => {
    // Función para cargar más posts
   const loadMorePosts = async () => {
     if (!hasMorePosts || loadingMore) return;
-    
+
     setLoadingMore(true);
     try {
       const nextPage = currentPage + 1;
       const res = await fetchUserFeed(nextPage, 20);
       const newPosts = res.data || [];
-      
+
       if (newPosts.length > 0) {
         setPosts(prevPosts => [...prevPosts, ...newPosts]);
         setCurrentPage(nextPage);
@@ -771,7 +788,7 @@ const Dashboard = () => {
                     placeholder={`Comparteix alguna cosa amb la comunitat, ${user?.firstName}...`}
                     className="mb-2"
                   />
-                  
+
                   { /* Preview de imagen seleccionada */}
                   {imagePreview && (
                     <div className="relative mt-4">
@@ -907,10 +924,10 @@ const Dashboard = () => {
                         className="hidden"
                         id="image-upload"
                       />
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={() => document.getElementById('image-upload')?.click()}
                         title="Adjuntar imagen"
                         className={`hover:bg-gray-50 dark:hover:bg-gray-700 /30 ${selectedImage ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
@@ -925,10 +942,10 @@ const Dashboard = () => {
                         className="hidden"
                         id="file-upload"
                       />
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={() => document.getElementById('file-upload')?.click()}
                         title="Adjuntar archivo"
                         className={`hover:bg-gray-50 dark:hover:bg-gray-700 /30 ${selectedFile ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
@@ -936,10 +953,10 @@ const Dashboard = () => {
                         <Paperclip className="h-5 w-5" />
                       </Button>
 
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={() => setShowMoodPicker(!showMoodPicker)}
                         title="Agregar estado de ánimo"
                         className={`hover:bg-gray-50 dark:hover:bg-gray-700 /30 ${showMoodPicker || selectedMood ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
@@ -947,10 +964,10 @@ const Dashboard = () => {
                         <Smile className="h-5 w-5" />
                       </Button>
 
-                      <Button 
-                        type="button" 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
                         onClick={togglePoll}
                         title="Crear encuesta"
                         className={`hover:bg-gray-50 dark:hover:bg-gray-700 /30 ${showPollOptions ? "text-blue-600 bg-blue-50 dark:bg-gray-700/50" : "text-gray-600 dark:text-gray-400"}`}
@@ -958,8 +975,8 @@ const Dashboard = () => {
                         <BarChart2 className="h-5 w-5" />
                       </Button>
                     </div>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={posting || (!newPostContent.trim() && !selectedImage && !selectedFile)}
                       className="bg-[#4F8FF7] text-white"
                     >
@@ -1035,11 +1052,11 @@ const Dashboard = () => {
                               {isAdminOrModerator() && (
                                 <>
                                   <DropdownMenuItem onClick={() => handleToggleComments(post._id)}>
-                                    <MessageSquare className="h-4 w-4 mr-2" /> 
+                                    <MessageSquare className="h-4 w-4 mr-2" />
                                     {post.commentsDisabled ? "Activar comentarios" : "Desactivar comentarios"}
                                   </DropdownMenuItem>
                                   <DropdownMenuItem onClick={() => handleTogglePin(post._id)}>
-                                    <Pin className="h-4 w-4 mr-2" /> 
+                                    <Pin className="h-4 w-4 mr-2" />
                                     {post.pinned ? "Desfijar del feed" : "Fijar en el feed"}
                                   </DropdownMenuItem>
                                 </>
@@ -1090,8 +1107,8 @@ const Dashboard = () => {
                           )}
                         </div>
                       )}
-                      
-                      <div 
+
+                      <div
                         className="mb-2 text-gray-900 dark:text-gray-100 text-base prose prose-sm max-w-none [&_strong]:font-bold [&_em]:italic [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:ml-4 [&_ol]:ml-4 [&_a]:text-blue-500 [&_a]:underline"
                         dangerouslySetInnerHTML={{ __html: post.content }}
                       />
@@ -1102,9 +1119,9 @@ const Dashboard = () => {
                       </div>
                     )}
                     <div className="flex items-center space-x-6 pt-2">
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleLikePost(post._id)}
                         className={`text-gray-600 dark:text-gray-400 hover:text-red-600 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg ${
                           post.likes.includes(user?._id) ? 'text-red-600 bg-red-50 dark:bg-gray-700/30' : ''
@@ -1113,9 +1130,9 @@ const Dashboard = () => {
                         <Heart className={`h-4 w-4 mr-2 ${post.likes.includes(user?._id) ? 'fill-current' : ''}`} />
                         {post.likes.length > 0 ? post.likes.length : "Me gusta"}
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => !post.commentsDisabled && toggleComments(post._id)}
                         disabled={post.commentsDisabled}
                         className={`text-gray-600 dark:text-gray-400 hover:text-blue-600 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg ${
@@ -1129,9 +1146,9 @@ const Dashboard = () => {
                           <span className="ml-1 text-xs text-red-500">(desactivados)</span>
                         )}
                       </Button>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
+                      <Button
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleSharePost(post)}
                         className="text-gray-600 dark:text-gray-400 hover:text-green-600 hover:bg-gray-50 dark:hover:bg-gray-700/30 rounded-lg"
                       >
@@ -1190,9 +1207,9 @@ const Dashboard = () => {
                               <RichTextEditor
                                 placeholder="Escriu un comentari..."
                                 value={commentText[post._id] || ""}
-                                onChange={(value) => setCommentText(prev => ({ 
-                                  ...prev, 
-                                  [post._id]: value 
+                                onChange={(value) => setCommentText(prev => ({
+                                  ...prev,
+                                  [post._id]: value
                                 }))}
                                 className="min-h-[60px]"
                               />
@@ -1215,7 +1232,7 @@ const Dashboard = () => {
                 </Card>
                 ))
               )}
-              
+
               { /* Botón para cargar más posts */}
               {!loadingPosts && posts.length > 0 && hasMorePosts && (
                 <div className="flex justify-center mt-6">
@@ -1236,7 +1253,7 @@ const Dashboard = () => {
                   </Button>
                 </div>
               )}
-              
+
               { /* Mensaje cuando no hay más posts */}
               {!loadingPosts && posts.length > 0 && !hasMorePosts && (
                 <div className="text-center py-8 text-gray-500">
@@ -1314,9 +1331,9 @@ const Dashboard = () => {
                     <Building className="h-5 w-5 mr-2 text-purple-500" />
                     Empreses
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="text-xs text-gray-500 dark:text-gray-400 hover:text-purple-600"
                     onClick={() => navigate('/companies')}
                   >
@@ -1336,11 +1353,21 @@ const Dashboard = () => {
                     </div>
                   ))
                 ) : companies.length > 0 ? (
-                  companies.map((company) => (
-                    <div 
-                      key={company._id} 
+                  companies.map((company) => {
+                    const companySlug = company.name
+                      .toLowerCase()
+                      .normalize('NFD')
+                      .replace(/[\u0300-\u036f]/g, '')
+                      .replace(/[^a-z0-9\s-]/g, '')
+                      .replace(/\s+/g, '-')
+                      .replace(/-+/g, '-')
+                      .trim()
+                      .replace(/^-+|-+$/g, '');
+                    return (
+                    <div
+                      key={company._id}
                       className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-                      onClick={() => navigate(`/empresa/${company._id}`)}
+                      onClick={() => navigate(`/empresa/${companySlug}`)}
                     >
                       <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-gray-100 dark:bg-gray-700/50">
                         {company.logo ? (
@@ -1371,16 +1398,16 @@ const Dashboard = () => {
                         </div>
                       </div>
                     </div>
-                  ))
+                  )})
                 ) : (
                   <div className="text-center py-4">
                     <Building className="h-8 w-8 text-gray-400 mx-auto mb-2" />
                     <p className="text-sm text-gray-500 dark:text-gray-400">No hi ha empreses</p>
                   </div>
                 )}
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="w-full mt-3 border-purple-200 dark:border-gray-600 text-purple-600 dark:text-purple-400 hover:bg-gray-50 dark:hover:bg-gray-700/30"
                   onClick={() => navigate('/companies')}
                 >
@@ -1389,95 +1416,17 @@ const Dashboard = () => {
                 </Button>
               </CardContent>
             </Card>
-            { /* Colaboradores Widget */}
-            <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center justify-between">
-                  <div className="flex items-center">
-                    <UserPlus className="h-5 w-5 mr-2 text-green-500" />
-                    Col·laboradors
-                  </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-xs text-gray-500 dark:text-gray-400 hover:text-green-600"
-                    onClick={() => navigate('/membres')}
-                  >
-                    Ver tots
-                  </Button>
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {loadingWidgets ? (
-                  Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="flex items-center space-x-3 p-2">
-                      <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 animate-pulse"></div>
-                      <div className="flex-1">
-                        <div className="h-4 w-24 bg-gray-200 dark:bg-gray-700 rounded animate-pulse mb-1"></div>
-                        <div className="h-3 w-16 bg-gray-200 dark:bg-gray-700 rounded animate-pulse"></div>
-                      </div>
-                    </div>
-                  ))
-                ) : collaborators.length > 0 ? (
-                  collaborators.map((collaborator) => (
-                    <div 
-                      key={collaborator._id} 
-                      className="flex items-center space-x-3 p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
-                      onClick={() => navigate(`/usuario/${collaborator.slug || collaborator._id}`)}
-                    >
-                      <div className="relative">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={getImageUrl(collaborator.profilePicture)} />
-                          <AvatarFallback>{collaborator.firstName?.charAt(0)}{collaborator.lastName?.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white ${
-                          collaborator.isActive ? 'bg-green-500' : 'bg-gray-400'
-                        }`}></div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2">
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                            {collaborator.firstName} {collaborator.lastName}
-                          </p>
-                          <Badge variant="secondary" className="text-xs">Col·laborador</Badge>
-                        </div>
-                        {collaborator.workExperience?.[0]?.position && (
-                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {collaborator.workExperience[0].position}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-4">
-                    <UserPlus className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                    <p className="text-sm text-gray-500 dark:text-gray-400">No hi ha col·laboradors</p>
-                  </div>
-                )}
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full mt-3 border-green-200 dark:border-gray-600 text-green-600 dark:text-green-400 hover:bg-gray-50 dark:hover:bg-gray-700/30"
-                  onClick={() => navigate('/membres')}
-                >
-                  <UserPlus className="h-4 w-4 mr-2" />
-                  Trobar Col·laboradors
-                </Button>
-              </CardContent>
-            </Card>
-            
             { /* Ofertas de Trabajo Widget */}
             <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
                 <CardTitle className="text-lg font-semibold text-gray-900 dark:text-gray-100 flex items-center justify-between">
                   <div className="flex items-center">
                     <Briefcase className="h-5 w-5 mr-2 text-blue-500" />
-                    Ofertes de Treball
+                    Ofertes
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="text-xs text-gray-500 dark:text-gray-400 hover:text-blue-600"
                     onClick={() => navigate('/ofertes')}
                   >
@@ -1495,8 +1444,8 @@ const Dashboard = () => {
                   ))
                 ) : jobOffers.length > 0 ? (
                   jobOffers.map((offer) => (
-                    <div 
-                      key={offer._id} 
+                    <div
+                      key={offer._id}
                       className="p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                       onClick={() => navigate(`/ofertes/${offer._id}`)}
                     >
@@ -1521,9 +1470,9 @@ const Dashboard = () => {
                       {offer.salary && (
                         <div className="mt-1">
                           <Badge variant="outline" className="text-xs">
-                            {offer.salary.min && offer.salary.max 
+                            {offer.salary.min && offer.salary.max
                               ? `${offer.salary.min}-${offer.salary.max}€`
-                              : typeof offer.salary === 'object' && offer.salary.amount 
+                              : typeof offer.salary === 'object' && offer.salary.amount
                                 ? `${offer.salary.amount}€`
                                 : 'Salari a convenir'
                             }
@@ -1540,7 +1489,7 @@ const Dashboard = () => {
                 )}
               </CardContent>
             </Card>
-            
+
             { /* Asesorías Widget */}
             <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader className="pb-4">
@@ -1549,9 +1498,9 @@ const Dashboard = () => {
                     <Activity className="h-5 w-5 mr-2 text-indigo-500" />
                     Assessoraments
                   </div>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
+                  <Button
+                    variant="ghost"
+                    size="sm"
                     className="text-xs text-gray-500 dark:text-gray-400 hover:text-indigo-600"
                     onClick={() => navigate('/assessorament')}
                   >
@@ -1569,8 +1518,8 @@ const Dashboard = () => {
                   ))
                 ) : advisories.length > 0 ? (
                   advisories.map((advisory) => (
-                    <div 
-                      key={advisory._id} 
+                    <div
+                      key={advisory._id}
                       className="p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer"
                       onClick={() => navigate(`/assessorament/${advisory._id}`)}
                     >
@@ -1595,9 +1544,9 @@ const Dashboard = () => {
                       <div className="flex items-center space-x-2 mt-1">
                         {advisory.format && (
                           <Badge variant="secondary" className="text-xs">
-                            {advisory.format === 'video' ? 'Vídeo' : 
-                             advisory.format === 'phone' ? 'Telèfon' : 
-                             advisory.format === 'presential' ? 'Presencial' : 
+                            {advisory.format === 'video' ? 'Vídeo' :
+                             advisory.format === 'phone' ? 'Telèfon' :
+                             advisory.format === 'presential' ? 'Presencial' :
                              advisory.format === 'email' ? 'Email' : 'Xat'}
                           </Badge>
                         )}
@@ -1607,7 +1556,7 @@ const Dashboard = () => {
                           </Badge>
                         ) : (advisory.pricing?.hourlyRate || advisory.pricing?.sessionRate) && (
                           <Badge variant="outline" className="text-xs">
-                            {advisory.pricing?.hourlyRate 
+                            {advisory.pricing?.hourlyRate
                               ? `${advisory.pricing.hourlyRate}€/h`
                               : advisory.pricing?.sessionRate
                                 ? `${advisory.pricing.sessionRate}€/sessió`

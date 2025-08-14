@@ -203,3 +203,5 @@ node scripts/update-password.js hola1@hola.com nueva_contraseña
 - `job` - Categorías para ofertas de trabajo
 - `announcement` - Categorías para anuncios
 - `advisory` - Categorías para asesorías
+- agregamos tag en el repositorio con la misma versión que cambiemos. Cuando cambiamos la vesión documentamos los cambios tando en changelog, documentación o los archivos en donde sea necesario. Siempre me preguntas la versión antes de cambiarla para confirmar y cuando hacemos push documentamos, agregamos el tag y el commit
+- Todas las imágenes que se suban a la plataforma, desde cualquier apartado, backend o frontend, tienenq eu convertirse en webp y adaptarse al performance siguiendo las buenas prácticas

@@ -54,6 +54,7 @@ export default function AnnouncementDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchAnnouncement = async () => {
       if (!slugId) {
         navigate('/announcements');

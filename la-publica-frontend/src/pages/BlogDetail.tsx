@@ -39,6 +39,7 @@ const BlogDetail = () => {
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (slug) {
       loadBlog();
     }

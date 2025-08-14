@@ -80,12 +80,13 @@ export default function JobOfferDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useUserProfile();
-  
+
   const [jobOffer, setJobOffer] = useState<JobOffer | null>(null);
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (id) {
       loadJobOffer();
     }
@@ -171,11 +172,11 @@ export default function JobOfferDetail() {
     if (!user || user.role !== 'colaborador' || !jobOffer?.company?.owner) {
       return false;
     }
-    
+
     // Convertir ambos IDs a string para asegurar comparación correcta
     const currentUserId = String(user._id);
     const ownerId = String(jobOffer.company.owner._id);
-    
+
     return currentUserId === ownerId;
   };
 
@@ -249,19 +250,19 @@ export default function JobOfferDetail() {
   return (
     <PageWrapper>
       <div className="max-w-4xl mx-auto space-y-6">
-        
+
         {/* Header with Back Button */}
         <div className="flex items-center justify-between">
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => navigate('/ofertes')}
             className="p-2"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Tornar a Ofertes
           </Button>
-          
+
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" onClick={handleShare}>
               <Share2 className="h-4 w-4 mr-2" />
@@ -280,14 +281,14 @@ export default function JobOfferDetail() {
 
         {/* Main Content */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          
+
           {/* Left Column - Job Details */}
           <div className="lg:col-span-2 space-y-6">
-            
+
             {/* Job Header */}
             <Card>
               <CardContent className="p-6">
-                
+
                 {/* Featured Image */}
                 {jobOffer.image && (
                   <div className="mb-6">
@@ -486,7 +487,7 @@ export default function JobOfferDetail() {
 
           {/* Right Column - Company Sidebar */}
           <div className="space-y-6">
-            
+
             {/* Company Card */}
             <Card>
               <CardHeader>
@@ -496,7 +497,7 @@ export default function JobOfferDetail() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                
+
                 <div className="text-center">
                   <Avatar className="h-20 w-20 mx-auto mb-3">
                     <AvatarImage src={jobOffer.company.logo ? getImageUrl(jobOffer.company.logo) : undefined} />
@@ -577,7 +578,7 @@ export default function JobOfferDetail() {
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-600 mb-3">
-                  Descobreix més ofertes de treball en la mateixa categoria.
+                  Descobreix més ofertes en la mateixa categoria.
                 </p>
                 <Button variant="outline" className="w-full" asChild>
                   <Link to={`/ofertes?category=${jobOffer.category}`}>

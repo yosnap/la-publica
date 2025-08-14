@@ -79,10 +79,21 @@ export function AnnouncementsWidget() {
   );
 
 
-  const AnnouncementItem = ({ announcement }: { announcement: Announcement }) => (
+  const AnnouncementItem = ({ announcement }: { announcement: Announcement }) => {
+    const announcementSlug = announcement.title
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim()
+      .replace(/^-+|-+$/g, '');
+    
+    return (
     <div 
       className="flex items-center space-x-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 cursor-pointer transition-colors"
-      onClick={() => navigate(`/anunci/${announcement.slug || announcement._id}`)}
+      onClick={() => navigate(`/anunci/${announcementSlug}`)}
     >
       <div className="w-10 h-10 rounded-full flex-shrink-0 bg-green-500 text-white flex items-center justify-center">
         <span className="font-semibold text-sm">{announcement.title.charAt(0).toUpperCase()}</span>
@@ -97,6 +108,7 @@ export function AnnouncementsWidget() {
       </div>
     </div>
   );
+  };
 
   return (
     <Card className="bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm">

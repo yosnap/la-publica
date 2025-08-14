@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Camera, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { convertImageByType, isImageFile } from '@/utils/imageUtils';
+import { toast } from 'sonner';
 
 interface CoverPhotoSectionProps {
   coverImage?: string;
@@ -13,23 +15,44 @@ interface CoverPhotoSectionProps {
 export const CoverPhotoSection = ({ coverImage, isLoading, onImageChange }: CoverPhotoSectionProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      onImageChange(e.target.files[0]);
+      const file = e.target.files[0];
+      await handleImageConversion(file);
     }
      // Limpiar el input para permitir volver a seleccionar el mismo archivo
     if (inputRef.current) inputRef.current.value = "";
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      onImageChange(e.dataTransfer.files[0]);
+      const file = e.dataTransfer.files[0];
+      await handleImageConversion(file);
     }
   };
 
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
+  };
+
+  const handleImageConversion = async (file: File) => {
+    try {
+      if (!isImageFile(file)) {
+        toast.error('El archivo debe ser una imagen válida');
+        return;
+      }
+
+      // Convertir a WebP con configuración optimizada para portadas
+      const webpBlob = await convertImageByType(file, 'cover');
+      const webpFile = new File([webpBlob], `cover.webp`, { type: 'image/webp' });
+      
+      onImageChange(webpFile);
+      toast.success('Imagen convertida a WebP para mejor rendimiento');
+    } catch (error) {
+      console.error('Error al convertir imagen:', error);
+      toast.error('Error al procesar la imagen');
+    }
   };
 
   return (

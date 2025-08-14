@@ -25,6 +25,7 @@ import { Plus, X, Upload, Globe, Lock } from "lucide-react";
 import { toast } from "sonner";
 import { createGroup, fetchGroupCategories, type GroupCategory } from "@/api/groups";
 import apiClient from "@/api/client";
+import { convertImageByType, isImageFile } from '@/utils/imageUtils';
 
 const createGroupSchema = z.object({
   name: z.string().min(3, "El nombre debe tener al menos 3 caracteres").max(100, "El nombre no puede exceder 100 caracteres"),
@@ -88,32 +89,70 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
   }, [open]);
 
    // Manejar selección de imagen principal
-  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         toast.error("La imagen no puede ser mayor a 5MB");
         return;
       }
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = (e) => setImagePreview(e.target?.result as string);
-      reader.readAsDataURL(file);
+      
+      try {
+        if (!isImageFile(file)) {
+          toast.error('El archivo debe ser una imagen válida');
+          return;
+        }
+
+        // Convertir a WebP con configuración optimizada para logos
+        const webpBlob = await convertImageByType(file, 'logo');
+        const webpFile = new File([webpBlob], `group-logo.webp`, { type: 'image/webp' });
+        
+        setSelectedImage(webpFile);
+        
+        // Crear preview
+        const reader = new FileReader();
+        reader.onload = (e) => setImagePreview(e.target?.result as string);
+        reader.readAsDataURL(webpFile);
+        
+        toast.success('Logo convertido a WebP para mejor rendimiento');
+      } catch (error) {
+        console.error('Error al convertir imagen:', error);
+        toast.error('Error al procesar la imagen');
+      }
     }
   };
 
    // Manejar selección de imagen de portada
-  const handleCoverImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {
         toast.error("La imagen no puede ser mayor a 5MB");
         return;
       }
-      setSelectedCoverImage(file);
-      const reader = new FileReader();
-      reader.onload = (e) => setCoverImagePreview(e.target?.result as string);
-      reader.readAsDataURL(file);
+      
+      try {
+        if (!isImageFile(file)) {
+          toast.error('El archivo debe ser una imagen válida');
+          return;
+        }
+
+        // Convertir a WebP con configuración optimizada para portadas
+        const webpBlob = await convertImageByType(file, 'cover');
+        const webpFile = new File([webpBlob], `group-cover.webp`, { type: 'image/webp' });
+        
+        setSelectedCoverImage(webpFile);
+        
+        // Crear preview
+        const reader = new FileReader();
+        reader.onload = (e) => setCoverImagePreview(e.target?.result as string);
+        reader.readAsDataURL(webpFile);
+        
+        toast.success('Portada convertida a WebP para mejor rendimiento');
+      } catch (error) {
+        console.error('Error al convertir imagen:', error);
+        toast.error('Error al procesar la imagen');
+      }
     }
   };
 
@@ -143,7 +182,7 @@ export const CreateGroupModal = ({ children, onGroupCreated }: CreateGroupModalP
     setRules(rules.filter((_, i) => i !== index));
   };
 
-   // Subir imagen
+   // Subir imagen (ya convertida a WebP)
   const uploadImage = async (file: File): Promise<string | null> => {
     try {
       const formData = new FormData();

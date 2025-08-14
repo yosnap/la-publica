@@ -10,6 +10,7 @@ import { createPost } from "@/api/posts";
 import { RichTextEditor, RichTextEditorRef } from "@/components/ui/rich-text-editor";
 import { toast } from "sonner";
 import apiClient from '@/api/client';
+import { convertImageByType, isImageFile } from '@/utils/imageUtils';
 
 interface User {
   _id: string;
@@ -67,7 +68,7 @@ export function CreatePostInput({
     try {
       let imageUrl = null;
       
-      // Subir imagen si existe
+      // Subir imagen si existe (ya convertida a WebP)
       if (selectedImage) {
         const formData = new FormData();
         formData.append('image', selectedImage);
@@ -109,19 +110,38 @@ export function CreatePostInput({
   };
 
   // Función para manejar selección de imagen
-  const handleImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) {  // 5MB limit
         toast.error("La imagen no puede ser mayor a 5MB");
         return;
       }
-      setSelectedImage(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
-      };
-      reader.readAsDataURL(file);
+      
+      try {
+        if (!isImageFile(file)) {
+          toast.error('El archivo debe ser una imagen válida');
+          return;
+        }
+
+        // Convertir a WebP con configuración optimizada para posts
+        const webpBlob = await convertImageByType(file, 'post');
+        const webpFile = new File([webpBlob], `post-image.webp`, { type: 'image/webp' });
+        
+        setSelectedImage(webpFile);
+        
+        // Crear preview
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setImagePreview(e.target?.result as string);
+        };
+        reader.readAsDataURL(webpFile);
+        
+        toast.success('Imagen convertida a WebP para mejor rendimiento');
+      } catch (error) {
+        console.error('Error al convertir imagen:', error);
+        toast.error('Error al procesar la imagen');
+      }
     }
   };
 

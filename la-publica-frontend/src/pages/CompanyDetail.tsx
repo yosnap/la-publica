@@ -19,6 +19,7 @@ export default function CompanyDetail() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchCompanyData = async () => {
       if (!slugId) {
         navigate('/companies');

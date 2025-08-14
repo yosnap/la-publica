@@ -106,6 +106,7 @@ export default function AdvisoryDetail() {
   const [booking, setBooking] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     if (id) {
       loadAdvisory();
     }
