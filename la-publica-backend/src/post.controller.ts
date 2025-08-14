@@ -138,36 +138,24 @@ export const deletePost = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user?.userId;
     const userRole = (req as any).user?.role;
-    const postId = req.params.id;
-    
-    console.log(`🗑️ DELETE POST - User: ${userId}, Role: ${userRole}, PostID: ${postId}`);
-    
-    const post = await Post.findById(postId);
+    const post = await Post.findById(req.params.id);
 
     if (!post) {
-      console.log(`❌ POST NOT FOUND: ${postId}`);
       return res.status(404).json({ success: false, message: 'Publicació no trobada' });
     }
 
-    console.log(`🔍 POST FOUND - Author: ${post.author}, Checking permissions...`);
-
     // Verificar si el usuario es el autor o un admin
     if (post.author.toString() !== userId && userRole !== 'admin') {
-      console.log(`🚫 PERMISSION DENIED - Author: ${post.author}, User: ${userId}, Role: ${userRole}`);
       return res.status(403).json({ success: false, message: 'No tens permisos per eliminar aquesta publicació' });
     }
 
-    console.log(`✅ PERMISSION GRANTED - Deleting post ${postId}...`);
     await post.deleteOne();
-    console.log(`✓ POST DELETED SUCCESSFULLY: ${postId}`);
 
     return res.json({
       success: true,
-      message: 'Publicació eliminada',
-      data: { id: postId }
+      message: 'Publicació eliminada'
     });
   } catch (error: any) {
-    console.error(`🔴 ERROR DELETING POST:`, error);
     return res.status(500).json({ success: false, message: 'Error en eliminar la publicació', error: error.message });
   }
 };

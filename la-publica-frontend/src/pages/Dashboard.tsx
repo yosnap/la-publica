@@ -381,26 +381,17 @@ const Dashboard = () => {
   const handleDeletePost = async (postId: string) => {
     if (!window.confirm("¿Seguro que quieres eliminar este post?")) return;
     
-    console.log('🗑️ Intentando eliminar post:', postId);
-    
     try {
       // Llamar a la API para eliminar el post
-      const response = await deletePost(postId);
-      console.log('✅ Respuesta de la API:', response);
+      await deletePost(postId);
       
       // Actualizar el estado local inmediatamente
-      setPosts(prevPosts => {
-        const updatedPosts = prevPosts.filter(p => p._id !== postId);
-        console.log(`🔄 Posts actualizados: ${prevPosts.length} → ${updatedPosts.length}`);
-        return updatedPosts;
-      });
+      setPosts(prevPosts => prevPosts.filter(p => p._id !== postId));
       
       toast.success("Post eliminado correctamente");
     } catch (err) {
-      console.error('🔴 Error al eliminar post:', err);
-      console.error('Response data:', err.response?.data);
-      console.error('Status:', err.response?.status);
-      toast.error(err.response?.data?.message || "Error al eliminar el post");
+      const error = err as { response?: { data?: { message?: string } } };
+      toast.error(error.response?.data?.message || "Error al eliminar el post");
     }
   };
 
