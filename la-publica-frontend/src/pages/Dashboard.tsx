@@ -10,7 +10,7 @@ import { CircularProgress } from "@/components/ui/circular-progress";
 import { SemiCircularProgress } from "@/components/ui/semi-circular-progress";
 import { useEffect, useState } from "react";
 import { getImageUrl } from '@/utils/getImageUrl';
-import { fetchUserFeed, createPost, updatePost, toggleLikePost, commentOnPost, togglePostComments, togglePostPin } from "@/api/posts";
+import { fetchUserFeed, createPost, updatePost, deletePost, toggleLikePost, commentOnPost, togglePostComments, togglePostPin } from "@/api/posts";
 import { useUserProfile } from "@/hooks/useUser";
 import { getCompanies } from "@/api/companies";
 import { fetchAllUsers } from "@/api/users";
@@ -380,13 +380,27 @@ const Dashboard = () => {
    // Función para eliminar post
   const handleDeletePost = async (postId: string) => {
     if (!window.confirm("¿Seguro que quieres eliminar este post?")) return;
+    
+    console.log('🗑️ Intentando eliminar post:', postId);
+    
     try {
-       // Aquí deberías llamar a la API para eliminar el post
-       // await deletePost(postId);
-      setPosts(posts.filter(p => p._id !== postId));
+      // Llamar a la API para eliminar el post
+      const response = await deletePost(postId);
+      console.log('✅ Respuesta de la API:', response);
+      
+      // Actualizar el estado local inmediatamente
+      setPosts(prevPosts => {
+        const updatedPosts = prevPosts.filter(p => p._id !== postId);
+        console.log(`🔄 Posts actualizados: ${prevPosts.length} → ${updatedPosts.length}`);
+        return updatedPosts;
+      });
+      
       toast.success("Post eliminado correctamente");
     } catch (err) {
-      toast.error("Error al eliminar el post");
+      console.error('🔴 Error al eliminar post:', err);
+      console.error('Response data:', err.response?.data);
+      console.error('Status:', err.response?.status);
+      toast.error(err.response?.data?.message || "Error al eliminar el post");
     }
   };
 
