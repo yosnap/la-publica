@@ -5,9 +5,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getImageUrl } from '@/utils/getImageUrl';
-import { fetchPosts } from "@/api/posts";
+import { fetchUserPosts } from "@/api/posts";
 import { fetchUserGroups, Group } from "@/api/groups";
 import { getUserAnnouncements } from "@/api/announcements";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -139,6 +139,9 @@ const Profile = () => {
 
   const [userPosts, setUserPosts] = useState<PostType[]>([]);
   const [loadingPosts, setLoadingPosts] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMorePosts, setHasMorePosts] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [userGroups, setUserGroups] = useState<Group[]>([]);
   const [loadingGroups, setLoadingGroups] = useState(true);
   const [userAnnouncements, setUserAnnouncements] = useState<Announcement[]>([]);
@@ -147,14 +150,36 @@ const Profile = () => {
   useEffect(() => {
     if (!user) return;
     setLoadingPosts(true);
-    fetchPosts()
+    fetchUserPosts(user._id, 1, 5)
       .then((res) => {
-        // Filtrar solo los posts del usuario autenticado
-        const posts = (res.data || []).filter((p: PostType) => p.author?._id === user._id);
-        setUserPosts(posts);
+        setUserPosts(res.data || []);
+        setHasMorePosts((res.data || []).length === 5);
+        setCurrentPage(1);
       })
       .finally(() => setLoadingPosts(false));
   }, [user]);
+
+  // Función para cargar más posts (scroll infinito)
+  const loadMorePosts = useCallback(async () => {
+    if (!user || !hasMorePosts || loadingMore) return;
+    setLoadingMore(true);
+    try {
+      const nextPage = currentPage + 1;
+      const res = await fetchUserPosts(user._id, nextPage, 5);
+      const newPosts = res.data || [];
+      if (newPosts.length > 0) {
+        setUserPosts(prevPosts => [...prevPosts, ...newPosts]);
+        setCurrentPage(nextPage);
+        setHasMorePosts(newPosts.length === 5);
+      } else {
+        setHasMorePosts(false);
+      }
+    } catch (err) {
+      console.error('Error en carregar més publicacions:', err);
+    } finally {
+      setLoadingMore(false);
+    }
+  }, [user, hasMorePosts, loadingMore, currentPage]);
 
   useEffect(() => {
     const loadUserGroups = async () => {
@@ -192,6 +217,27 @@ const Profile = () => {
     loadUserAnnouncements();
   }, [user]);
 
+  // Hook para scroll infinito
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+      
+      if (
+        scrollTop + clientHeight >= scrollHeight - 500 && // Cargar cuando falten 500px
+        hasMorePosts &&
+        !loadingMore &&
+        !loadingPosts
+      ) {
+        loadMorePosts();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadMorePosts, hasMorePosts, loadingMore, loadingPosts, currentPage]);
+
   if (loading) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-8">
@@ -209,7 +255,7 @@ const Profile = () => {
       <div className="max-w-5xl mx-auto px-4 py-8">
         <Card className="rounded-xl">
           <CardContent className="p-12 text-center">
-            <p className="text-red-500">{error || 'No se encontró el usuario'}</p>
+            <p className="text-red-500">{error || 'No s\'ha trobat l\'usuari'}</p>
           </CardContent>
         </Card>
       </div>
@@ -401,7 +447,7 @@ const Profile = () => {
             <Card>
               <CardContent className="p-8 text-center text-gray-500">
                 <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p>No has publicado ningún post aún</p>
+                <p>No has publicat cap publicació encara</p>
               </CardContent>
             </Card>
           ) : (
@@ -466,6 +512,23 @@ const Profile = () => {
                 </CardContent>
               </Card>
             ))
+          )}
+          
+          {/* Indicador de carga para scroll infinito */}
+          {loadingMore && (
+            <div className="flex justify-center mt-8 mb-8 py-6">
+              <div className="flex items-center bg-white dark:bg-gray-800 rounded-lg shadow-md px-6 py-4 border">
+                <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent mr-3"></div>
+                <span className="text-gray-700 dark:text-gray-300 font-medium">Carregant més publicacions...</span>
+              </div>
+            </div>
+          )}
+          
+          {/* Mensaje cuando no hay más posts */}
+          {!loadingPosts && userPosts.length > 0 && !hasMorePosts && (
+            <div className="text-center py-8 text-gray-500">
+              No hi ha més posts per mostrar
+            </div>
           )}
         </TabsContent>
 
@@ -557,7 +620,7 @@ const Profile = () => {
             <Card>
               <CardContent className="p-8 text-center text-gray-500">
                 <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p>No te has unido a ningún grupo aún</p>
+                <p>No t'has unit a cap grup encara</p>
                 <Button 
                   className="mt-4"
                   onClick={() => navigate('/groups')}
@@ -619,7 +682,7 @@ const Profile = () => {
             <Card>
               <CardContent className="p-8 text-center text-gray-500">
                 <Megaphone className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-                <p>No has publicado ningún anuncio aún</p>
+                <p>No has publicat cap anunci encara</p>
                 {user?.role === 'user' && (
                   <Button 
                     className="mt-4"
@@ -725,7 +788,7 @@ const Profile = () => {
           <Card>
             <CardContent className="p-8 text-center text-gray-500">
               <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p>Próximamente: Tus participaciones en foros</p>
+              <p>Pròximament: Les teves participacions en fòrums</p>
             </CardContent>
           </Card>
         </TabsContent>
@@ -734,7 +797,7 @@ const Profile = () => {
           <Card>
             <CardContent className="p-8 text-center text-gray-500">
               <Users className="h-12 w-12 mx-auto mb-4 text-gray-300" />
-              <p>Próximamente: Sistema de logros y reconocimientos</p>
+              <p>Pròximament: Sistema d'assoliments i reconeixements</p>
             </CardContent>
           </Card>
         </TabsContent>

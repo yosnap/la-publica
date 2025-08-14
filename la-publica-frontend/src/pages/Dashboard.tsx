@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { CircularProgress } from "@/components/ui/circular-progress";
 import { SemiCircularProgress } from "@/components/ui/semi-circular-progress";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getImageUrl } from '@/utils/getImageUrl';
 import { fetchUserFeed, createPost, updatePost, deletePost, toggleLikePost, commentOnPost, togglePostComments, togglePostPin } from "@/api/posts";
 import { useUserProfile } from "@/hooks/useUser";
@@ -285,10 +285,10 @@ const Dashboard = () => {
   useEffect(() => {
     // Cargar posts y datos de widgets
     setLoadingPosts(true);
-    fetchUserFeed(1, 20) // Cargar 20 posts inicialmente
+    fetchUserFeed(1, 5) // Cargar 5 posts inicialmente
       .then((res) => {
         setPosts(res.data || []);
-        setHasMorePosts((res.data || []).length === 20);
+        setHasMorePosts((res.data || []).length === 5);
       })
       .finally(() => setLoadingPosts(false));
 
@@ -308,9 +308,9 @@ const Dashboard = () => {
        // Refresh posts after creation - volver a cargar desde el principio
       setLoadingPosts(true);
       setCurrentPage(1);
-      const res = await fetchUserFeed(1, 20);
+      const res = await fetchUserFeed(1, 5);
       setPosts(res.data || []);
-      setHasMorePosts((res.data || []).length === 20);
+      setHasMorePosts((res.data || []).length === 10);
     } catch (err) {
        // TODO: Show error toast
     } finally {
@@ -366,9 +366,9 @@ const Dashboard = () => {
        // Refresh posts after creation - volver a cargar desde el principio
       setLoadingPosts(true);
       setCurrentPage(1);
-      const res = await fetchUserFeed(1, 20);
+      const res = await fetchUserFeed(1, 5);
       setPosts(res.data || []);
-      setHasMorePosts((res.data || []).length === 20);
+      setHasMorePosts((res.data || []).length === 10);
     } catch (err) {
       toast.error("Error al publicar el post");
     } finally {
@@ -671,29 +671,50 @@ const Dashboard = () => {
     return user?.role === 'admin' || user?.role === 'moderator';
   };
 
-   // Función para cargar más posts
-  const loadMorePosts = async () => {
+   // Función para cargar más posts (scroll infinito)
+  const loadMorePosts = useCallback(async () => {
     if (!hasMorePosts || loadingMore) return;
 
     setLoadingMore(true);
     try {
       const nextPage = currentPage + 1;
-      const res = await fetchUserFeed(nextPage, 20);
+      const res = await fetchUserFeed(nextPage, 5);
       const newPosts = res.data || [];
 
       if (newPosts.length > 0) {
         setPosts(prevPosts => [...prevPosts, ...newPosts]);
         setCurrentPage(nextPage);
-        setHasMorePosts(newPosts.length === 20);
+        setHasMorePosts(newPosts.length === 5);
       } else {
         setHasMorePosts(false);
       }
     } catch (err) {
-      toast.error("Error al cargar más posts");
+      toast.error("Error en carregar més publicacions");
     } finally {
       setLoadingMore(false);
     }
-  };
+  }, [hasMorePosts, loadingMore, currentPage]);
+
+  // Hook para scroll infinito
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = document.documentElement.scrollTop;
+      const scrollHeight = document.documentElement.scrollHeight;
+      const clientHeight = document.documentElement.clientHeight;
+      
+      if (
+        scrollTop + clientHeight >= scrollHeight - 500 && // Cargar cuando falten 500px
+        hasMorePosts &&
+        !loadingMore &&
+        !loadingPosts
+      ) {
+        loadMorePosts();
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [loadMorePosts, hasMorePosts, loadingMore, loadingPosts, currentPage]);
 
   return (
     <div className="p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
@@ -1238,31 +1259,20 @@ const Dashboard = () => {
                 ))
               )}
 
-              { /* Botón para cargar más posts */}
-              {!loadingPosts && posts.length > 0 && hasMorePosts && (
-                <div className="flex justify-center mt-6">
-                  <Button
-                    onClick={loadMorePosts}
-                    disabled={loadingMore}
-                    variant="outline"
-                    className="px-6"
-                  >
-                    {loadingMore ? (
-                      <>
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
-                        Cargando...
-                      </>
-                    ) : (
-                      "Cargar más posts"
-                    )}
-                  </Button>
+              { /* Indicador de carga para scroll infinito */}
+              {loadingMore && (
+                <div className="flex justify-center mt-8 mb-8 py-6">
+                  <div className="flex items-center bg-white dark:bg-gray-800 rounded-lg shadow-md px-6 py-4 border">
+                    <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-t-transparent mr-3"></div>
+                    <span className="text-gray-700 dark:text-gray-300 font-medium">Carregant més publicacions...</span>
+                  </div>
                 </div>
               )}
 
               { /* Mensaje cuando no hay más posts */}
               {!loadingPosts && posts.length > 0 && !hasMorePosts && (
                 <div className="text-center py-8 text-gray-500">
-                  No hay más posts para mostrar
+                  No hi ha més publicacions per mostrar
                 </div>
               )}
             </div>

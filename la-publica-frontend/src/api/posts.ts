@@ -71,4 +71,12 @@ export const deletePost = async (id: string) => {
   return response.data;
 };
 
+ // Obtener posts de un usuario específico
+export const fetchUserPosts = async (userId: string, page = 1, limit = 10) => {
+  const response = await apiClient.get(`/api/posts/user/${userId}`, {
+    params: { page, limit },
+  });
+  return response.data;
+};
+
  // Future: Add functions for tagging users, hashtags, categories, scheduling, attachments, etc. 

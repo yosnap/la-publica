@@ -361,4 +361,34 @@ export const togglePinPost = async (req: Request, res: Response) => {
   } catch (error: any) {
     return res.status(500).json({ success: false, message: 'Error en fixar/disfixar publicació', error: error.message });
   }
+};
+
+// Obtener posts de un usuario específico
+export const getUserPosts = async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+    const skip = (page - 1) * limit;
+
+    const posts = await Post.find({ author: userId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .populate('author', 'username firstName lastName profilePicture')
+      .populate('targetUser', 'username firstName lastName profilePicture')
+      .populate('comments.author', 'username firstName lastName profilePicture');
+
+    return res.json({
+      success: true,
+      data: posts,
+      pagination: {
+        page,
+        limit,
+        total: await Post.countDocuments({ author: userId })
+      }
+    });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, message: 'Error en obtenir posts d\'usuari', error: error.message });
+  }
 }; 

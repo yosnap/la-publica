@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { createPost, listPosts, getPostById, updatePost, deletePost, likePost, commentOnPost, getUserFeed, toggleComments, togglePinPost } from './post.controller';
+import { createPost, listPosts, getPostById, updatePost, deletePost, likePost, commentOnPost, getUserFeed, getUserPosts, toggleComments, togglePinPost } from './post.controller';
 import { authenticate } from './middleware/auth';
 
 const router = Router();
@@ -29,6 +29,9 @@ router.post('/:id/comment', authenticate, commentOnPost);
 
 // Obtener el feed personal
 router.get('/feed/me', authenticate, getUserFeed);
+
+// Obtener posts de un usuario específico
+router.get('/user/:userId', getUserPosts);
 
 // Desactivar/activar comentarios (admin/moderador)
 router.patch('/:id/toggle-comments', authenticate, toggleComments);
