@@ -183,7 +183,8 @@ const OfferSchema = new Schema<IOffer>(
     },
     company: {
       type: Schema.Types.ObjectId,
-      ref: 'Company'
+      ref: 'Company',
+      required: [true, 'L\'oferta ha d\'estar associada a una empresa']
     },
     targetGroups: [{
       type: Schema.Types.ObjectId,

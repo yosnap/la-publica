@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import Offer, { IOffer } from './offer.model';
+import Company from './company.model';
 import { z } from 'zod';
 
 // Esquemas de validación con Zod
@@ -17,7 +18,7 @@ const createOfferSchema = z.object({
   mainImage: z.string().url(),
   gallery: z.array(z.string().url()).optional().default([]),
   videoUrl: z.string().url().optional(),
-  company: z.string().optional(),
+  company: z.string().min(1, 'L\'oferta ha d\'estar associada a una empresa'),
   targetGroups: z.array(z.string()).optional().default([]),
   category: z.string().optional()
 });
@@ -50,6 +51,23 @@ export const createOffer = async (req: Request, res: Response, next: NextFunctio
     }
 
     const validatedData = createOfferSchema.parse(req.body);
+
+    // Verificar que la empresa existe
+    const company = await Company.findById(validatedData.company);
+    if (!company) {
+      return res.status(404).json({
+        success: false,
+        message: 'Empresa no trobada'
+      });
+    }
+
+    // Si es colaborador, verificar que la empresa le pertenece
+    if (user.role === 'colaborador' && company.owner.toString() !== user.userId) {
+      return res.status(403).json({
+        success: false,
+        message: 'No tens permís per crear ofertes per aquesta empresa'
+      });
+    }
 
     // Crear oferta
     const offer = await Offer.create({
