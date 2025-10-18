@@ -1,7 +1,7 @@
 import { OAuth2Client } from 'google-auth-library';
 import User, { IUser } from '../user.model';
 import { JWTService } from '../utils/jwt';
-import { EmailService } from './email.service';
+import EmailService from './email.service';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
@@ -50,18 +50,18 @@ export class OAuthService {
         throw new Error('Token de Facebook invàlid');
       }
 
-      const data = await response.json();
+      const data: any = await response.json();
 
       if (!data.id || !data.email) {
         throw new Error('Dades de Facebook incompletes');
       }
 
       return {
-        facebookId: data.id,
-        email: data.email,
-        firstName: data.first_name || '',
-        lastName: data.last_name || '',
-        avatar: data.picture?.data?.url,
+        facebookId: data.id as string,
+        email: data.email as string,
+        firstName: (data.first_name as string) || '',
+        lastName: (data.last_name as string) || '',
+        avatar: data.picture?.data?.url as string | undefined,
         emailVerified: true // Facebook verifica los emails
       };
     } catch (error) {
@@ -153,7 +153,7 @@ export class OAuthService {
       }
 
       // Generar JWT
-      const token = JWTService.generateToken({
+      const token = JWTService.generateAccessToken({
         userId: String(user._id),
         email: user.email,
         role: user.role

@@ -33,6 +33,7 @@ import debugRoutes from './debug.routes';
 import superadminRoutes from './superadmin.routes';
 import emailTemplateRoutes from './emailTemplate.routes';
 import emailConfigRoutes from './emailConfig.routes';
+import offerRoutes from './offer.routes';
 import { errorHandler } from './middleware/errorHandler';
 import 'dotenv/config';
 
@@ -253,6 +254,9 @@ app.use('/api/admin/email-templates', emailTemplateRoutes);
 
 // Rutas de configuración de emails (admin)
 app.use('/api/admin/email-config', emailConfigRoutes);
+
+// Rutas de ofertas promocionales
+app.use('/api/offers', offerRoutes);
 
 // Debug routes (solo en desarrollo)
 if (process.env.NODE_ENV === 'development') {

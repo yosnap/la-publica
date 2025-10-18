@@ -22,11 +22,11 @@ interface CompanyProfileProps {
     industry: string;
   };
   isOwner?: boolean;
-  jobOffers?: any[];
+  offers?: any[];
   advisories?: any[];
 }
 
-const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisories = [] }: CompanyProfileProps) => {
+const CompanyProfile = ({ companyData, isOwner = false, offers = [], advisories = [] }: CompanyProfileProps) => {
   const companyStats = [
     { label: "Serveis", value: "24" },
     { label: "Clients", value: "150+" },
@@ -219,7 +219,7 @@ const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisori
         </TabsContent>
 
         <TabsContent value="offers" className="space-y-4">
-          {jobOffers.length === 0 ? (
+          {offers.length === 0 ? (
             <Card className="shadow-sm border-0 bg-white">
               <CardContent className="p-12 text-center">
                 <Briefcase className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -228,7 +228,7 @@ const CompanyProfile = ({ companyData, isOwner = false, jobOffers = [], advisori
               </CardContent>
             </Card>
           ) : (
-            jobOffers.map((offer) => (
+            offers.map((offer) => (
               <Card key={offer._id} className="shadow-sm border-0 bg-white">
                 <CardContent className="p-6">
                   <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center space-y-4 lg:space-y-0">

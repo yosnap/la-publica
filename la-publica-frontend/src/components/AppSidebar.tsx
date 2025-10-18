@@ -93,7 +93,7 @@ const collaboratorItems = [
   },
   {
     title: "Les Meves Ofertes",
-    url: "/colaborador/ofertas",
+    url: "/colaborador/ofertes",
     icon: Briefcase,
   },
   {
@@ -168,6 +168,11 @@ const adminItems = [
     title: "Emails",
     url: "/admin/emails",
     icon: Mail,
+  },
+  {
+    title: "Ofertes",
+    url: "/admin/ofertes",
+    icon: Tag,
   },
   {
     title: "Components UI",

@@ -57,6 +57,11 @@ import UserManagement from "./pages/admin/UserManagement";
 import UIComponents from "./pages/UIComponents";
 import VerifyEmail from "./pages/VerifyEmail";
 import EmailTemplates from "./pages/admin/EmailTemplates";
+import PromotionalOffers from "./pages/PromotionalOffers";
+import PromotionalOfferDetail from "./pages/PromotionalOfferDetail";
+import MyOffers from "./pages/collaborator/MyOffers";
+import OfferForm from "./pages/collaborator/OfferForm";
+import AdminOffers from "./pages/admin/AdminOffers";
 
 const queryClient = new QueryClient();
 
@@ -112,7 +117,6 @@ const App = () => {
                   <Route path="blogs/:id/edit" element={<CreateBlog />} />
                   <Route path="companies" element={<Companies />} />
                   <Route path="empresa/:slugId" element={<CompanyDetail />} />
-                  <Route path="ofertes" element={<Offers />} />
                   <Route path="announcements" element={<Announcements />} />
                   <Route path="anunci/:slugId" element={<AnnouncementDetail />} />
                   <Route path="announcements/new" element={<AnnouncementForm />} />
@@ -131,14 +135,18 @@ const App = () => {
                   <Route path="admin/user-management" element={<UserManagement />} />
                   <Route path="admin/emails" element={<EmailTemplates />} />
                   <Route path="admin/ui-components" element={<UIComponents />} />
+                  <Route path="admin/ofertes" element={<AdminOffers />} />
+                  <Route path="admin/ofertes/crear" element={<OfferForm />} />
+                  <Route path="admin/ofertes/:id/editar" element={<OfferForm />} />
                   <Route path="colaborador/empresas" element={<MyCompanies />} />
-                  <Route path="colaborador/ofertas" element={<MyJobOffers />} />
-                  <Route path="colaborador/ofertas/create" element={<JobOfferForm />} />
-                  <Route path="colaborador/ofertas/:id/edit" element={<JobOfferForm />} />
+                  <Route path="colaborador/ofertes" element={<MyOffers />} />
+                  <Route path="colaborador/ofertes/crear" element={<OfferForm />} />
+                  <Route path="colaborador/ofertes/:id/editar" element={<OfferForm />} />
                   <Route path="colaborador/asesorias" element={<MyAdvisories />} />
                   <Route path="colaborador/asesorias/create" element={<AdvisoryForm />} />
                   <Route path="colaborador/asesorias/:id/edit" element={<AdvisoryForm />} />
-                  <Route path="ofertes/:id" element={<JobOfferDetail />} />
+                  <Route path="ofertes" element={<PromotionalOffers />} />
+                  <Route path="ofertes/:slug" element={<PromotionalOfferDetail />} />
                   <Route path="assessorament/:id" element={<AdvisoryDetail />} />
                 </Route>
               </Route>

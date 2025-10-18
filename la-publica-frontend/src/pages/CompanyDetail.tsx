@@ -4,7 +4,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageWrapper } from "@/components/PageWrapper";
 import CompanyProfile from "@/components/CompanyProfile";
-import { getJobOffersByCompany } from "@/api/jobOffers";
+import { getOffersByCompany } from "@/api/offers";
 import { getAdvisoriesByCompany } from "@/api/advisories";
 import { getCompanies } from "@/api/companies";
 import { useUserProfile } from "@/hooks/useUser";
@@ -13,7 +13,7 @@ export default function CompanyDetail() {
   const { slugId } = useParams<{ slugId: string }>();
   const navigate = useNavigate();
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
-  const [jobOffers, setJobOffers] = useState<any[]>([]);
+  const [offers, setOffers] = useState<any[]>([]);
   const [advisories, setAdvisories] = useState<any[]>([]);
   const { user: currentUser } = useUserProfile();
   const [loading, setLoading] = useState(true);
@@ -57,13 +57,13 @@ export default function CompanyDetail() {
 
         setSelectedCompany(company);
 
-        // Obtener ofertas de trabajo y asesorías en paralelo
+        // Obtener ofertas promocionales y asesorías en paralelo
         const [offersResponse, advisoriesResponse] = await Promise.all([
-          getJobOffersByCompany(company._id),
+          getOffersByCompany(company._id),
           getAdvisoriesByCompany(company._id)
         ]);
-        
-        setJobOffers(offersResponse.data || []);
+
+        setOffers(offersResponse.offers || []);
         setAdvisories(advisoriesResponse.data || []);
       } catch (error) {
         console.error('Error fetching company data:', error);
@@ -135,10 +135,10 @@ export default function CompanyDetail() {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Tornar a Empreses
         </Button>
-        <CompanyProfile 
-          companyData={companyData} 
+        <CompanyProfile
+          companyData={companyData}
           isOwner={isOwner}
-          jobOffers={jobOffers}
+          offers={offers}
           advisories={advisories}
         />
       </div>
