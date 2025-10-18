@@ -7,6 +7,7 @@ import { UserRole } from './types';
 import crypto from 'crypto';
 import EmailService from './services/email.service';
 import { generateEmailVerificationToken, getExpirationDate } from './utils/tokens';
+import { OAuthService } from './services/oauth.service';
 
 // Registro de usuario
 export const register = async (req: Request, res: Response, next: NextFunction) => {
@@ -461,5 +462,109 @@ export const resendVerificationEmail = async (req: Request, res: Response, next:
     });
   } catch (error) {
     return next(error);
+  }
+};
+
+/**
+ * Login con Google OAuth
+ */
+export const googleAuth = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token de Google requerit'
+      });
+    }
+
+    // Verificar token de Google
+    const googleData = await OAuthService.verifyGoogleToken(token);
+
+    // Buscar o crear usuario
+    const { user, token: jwtToken, isNewUser } = await OAuthService.findOrCreateUser({
+      provider: 'google',
+      providerId: googleData.googleId,
+      email: googleData.email,
+      firstName: googleData.firstName,
+      lastName: googleData.lastName,
+      avatar: googleData.avatar,
+      emailVerified: googleData.emailVerified
+    });
+
+    return res.json({
+      success: true,
+      message: isNewUser ? 'Compte creat correctament' : 'Inici de sessió exitós',
+      token: jwtToken,
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        role: user.role,
+        avatar: user.avatar,
+        isEmailVerified: user.isEmailVerified
+      }
+    });
+  } catch (error) {
+    console.error('Error en Google OAuth:', error);
+    return res.status(400).json({
+      success: false,
+      message: error instanceof Error ? error.message : 'Error d\'autenticació amb Google'
+    });
+  }
+};
+
+/**
+ * Login con Facebook OAuth
+ */
+export const facebookAuth = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { accessToken } = req.body;
+
+    if (!accessToken) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token de Facebook requerit'
+      });
+    }
+
+    // Verificar token de Facebook
+    const facebookData = await OAuthService.verifyFacebookToken(accessToken);
+
+    // Buscar o crear usuario
+    const { user, token: jwtToken, isNewUser } = await OAuthService.findOrCreateUser({
+      provider: 'facebook',
+      providerId: facebookData.facebookId,
+      email: facebookData.email,
+      firstName: facebookData.firstName,
+      lastName: facebookData.lastName,
+      avatar: facebookData.avatar,
+      emailVerified: facebookData.emailVerified
+    });
+
+    return res.json({
+      success: true,
+      message: isNewUser ? 'Compte creat correctament' : 'Inici de sessió exitós',
+      token: jwtToken,
+      user: {
+        id: user._id,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        username: user.username,
+        role: user.role,
+        avatar: user.avatar,
+        isEmailVerified: user.isEmailVerified
+      }
+    });
+  } catch (error) {
+    console.error('Error en Facebook OAuth:', error);
+    return res.status(400).json({
+      success: false,
+      message: error instanceof Error ? error.message : 'Error d\'autenticació amb Facebook'
+    });
   }
 };

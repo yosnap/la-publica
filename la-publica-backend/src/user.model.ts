@@ -68,7 +68,7 @@ const UserSchema = new Schema<IUser>(
     firstName: { type: String, required: true, trim: true },
     lastName: { type: String, required: true, trim: true },
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
-    password: { type: String, required: true, select: false },
+    password: { type: String, required: false, select: false }, // Opcional para OAuth
     role: { type: String, enum: ['user', 'admin', 'colaborador', 'editor', 'superadmin'], default: 'user' },
     isPublic: { type: Boolean, default: true },
     isActive: { type: Boolean, default: true },

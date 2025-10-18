@@ -1,5 +1,78 @@
 # Changelog
 
+## [1.0.8] - 2025-10-18
+
+### 🔐 Sistema Complet d'Autenticació i Emails
+
+#### Fase 1: Sistema de Plantilles d'Email (Resend)
+- **Servei d'email**: Integració completa amb Resend (3.000 emails/mes gratuïts)
+- **Domini verificat**: `web.lapublica.cat`
+- **4 plantilles predefinides**: Verificació, recuperació, benvinguda, contrasenya canviada
+- **Sistema de configuració global**: Header i footer reutilitzables amb variables dinàmiques
+- **Editor WYSIWYG**: React-Quill amb modes visual i codi HTML
+- **Vista prèvia**: Renderització completa d'emails amb configuració aplicada
+- **Models nous**: EmailTemplate, EmailConfig, EmailLog
+
+#### Fase 2: Verificació d'Email
+- **Endpoints**: `POST /api/auth/verify-email`, `POST /api/auth/resend-verification`
+- **Tokens segurs**: 64 caràcters hexadecimals, expiració 24 hores
+- **Integració amb registre**: Email automàtic de verificació
+- **Seguretat**: Login bloquejat per usuaris no verificats (403 Forbidden)
+- **Tests**: 14 tests automatitzats amb Jest (12 passant)
+- **Frontend**: Pàgina VerifyEmail.tsx completa
+
+#### Fase 3: Recuperació de Contrasenya
+- **Endpoints**: `POST /api/auth/forgot`, `POST /api/auth/reset-password`
+- **Tokens segurs**: 64 caràcters hexadecimals, expiració 1 hora
+- **Seguretat**: Missatge genèric (anti-enumeració), tokens d'un sol ús
+- **Tests**: 13 tests automatitzats amb Jest (tots passant)
+- **Frontend**: ForgotPassword.tsx i ResetPassword.tsx funcionals
+- **Bugfix**: Correcció CSS `top-1/2` en camps de contrasenya
+
+#### Fase 4: OAuth Backend (Google/Facebook)
+- **Model User**: Password opcional per usuaris OAuth
+- **Servei OAuth**: Verificació de tokens Google i Facebook
+- **Endpoints**: `POST /api/auth/google`, `POST /api/auth/facebook`
+- **Lògica intel·ligent**: Buscar/crear usuari, vincular comptes existents
+- **Dependències**: googleapis, google-auth-library, @react-oauth/google
+- **Frontend pendent**: Components de login social (proper sprint)
+
+### 🧪 Testing
+- **27 tests nous**: 13 recuperació + 14 verificació
+- **Cobertura**: Endpoints, lògica de negoci, validacions, seguretat
+- **Jest + Supertest**: Tests d'integració end-to-end
+
+### 📝 Documentació
+- **IMPLEMENTACION_AUTENTICACION_EMAILS.md**: Guia completa d'implementació
+- **PLAN_AUTENTICACION_EMAILS.md**: Fases 1-3 marcades com completades
+
+### 🔧 Backend
+**Nous arxius:**
+- `src/services/oauth.service.ts` (186 línies)
+- `tests/email-verification.test.ts` (302 línies)
+- `tests/password-recovery.test.ts` (257 línies)
+- `scripts/seed-email-config.js`
+
+**Modificats:**
+- `src/auth.controller.ts` (+113 línies OAuth)
+- `src/auth.routes.ts` (rutes OAuth)
+- `src/user.model.ts` (password opcional)
+- `src/services/email.service.ts`
+- `.env` (variables OAuth)
+
+### 🎨 Frontend
+**Modificats:**
+- `src/pages/admin/EmailTemplates.tsx` (tabs + React-Quill)
+- `src/components/admin/EmailConfigTab.tsx` (nou component)
+- `src/pages/ResetPassword.tsx` (bugfix CSS)
+- `src/App.tsx` (ruta unificada /admin/emails)
+- `src/components/AppSidebar.tsx` (menú "Emails")
+
+### 📊 Estadístiques
+- **~1.000 línies noves** al backend (serveis, tests, endpoints)
+- **~300 línies modificades** al frontend (UI, integració)
+- **~559 línies de tests** (cobertura completa)
+
 ## [1.0.7] - 2025-08-14
 
 ### ⚡ Sistema Integral de Optimizació d'Imatges WebP

@@ -8,7 +8,9 @@ import {
   resetPassword,
   createAdmin,
   verifyEmail,
-  resendVerificationEmail
+  resendVerificationEmail,
+  googleAuth,
+  facebookAuth
 } from './auth.controller';
 
 const router = Router();
@@ -36,6 +38,10 @@ router.post('/verify-email', verifyEmail);
 
 // Endpoint para reenviar email de verificación
 router.post('/resend-verification', resendVerificationEmail);
+
+// Endpoints OAuth
+router.post('/google', googleAuth);
+router.post('/facebook', facebookAuth);
 
 // Endpoint para crear administrador (solo para uso interno/producción)
 router.post('/create-admin', createAdmin);

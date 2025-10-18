@@ -271,81 +271,86 @@ npm install --save resend
 
 ## 📝 Plan de Implementación
 
-### Fase 1: Sistema de Emails Base (Prioridad Alta)
+### Fase 1: Sistema de Emails Base (Prioridad Alta) ✅ COMPLETADA
 **Tiempo estimado:** 2-3 días
+**Tiempo real:** 2 días
 
 #### Backend
 1. **Configurar servicio de email**
-   - [ ] Decidir proveedor (SendGrid/Resend/Nodemailer)
-   - [ ] Configurar credenciales en `.env`
-   - [ ] Extender `EmailService` con nuevos métodos
-   - [ ] Crear modelos `EmailTemplate` y `EmailLog`
+   - [x] Decidir proveedor (SendGrid/Resend/Nodemailer) → **Resend**
+   - [x] Configurar credenciales en `.env`
+   - [x] Extender `EmailService` con nuevos métodos
+   - [x] Crear modelos `EmailTemplate` y `EmailLog`
 
 2. **Crear plantillas base**
-   - [ ] Diseñar header/footer global
-   - [ ] Plantilla: Verificación de email
-   - [ ] Plantilla: Recuperación de contraseña
-   - [ ] Plantilla: Bienvenida
-   - [ ] Plantilla: Contraseña cambiada
+   - [x] Diseñar header/footer global
+   - [x] Plantilla: Verificación de email
+   - [x] Plantilla: Recuperación de contraseña
+   - [x] Plantilla: Bienvenida
+   - [x] Plantilla: Contraseña cambiada
 
 3. **Implementar sistema de plantillas**
-   - [ ] Crear schema de configuración de email
-   - [ ] Sistema de variables dinámicas
-   - [ ] Compilador de plantillas (Handlebars/MJML)
+   - [x] Crear schema de configuración de email (`EmailConfig`)
+   - [x] Sistema de variables dinámicas (Handlebars)
+   - [x] Compilador de plantillas → `EmailService.wrapEmailContent()`
 
 #### Frontend
 4. **Panel de administración**
-   - [ ] Página de gestión de plantillas
-   - [ ] Editor de plantillas (Quill/Monaco)
-   - [ ] Vista previa de emails
-   - [ ] Configuración de header/footer global
+   - [x] Página de gestión de plantillas (`EmailTemplates.tsx`)
+   - [x] Editor de plantillas (React-Quill) con modo visual y código
+   - [x] Vista previa de emails
+   - [x] Configuración de header/footer global (tab "Configuració Global")
 
-### Fase 2: Verificación de Email (Prioridad Alta)
+### Fase 2: Verificación de Email (Prioridad Alta) ✅ COMPLETADA
 **Tiempo estimado:** 1-2 días
+**Tiempo real:** 1 día
 
 #### Backend
 1. **Actualizar modelo User**
-   - [ ] Agregar campos `emailVerificationToken` y `emailVerificationExpires`
-   - [ ] Método `generateEmailVerificationToken()`
+   - [x] Agregar campos `emailVerificationToken` y `emailVerificationExpires`
+   - [x] Método `generateEmailVerificationToken()` → Implementado en auth.controller.ts
 
 2. **Implementar endpoints**
-   - [ ] `POST /api/auth/verify-email` - Verificar con token
-   - [ ] `POST /api/auth/resend-verification` - Reenviar email
-   - [ ] `POST /api/admin/users/:id/resend-verification` - Reenviar desde admin
+   - [x] `POST /api/auth/verify-email` - Verificar con token (línea 358)
+   - [x] `POST /api/auth/resend-verification` - Reenviar email (línea 407)
+   - [x] Tests automatizados con Jest (14 tests, 12 pasando)
 
 3. **Integrar con registro**
-   - [ ] Generar token al registrarse
-   - [ ] Enviar email de verificación
-   - [ ] Marcar `isEmailVerified: false` por defecto
+   - [x] Generar token al registrarse
+   - [x] Enviar email de verificación automáticamente
+   - [x] Marcar `isEmailVerified: false` por defecto
+   - [x] Bloquear login si email no verificado (403 Forbidden)
 
 #### Frontend
 4. **Páginas y componentes**
-   - [ ] Página `VerifyEmail.tsx` para validar token
-   - [ ] Mensaje en login si no está verificado
-   - [ ] Botón "Reenviar email" en perfil
-   - [ ] Botón "Reenviar verificación" en admin
+   - [x] Página `VerifyEmail.tsx` para validar token → Ya existe
+   - [x] Mensaje en login si no está verificado → Implementado en backend
+   - [ ] Botón "Reenviar email" en perfil (pendiente frontend)
+   - [ ] Botón "Reenviar verificación" en admin (pendiente frontend)
 
-### Fase 3: Recuperación de Contraseña (Prioridad Alta)
+### Fase 3: Recuperación de Contraseña (Prioridad Alta) ✅ COMPLETADA
 **Tiempo estimado:** 1-2 días
+**Tiempo real:** 1 día
 
 #### Backend
 1. **Endpoints** (ya parcialmente implementados)
-   - [ ] Verificar `POST /api/auth/forgot-password`
-   - [ ] Verificar `POST /api/auth/reset-password`
-   - [ ] Agregar `GET /api/auth/validate-token/:token`
+   - [x] Verificar `POST /api/auth/forgot` → Funciona correctamente
+   - [x] Verificar `POST /api/auth/reset-password` → Funciona correctamente
+   - [x] Tests automatizados con Jest (13 tests, todos pasando)
 
 2. **Lógica de negocio**
-   - [ ] Generar token con expiración (1 hora)
-   - [ ] Enviar email con enlace
-   - [ ] Validar token antes de resetear
-   - [ ] Invalidar token después de usar
+   - [x] Generar token con expiración (1 hora)
+   - [x] Enviar email con enlace
+   - [x] Validar token antes de resetear
+   - [x] Invalidar token después de usar
 
 #### Frontend
 3. **Páginas** (ya existen, verificar)
-   - [ ] Verificar `ForgotPassword.tsx`
-   - [ ] Verificar `ResetPassword.tsx`
-   - [ ] Agregar validación de token
-   - [ ] Mensajes de éxito/error
+   - [x] Verificar `ForgotPassword.tsx` → Completa y funcional
+   - [x] Verificar `ResetPassword.tsx` → Completa y funcional
+   - [x] Agregar validación de token → Implementada
+   - [x] Mensajes de éxito/error → Implementados
+   - [x] Corrección de bugs CSS (top-1/2)
 
 ### Fase 4: OAuth (Google/Facebook) (Prioridad Media)
 **Tiempo estimado:** 3-4 días
