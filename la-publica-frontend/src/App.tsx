@@ -54,6 +54,9 @@ import BlogDetail from "./pages/BlogDetail";
 import CreateBlog from "./pages/CreateBlog";
 import UserProfile from "./pages/UserProfile";
 import UserManagement from "./pages/admin/UserManagement";
+import UIComponents from "./pages/UIComponents";
+import VerifyEmail from "./pages/VerifyEmail";
+import EmailTemplates from "./pages/admin/EmailTemplates";
 
 const queryClient = new QueryClient();
 
@@ -84,6 +87,7 @@ const App = () => {
               <Route path="/install" element={<Install />} />
               <Route path="/login" element={<LoginRoute />} />
               <Route path="/register" element={<RegisterRoute />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route element={<PrivateRoute />}>
@@ -125,6 +129,8 @@ const App = () => {
                   <Route path="admin/granular-backup" element={<GranularBackup />} />
                   <Route path="admin/data-management" element={<DataManagement />} />
                   <Route path="admin/user-management" element={<UserManagement />} />
+                  <Route path="admin/emails" element={<EmailTemplates />} />
+                  <Route path="admin/ui-components" element={<UIComponents />} />
                   <Route path="colaborador/empresas" element={<MyCompanies />} />
                   <Route path="colaborador/ofertas" element={<MyJobOffers />} />
                   <Route path="colaborador/ofertas/create" element={<JobOfferForm />} />

@@ -107,6 +107,25 @@ npm run preview        # Preview production build
 - Backend uses Jest with test files in `tests/` directory
 - Single health check test exists: `tests/health.test.ts`
 
+## Development Rules
+
+**IMPORTANT**: All developers must follow the rules defined in [docs/DEVELOPMENT_RULES.md](docs/DEVELOPMENT_RULES.md)
+
+Key rules:
+- ❌ **NEVER use `border-left`** in any component or email template
+- ✅ **Always use `border-radius: 8px`** as standard
+- ✅ **Email templates MUST include the header with logo**
+- ✅ **Files should not exceed 1000 lines**
+- ✅ **No hardcoded secrets or API keys**
+
+See the full documentation for complete guidelines on:
+- UI/Design standards
+- Email template structure
+- Code style and naming conventions
+- Security best practices
+- Commit message format
+- Testing requirements
+
 ## Scripts de Datos
 
 ### Seed de Empresas Colaboradoras
@@ -125,6 +144,25 @@ node scripts/seed-companies.js
 - **Colaboradores**: `maria@techsolutions.com`, `carlos@marketingpro.com`, `ana@consultoria.com`
 - **Usuarios**: `luis@example.com`, `carmen@example.com`, `roberto@example.com`
 - **Contraseña**: `password123` (para todos)
+
+### Seed de Plantillas de Email
+```bash
+cd la-publica-backend
+node scripts/seed-email-templates.js
+```
+
+**Plantillas creadas:**
+- **Verificació d'Email**: Email de bienvenida con token de verificación (24h validez)
+- **Recuperació de Contrasenya**: Reset de contraseña con token (1h validez)
+- **Benvinguda**: Email celebratorio después de verificar
+- **Contrasenya Canviada**: Notificación de seguridad
+- **Compte d'Admin Creat**: Credenciales temporales para admins
+
+**Características:**
+- Todas incluyen header con logo de La Pública
+- Diseño responsive optimizado para móviles
+- Variables dinámicas personalizadas
+- Protegidas (no se pueden eliminar desde admin)
 
 ### Seed de Categorías
 ```bash

@@ -31,6 +31,8 @@ import adminDataRoutes from './adminData.routes';
 import installRoutes from './install.routes';
 import debugRoutes from './debug.routes';
 import superadminRoutes from './superadmin.routes';
+import emailTemplateRoutes from './emailTemplate.routes';
+import emailConfigRoutes from './emailConfig.routes';
 import { errorHandler } from './middleware/errorHandler';
 import 'dotenv/config';
 
@@ -245,6 +247,12 @@ app.use('/api/superadmin', superadminRoutes);
 // Rutas del sistema (admin)
 import systemRoutes from './system.routes';
 app.use('/api/system', systemRoutes);
+
+// Rutas de plantillas de email (admin)
+app.use('/api/admin/email-templates', emailTemplateRoutes);
+
+// Rutas de configuración de emails (admin)
+app.use('/api/admin/email-config', emailConfigRoutes);
 
 // Debug routes (solo en desarrollo)
 if (process.env.NODE_ENV === 'development') {

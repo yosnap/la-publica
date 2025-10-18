@@ -38,6 +38,12 @@ export interface IUser extends Document {
   };
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
+  emailVerificationToken?: string;
+  emailVerificationExpires?: Date;
+  googleId?: string;
+  facebookId?: string;
+  authProvider: 'local' | 'google' | 'facebook';
+  avatar?: string;
   comparePassword(password: string): Promise<boolean>;
 }
 
@@ -83,6 +89,12 @@ const UserSchema = new Schema<IUser>(
     socialLinks: socialLinksSchema,
     resetPasswordToken: { type: String, select: false },
     resetPasswordExpires: { type: Date, select: false },
+    emailVerificationToken: { type: String, select: false },
+    emailVerificationExpires: { type: Date, select: false },
+    googleId: { type: String, select: false },
+    facebookId: { type: String, select: false },
+    authProvider: { type: String, enum: ['local', 'google', 'facebook'], default: 'local' },
+    avatar: { type: String },
   },
   {
     timestamps: true,

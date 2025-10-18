@@ -6,6 +6,7 @@ import { JWTService } from './utils/jwt';
 import { UserRole } from './types';
 import crypto from 'crypto';
 import EmailService from './services/email.service';
+import { generateEmailVerificationToken, getExpirationDate } from './utils/tokens';
 
 // Registro de usuario
 export const register = async (req: Request, res: Response, next: NextFunction) => {
@@ -24,20 +25,41 @@ export const register = async (req: Request, res: Response, next: NextFunction) 
     }
 
     const hashedPassword = await PasswordService.hashPassword(data.password);
-    
+
+    // Generar token de verificación
+    const verificationToken = generateEmailVerificationToken();
+    const verificationExpires = getExpirationDate(24); // 24 horas
+
     const newUser = new User({
       username: data.username,
       firstName: data.firstName,
       lastName: data.lastName,
       email: data.email,
-      password: hashedPassword
+      password: hashedPassword,
+      emailVerificationToken: verificationToken,
+      emailVerificationExpires: verificationExpires,
+      isEmailVerified: false,
+      authProvider: 'local'
     });
 
     await newUser.save();
 
+    // Enviar email de verificación
+    try {
+      await EmailService.sendVerificationEmail(
+        newUser.email,
+        newUser.firstName,
+        verificationToken,
+        String(newUser._id)
+      );
+    } catch (emailError) {
+      console.error('Error enviando email de verificación:', emailError);
+      // No bloquear el registro si falla el email
+    }
+
     return res.status(201).json({
       success: true,
-      message: 'Usuari registrat amb èxit.'
+      message: 'Usuari registrat amb èxit. Si us plau, verifica el teu email.'
     });
 
   } catch (error) {
@@ -66,9 +88,19 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     if (!isPasswordValid) {
       return res.status(401).json({ success: false, message: 'Credencials invàlides' });
     }
-    
+
     if (!user.isActive) {
       return res.status(403).json({ success: false, message: 'El compte d\'usuari està inactiu.' });
+    }
+
+    // Verificar si el email está verificado
+    if (!user.isEmailVerified) {
+      return res.status(403).json({
+        success: false,
+        message: 'Has de verificar el teu email abans d\'iniciar sessió.',
+        emailNotVerified: true,
+        userId: user._id
+      });
     }
 
     const token = JWTService.generateAccessToken({ userId: user.id, email: user.email, role: user.role });
@@ -174,7 +206,7 @@ export const forgotPassword = async (req: Request, res: Response) => {
 
     // Enviar email
     try {
-      await EmailService.sendPasswordResetEmail(user.email, resetToken);
+      await EmailService.sendPasswordResetEmail(user.email, user.firstName, resetToken, String(user._id));
     } catch (emailError) {
       console.error('Error sending reset email:', emailError);
       // Limpiar token si no se pudo enviar el email
@@ -318,4 +350,116 @@ export const createAdmin = async (req: Request, res: Response) => {
       message: 'Error intern del servidor'
     });
   }
-}; 
+};
+
+/**
+ * Verificar email con token
+ */
+export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { token } = req.body;
+
+    if (!token) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token de verificació requerit'
+      });
+    }
+
+    // Buscar usuario con token válido
+    const user = await User.findOne({
+      emailVerificationToken: token,
+      emailVerificationExpires: { $gt: new Date() }
+    }).select('+emailVerificationToken +emailVerificationExpires');
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Token de verificació invàlid o caducat'
+      });
+    }
+
+    // Verificar email
+    user.isEmailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
+    await user.save();
+
+    // Enviar email de bienvenida
+    try {
+      await EmailService.sendWelcomeEmail(user.email, user.firstName, String(user._id));
+    } catch (emailError) {
+      console.error('Error enviando email de bienvenida:', emailError);
+    }
+
+    return res.json({
+      success: true,
+      message: 'Email verificat correctament'
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+/**
+ * Reenviar email de verificación
+ */
+export const resendVerificationEmail = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email requerit'
+      });
+    }
+
+    const user = await User.findOne({ email: email.toLowerCase() });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuari no trobat'
+      });
+    }
+
+    if (user.isEmailVerified) {
+      return res.status(400).json({
+        success: false,
+        message: 'L\'email ja està verificat'
+      });
+    }
+
+    // Generar nuevo token
+    const verificationToken = generateEmailVerificationToken();
+    const verificationExpires = getExpirationDate(24);
+
+    user.emailVerificationToken = verificationToken;
+    user.emailVerificationExpires = verificationExpires;
+    await user.save();
+
+    // Enviar email
+    try {
+      await EmailService.sendVerificationEmail(
+        user.email,
+        user.firstName,
+        verificationToken,
+        String(user._id)
+      );
+    } catch (emailError) {
+      console.error('Error enviando email de verificación:', emailError);
+      return res.status(500).json({
+        success: false,
+        message: 'Error enviant l\'email de verificació'
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Email de verificació enviat correctament'
+    });
+  } catch (error) {
+    return next(error);
+  }
+};

@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
-import { useNavigate, Link, useSearchParams } from "react-router-dom";
+import { useNavigate, Link, useSearchParams, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, EyeOff, LogIn, AlertCircle, Info } from "lucide-react";
+import { Eye, EyeOff, LogIn, AlertCircle, Info, CheckCircle2, Mail } from "lucide-react";
 import apiClient from "@/api/client";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import axios from 'axios';
@@ -16,8 +16,13 @@ const Login = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [infoMessage, setInfoMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [unverifiedEmail, setUnverifiedEmail] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [resendingVerification, setResendingVerification] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
 
   useEffect(() => {
     // Verificar si hay un mensaje en los parámetros de URL
@@ -25,18 +30,25 @@ const Login = () => {
     if (message) {
       setInfoMessage(message);
     }
-  }, [searchParams]);
+
+    // Verificar si viene de la verificación exitosa
+    if (location.state?.verified) {
+      setSuccessMessage('Email verificat correctament! Ara pots iniciar sessió.');
+    }
+  }, [searchParams, location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);  // Limpiar errores anteriores
     setInfoMessage(null); // Limpiar mensajes informativos
+    setSuccessMessage(null); // Limpiar mensajes de éxito
+    setUnverifiedEmail(null); // Limpiar email no verificado
 
     try {
        // Recordar que nuestro backend espera un campo 'login' que puede ser email o username
       const response = await apiClient.post('/auth/login', {
-        login: email, 
+        login: email,
         password: password
       });
 
@@ -52,13 +64,52 @@ const Login = () => {
     } catch (err) {
        // Manejar errores de la petición (ej. 401, 500)
       if (axios.isAxiosError(err)) {
-        const errorMessage = err.response?.data?.message || "Error al conectar con el servidor. Inténtalo más tarde.";
+        const errorData = err.response?.data;
+        const errorMessage = errorData?.message || "Error al conectar con el servidor. Inténtalo más tarde.";
+
+        // Verificar si el error es por email no verificado
+        if (errorData?.emailNotVerified) {
+          setUnverifiedEmail(email);
+          setUserId(errorData.userId);
+        }
+
         setError(errorMessage);
       } else {
         setError("Ocurrió un error inesperado.");
       }
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!userId) return;
+
+    setResendingVerification(true);
+    setError(null);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/auth/resend-verification`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setSuccessMessage(data.message || 'Email de verificació reenviat correctament!');
+        setError(null);
+      } else {
+        setError(data.message || 'Error al reenviar l\'email de verificació.');
+      }
+    } catch (error) {
+      console.error('Error al reenviar verificació:', error);
+      setError('Error de connexió. Si us plau, torna-ho a intentar.');
+    } finally {
+      setResendingVerification(false);
     }
   };
 
@@ -91,6 +142,13 @@ const Login = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
+            {successMessage && (
+              <Alert className="mb-4 bg-green-50 border-green-200">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <AlertTitle className="text-green-800">Èxit</AlertTitle>
+                <AlertDescription className="text-green-700">{successMessage}</AlertDescription>
+              </Alert>
+            )}
             {infoMessage && (
               <Alert className="mb-4 bg-blue-50 border-blue-200">
                 <Info className="h-4 w-4 text-blue-600" />
@@ -103,6 +161,24 @@ const Login = () => {
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error d'autenticació</AlertTitle>
                 <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
+            {unverifiedEmail && userId && (
+              <Alert className="mb-4 bg-yellow-50 border-yellow-200">
+                <Mail className="h-4 w-4 text-yellow-600" />
+                <AlertTitle className="text-yellow-800">Email no verificat</AlertTitle>
+                <AlertDescription className="text-yellow-700 space-y-2">
+                  <p>Has de verificar el teu email abans d'iniciar sessió. Comprova la teva safata d'entrada.</p>
+                  <Button
+                    onClick={handleResendVerification}
+                    disabled={resendingVerification}
+                    variant="outline"
+                    size="sm"
+                    className="mt-2"
+                  >
+                    {resendingVerification ? 'Reenviant...' : 'Reenviar email de verificació'}
+                  </Button>
+                </AlertDescription>
               </Alert>
             )}
             <form onSubmit={handleSubmit} className="space-y-4">

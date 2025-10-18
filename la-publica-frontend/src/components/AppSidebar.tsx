@@ -1,4 +1,4 @@
-import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag, PanelLeftClose, PanelLeft, Database, Layers, HardDrive, BookOpen } from "lucide-react";
+import { Home, Users, MessageSquare, Settings, User, Calendar, Bell, Search, MessageCircle, Building, Briefcase, Megaphone, HelpCircle, ExternalLink, Shield, Tag, PanelLeftClose, PanelLeft, Database, Layers, HardDrive, BookOpen, Palette, Mail } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import {
   Sidebar,
@@ -163,6 +163,16 @@ const adminItems = [
     title: "Gestió d'Usuaris",
     url: "/admin/user-management",
     icon: Users,
+  },
+  {
+    title: "Emails",
+    url: "/admin/emails",
+    icon: Mail,
+  },
+  {
+    title: "Components UI",
+    url: "/admin/ui-components",
+    icon: Palette,
   },
 ];
 

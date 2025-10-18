@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Eye, EyeOff, UserPlus, AlertCircle } from "lucide-react";
+import { Eye, EyeOff, UserPlus, AlertCircle, Mail, CheckCircle2 } from "lucide-react";
 import apiClient from "@/api/client";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import axios from 'axios';
@@ -19,6 +19,8 @@ const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [registeredEmail, setRegisteredEmail] = useState("");
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,15 +35,20 @@ const Register = () => {
     setError(null);
 
     try {
-      await apiClient.post('/auth/register', {
+      const response = await apiClient.post('/auth/register', {
         firstName,
         lastName,
         username,
         email,
         password
       });
-       // Redirigir al login con un mensaje de éxito (opcional, pero buena UX)
-      navigate('/login?registered=true');
+
+      if (response.data.success) {
+        setRegisteredEmail(email);
+        setSuccess(true);
+        // Scroll al inicio para ver el mensaje
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     } catch (err) {
       if (axios.isAxiosError(err)) {
         const errorMessage = err.response?.data?.message || "Error en crear el compte. Intenta-ho més tard.";
@@ -82,13 +89,71 @@ const Register = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {error && (
-              <Alert variant="destructive" className="mb-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error en el registre</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+            {success ? (
+              <div className="space-y-4">
+                <Alert className="bg-green-50 border-green-200">
+                  <CheckCircle2 className="h-5 w-5 text-green-600" />
+                  <AlertTitle className="text-green-800 font-semibold">Compte creat amb èxit!</AlertTitle>
+                  <AlertDescription className="text-green-700 space-y-2 mt-2">
+                    <p>El teu compte s'ha creat correctament.</p>
+                  </AlertDescription>
+                </Alert>
+
+                <Alert className="bg-blue-50 border-blue-200">
+                  <Mail className="h-5 w-5 text-blue-600" />
+                  <AlertTitle className="text-blue-800 font-semibold">Verifica el teu email</AlertTitle>
+                  <AlertDescription className="text-blue-700 space-y-3 mt-2">
+                    <p>
+                      Hem enviat un email de verificació a <strong>{registeredEmail}</strong>
+                    </p>
+                    <p>
+                      Si us plau, comprova la teva safata d'entrada i fes clic a l'enllaç de verificació per activar el teu compte.
+                    </p>
+                    <div className="bg-blue-100 border border-blue-300 rounded-md p-3 mt-3">
+                      <p className="text-sm font-medium text-blue-900">Important:</p>
+                      <ul className="text-sm text-blue-800 list-disc list-inside mt-1 space-y-1">
+                        <li>L'enllaç de verificació és vàlid durant 24 hores</li>
+                        <li>Revisa també la carpeta de correu brossa (spam)</li>
+                        <li>No podràs iniciar sessió fins que verifiquis el teu email</li>
+                      </ul>
+                    </div>
+                  </AlertDescription>
+                </Alert>
+
+                <div className="flex flex-col gap-3 mt-6">
+                  <Button
+                    onClick={() => navigate('/login')}
+                    className="w-full bg-[#4F8FF7] hover:bg-[#4F8FF7]/90"
+                  >
+                    Anar a l'inici de sessió
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setSuccess(false);
+                      setRegisteredEmail("");
+                      setFirstName("");
+                      setLastName("");
+                      setUsername("");
+                      setEmail("");
+                      setPassword("");
+                      setConfirmPassword("");
+                    }}
+                    variant="outline"
+                    className="w-full"
+                  >
+                    Registrar un altre compte
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <>
+                {error && (
+                  <Alert variant="destructive" className="mb-4">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error en el registre</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                )}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -152,26 +217,35 @@ const Register = () => {
                     required
                     className="h-11 rounded-xl pr-10"
                   />
-                   <button
+                  <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1 /2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
                   >
-                    {showPassword ? <EyeOff className="h-4 w-4"  /> : <Eye className="h-4 w-4" />}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword">Confirmar contrasenya</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  placeholder="Torna a escriure la contrasenya"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                  className="h-11 rounded-xl"
-                />
+                <div className="relative">
+                  <Input
+                    id="confirmPassword"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Torna a escriure la contrasenya"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    className="h-11 rounded-xl pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
               </div>
               <Button
                 type="submit"
@@ -186,6 +260,7 @@ const Register = () => {
                 )}
               </Button>
             </form>
+
             <div className="mt-6 text-center">
               <p className="text-gray-600">
                 Ja tens un compte?{" "}
@@ -194,7 +269,7 @@ const Register = () => {
                 </Link>
               </p>
             </div>
-            
+
             { /* Divisor */}
             <div className="mt-6 flex items-center">
               <div className="flex-1 border-t border-gray-200"></div>
@@ -240,6 +315,8 @@ const Register = () => {
                 Facebook
               </Button>
             </div>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
