@@ -23,16 +23,20 @@ import {
   ArrowLeft,
   Plus,
   Trash2,
-  Upload
+  Upload,
+  Building,
+  AlertTriangle
 } from "lucide-react";
 import { createOffer, updateOffer, getOfferBySlug, type CreateOfferData } from "@/api/offers";
 import { uploadFile } from "@/api/uploads";
+import { getMyCompanies, type Company } from "@/api/companies";
 import { Separator } from "@/components/ui/separator";
 
 // Schema de validación
 const offerSchema = z.object({
   title: z.string().min(3, "El títol ha de tenir almenys 3 caràcters").max(200, "El títol no pot excedir 200 caràcters"),
   description: z.string().min(10, "La descripció ha de tenir almenys 10 caràcters").max(5000, "La descripció no pot excedir 5000 caràcters"),
+  company: z.string().min(1, "Has de seleccionar una empresa"),
   originalPrice: z.number().min(0.01, "El preu original ha de ser major que 0"),
   discountedPrice: z.number().min(0.01, "El preu amb descompte ha de ser major que 0"),
   startDate: z.string().min(1, "La data d'inici és obligatòria"),
@@ -69,6 +73,9 @@ export default function OfferForm() {
   const [loadingData, setLoadingData] = useState(isEditing);
   const [uploadingMainImage, setUploadingMainImage] = useState(false);
   const [uploadingGallery, setUploadingGallery] = useState(false);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(true);
+  const [noCompanies, setNoCompanies] = useState(false);
 
   const {
     register,
@@ -81,6 +88,7 @@ export default function OfferForm() {
   } = useForm<OfferFormData>({
     resolver: zodResolver(offerSchema),
     defaultValues: {
+      company: "",
       included: [""],
       notIncluded: [],
       gallery: [],
