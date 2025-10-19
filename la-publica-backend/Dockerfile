@@ -8,7 +8,8 @@ COPY package*.json ./
 COPY tsconfig.json ./
 
 # Install all dependencies (including dev for build)
-RUN npm ci
+# Using npm install instead of npm ci due to workspace configuration in monorepo
+RUN npm install
 
 # Copy source code
 COPY . .
@@ -26,7 +27,7 @@ RUN apk add --no-cache dumb-init
 
 # Copy package files and install production dependencies only
 COPY package*.json ./
-RUN npm ci --only=production
+RUN npm install --omit=dev
 
 # Copy built application from builder stage
 COPY --from=builder /app/dist ./dist
