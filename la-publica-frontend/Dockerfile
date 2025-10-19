@@ -13,7 +13,7 @@ COPY package*.json ./
 # Install dependencies
 # Using npm install with --legacy-peer-deps to avoid peer dependency conflicts
 # Note: npm ci is not used here due to workspace configuration in monorepo
-RUN npm install --legacy-peer-deps --production=false
+RUN npm install --legacy-peer-deps
 
 # Copy source code
 COPY . .
