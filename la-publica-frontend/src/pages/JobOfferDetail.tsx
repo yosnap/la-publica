@@ -86,22 +86,20 @@ export default function JobOfferDetail() {
   const [loading, setLoading] = useState(true);
   const [applying, setApplying] = useState(false);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    if (id) {
-      loadJobOffer();
-    }
-  }, [id]);
-
   const loadJobOffer = async () => {
     try {
       setLoading(true);
       const response = await getJobOfferById(id!);
       setJobOffer(response.data);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error loading job offer:', error);
-      if (error.response?.status === 404) {
-        toast.error('Oferta de treball no trobada');
+      if (error && typeof error === 'object' && 'response' in error) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 404) {
+          toast.error('Oferta de treball no trobada');
+        } else {
+          toast.error('Error al carregar l\'oferta de treball');
+        }
       } else {
         toast.error('Error al carregar l\'oferta de treball');
       }
@@ -110,6 +108,14 @@ export default function JobOfferDetail() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+    if (id) {
+      loadJobOffer();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const formatEmploymentType = (type: string) => {
     const types = {
