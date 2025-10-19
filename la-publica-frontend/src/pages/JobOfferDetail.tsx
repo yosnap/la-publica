@@ -40,6 +40,7 @@ interface JobOffer {
   company: {
     _id: string;
     name: string;
+    slug?: string;
     description?: string;
     logo?: string;
     verified: { status: 'verified' | 'pending' | 'rejected' };
@@ -331,7 +332,7 @@ export default function JobOfferDetail() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <Link
-                        to={`/companies/${jobOffer.company._id}`}
+                        to={jobOffer.company.slug ? `/empresa/${jobOffer.company.slug}` : '#'}
                         className="text-lg font-semibold text-blue-600 hover:text-blue-800"
                       >
                         {jobOffer.company.name}
@@ -562,7 +563,7 @@ export default function JobOfferDetail() {
                 </div>
 
                 <Button variant="outline" className="w-full" asChild>
-                  <Link to={`/companies/${jobOffer.company._id}`}>
+                  <Link to={jobOffer.company.slug ? `/empresa/${jobOffer.company.slug}` : '#'}>
                     <Building className="h-4 w-4 mr-2" />
                     Veure Perfil Complet
                   </Link>

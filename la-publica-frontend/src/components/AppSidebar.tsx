@@ -65,7 +65,7 @@ const menuItems = [
 const businessItems = [
   {
     title: "Empreses i Col·laboradors",
-    url: "/companies",
+    url: "/empreses",
     icon: Building,
   },
   {

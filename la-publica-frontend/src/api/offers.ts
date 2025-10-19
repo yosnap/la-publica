@@ -38,10 +38,19 @@ export interface Offer {
   company?: {
     _id: string;
     name: string;
+    slug: string;
     logo?: string;
+    description?: string;
+    verified?: {
+      status: 'pending' | 'verified' | 'rejected';
+    };
   };
   targetGroups: string[];
-  category?: string;
+  category?: {
+    _id: string;
+    name: string;
+    slug: string;
+  } | string;
   coupons: Coupon[];
   isActive: boolean;
   isPaused: boolean;
@@ -120,6 +129,12 @@ export const getOfferBySlug = async (slug: string) => {
   return response.data;
 };
 
+// Obtener una oferta por ID (para edición)
+export const getOfferById = async (id: string) => {
+  const response = await apiClient.get(`/api/offers/id/${id}`);
+  return response.data;
+};
+
 // Crear una nueva oferta (solo colaboradores y admin)
 export const createOffer = async (data: CreateOfferData) => {
   const response = await apiClient.post('/api/offers', data);
@@ -167,6 +182,24 @@ export const validateCoupon = async (offerId: string, code: string): Promise<Val
 // Desactivar un cupón
 export const deactivateCoupon = async (offerId: string, code: string) => {
   const response = await apiClient.patch(`/api/offers/${offerId}/coupons/${code}/deactivate`);
+  return response.data;
+};
+
+// Reactivar un cupón
+export const activateCoupon = async (offerId: string, code: string) => {
+  const response = await apiClient.patch(`/api/offers/${offerId}/coupons/${code}/activate`);
+  return response.data;
+};
+
+// Editar un cupón
+export const updateCoupon = async (offerId: string, code: string, data: Partial<CreateCouponData>) => {
+  const response = await apiClient.put(`/api/offers/${offerId}/coupons/${code}`, data);
+  return response.data;
+};
+
+// Eliminar un cupón permanentemente
+export const deleteCoupon = async (offerId: string, code: string) => {
+  const response = await apiClient.delete(`/api/offers/${offerId}/coupons/${code}`);
   return response.data;
 };
 

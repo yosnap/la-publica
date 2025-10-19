@@ -3,12 +3,16 @@ import {
   createOffer,
   getOffers,
   getOfferBySlug,
+  getOfferById,
   updateOffer,
   deleteOffer,
   togglePauseOffer,
   createCoupon,
   validateCoupon,
   deactivateCoupon,
+  activateCoupon,
+  updateCoupon,
+  deleteCoupon,
   getMyOffers
 } from './offer.controller';
 import { authenticate } from './middleware/auth';
@@ -33,6 +37,14 @@ router.post(
   authorize(['colaborador', 'admin', 'superadmin']),
   createOffer
 ); // Crear oferta
+
+// Ruta para obtener oferta por ID (para edición)
+router.get(
+  '/id/:id',
+  authenticate,
+  authorize(['colaborador', 'admin', 'superadmin']),
+  getOfferById
+); // Obtener oferta por ID
 
 // Rutas públicas con parámetros (DESPUÉS de las rutas específicas)
 router.get('/:slug', getOfferBySlug); // Obtener oferta por slug
@@ -68,11 +80,32 @@ router.post(
   createCoupon
 ); // Crear cupón
 
+router.put(
+  '/:id/coupons/:code',
+  authenticate,
+  authorize(['colaborador', 'admin', 'superadmin']),
+  updateCoupon
+); // Editar cupón
+
 router.patch(
   '/:id/coupons/:code/deactivate',
   authenticate,
   authorize(['colaborador', 'admin', 'superadmin']),
   deactivateCoupon
 ); // Desactivar cupón
+
+router.patch(
+  '/:id/coupons/:code/activate',
+  authenticate,
+  authorize(['colaborador', 'admin', 'superadmin']),
+  activateCoupon
+); // Reactivar cupón
+
+router.delete(
+  '/:id/coupons/:code',
+  authenticate,
+  authorize(['colaborador', 'admin', 'superadmin']),
+  deleteCoupon
+); // Eliminar cupón
 
 export default router;

@@ -214,7 +214,8 @@ groupPostSchema.virtual('commentsCount').get(function() {
 // Middleware para actualizar el contador de posts del grupo
 groupPostSchema.post('save', async function() {
   try {
-    const Group = mongoose.model('Group');
+    // Usar mongoose.models para evitar problemas de referencia circular
+    const Group = mongoose.models.Group || mongoose.model('Group');
     await Group.updateOne(
       { _id: this.group },
       { $inc: { postCount: 1 } }
@@ -227,7 +228,8 @@ groupPostSchema.post('save', async function() {
 // Middleware para decrementar contador cuando se elimina
 groupPostSchema.post('deleteOne', { document: true, query: false }, async function(this: IGroupPost) {
   try {
-    const Group = mongoose.model('Group');
+    // Usar mongoose.models para evitar problemas de referencia circular
+    const Group = mongoose.models.Group || mongoose.model('Group');
     await Group.updateOne(
       { _id: this.group },
       { $inc: { postCount: -1 } }

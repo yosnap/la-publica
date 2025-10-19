@@ -42,7 +42,7 @@ export const createAdvisory = async (req: AuthenticatedRequest, res: Response, n
     await advisory.save();
 
     const populatedAdvisory = await Advisory.findById(advisory._id)
-      .populate('company', 'name logo location verified owner');
+      .populate('company', 'name slug logo location verified owner');
 
     return res.status(201).json({
       success: true,
@@ -95,7 +95,7 @@ export const listAdvisories = async (req: Request, res: Response, next: NextFunc
     }
 
     const advisories = await Advisory.find(filters)
-      .populate('company', 'name logo location verified owner')
+      .populate('company', 'name slug logo location verified owner')
       .sort({ 'stats.averageRating': -1, createdAt: -1 })
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum);
@@ -176,7 +176,7 @@ export const updateAdvisory = async (req: AuthenticatedRequest, res: Response, n
       advisoryId,
       req.body,
       { new: true, runValidators: true }
-    ).populate('company', 'name logo location verified');
+    ).populate('company', 'name slug logo location verified');
 
     return res.json({
       success: true,
@@ -244,7 +244,7 @@ export const getMyAdvisories = async (req: AuthenticatedRequest, res: Response, 
     const companyIds = userCompanies.map(company => company._id);
 
     const advisories = await Advisory.find({ company: { $in: companyIds } })
-      .populate('company', 'name logo location verified owner')
+      .populate('company', 'name slug logo location verified owner')
       .sort({ createdAt: -1 });
 
     return res.json({
@@ -270,7 +270,7 @@ export const getAdvisoriesByCompany = async (req: Request, res: Response, next: 
     if (isActive !== undefined) filters.isActive = isActive === 'true';
 
     const advisories = await Advisory.find(filters)
-      .populate('company', 'name logo location verified owner')
+      .populate('company', 'name slug logo location verified owner')
       .sort({ 'stats.averageRating': -1, createdAt: -1 })
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum);
@@ -340,7 +340,7 @@ export const addReview = async (req: AuthenticatedRequest, res: Response, next: 
     await advisory.updateAverageRating();
 
     const populatedAdvisory = await Advisory.findById(advisoryId)
-      .populate('company', 'name logo owner')
+      .populate('company', 'name slug logo owner')
       .populate('reviews.user', 'firstName lastName username profilePicture');
 
     return res.json({

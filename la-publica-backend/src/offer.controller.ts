@@ -163,8 +163,8 @@ export const getOfferBySlug = async (req: Request, res: Response, next: NextFunc
 
     const offer = await Offer.findOne({ slug })
       .populate('createdBy', 'firstName lastName email avatar company')
-      .populate('company', 'name logo description')
-      .populate('category', 'name')
+      .populate('company', 'name logo description slug verified')
+      .populate('category', 'name slug')
       .populate('targetGroups', 'name description');
 
     if (!offer) {
@@ -177,6 +177,37 @@ export const getOfferBySlug = async (req: Request, res: Response, next: NextFunc
     // Incrementar vistas
     offer.views += 1;
     await offer.save();
+
+    return res.json({
+      success: true,
+      offer
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+/**
+ * Obtener oferta por ID
+ * GET /api/offers/id/:id
+ * Rol: colaborador, admin (para edición)
+ */
+export const getOfferById = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { id } = req.params;
+
+    const offer = await Offer.findById(id)
+      .populate('createdBy', 'firstName lastName email avatar company')
+      .populate('company', 'name logo description slug verified')
+      .populate('category', 'name slug')
+      .populate('targetGroups', 'name description');
+
+    if (!offer) {
+      return res.status(404).json({
+        success: false,
+        message: 'Oferta no trobada'
+      });
+    }
 
     return res.json({
       success: true,
@@ -533,6 +564,189 @@ export const deactivateCoupon = async (req: Request, res: Response, next: NextFu
     return res.json({
       success: true,
       message: 'Cupó desactivat correctament'
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+/**
+ * Reactivar cupón
+ * PATCH /api/offers/:id/coupons/:code/activate
+ * Rol: colaborador, admin, superadmin
+ */
+export const activateCoupon = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = (req as any).user;
+    const { id, code } = req.params;
+
+    const offer = await Offer.findById(id);
+
+    if (!offer) {
+      return res.status(404).json({
+        success: false,
+        message: 'Oferta no trobada'
+      });
+    }
+
+    // Verificar permisos
+    if (
+      offer.createdBy.toString() !== user.userId &&
+      user.role !== 'admin' &&
+      user.role !== 'superadmin'
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: 'No tens permís per modificar cupons d\'aquesta oferta'
+      });
+    }
+
+    const coupon = offer.coupons.find(c => c.code === code.toUpperCase());
+
+    if (!coupon) {
+      return res.status(404).json({
+        success: false,
+        message: 'Cupó no trobat'
+      });
+    }
+
+    coupon.isActive = true;
+    await offer.save();
+
+    return res.json({
+      success: true,
+      message: 'Cupó activat correctament'
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+/**
+ * Editar cupón
+ * PUT /api/offers/:id/coupons/:code
+ * Rol: colaborador, admin, superadmin
+ */
+export const updateCoupon = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = (req as any).user;
+    const { id, code } = req.params;
+
+    const offer = await Offer.findById(id);
+
+    if (!offer) {
+      return res.status(404).json({
+        success: false,
+        message: 'Oferta no trobada'
+      });
+    }
+
+    // Verificar permisos
+    if (
+      offer.createdBy.toString() !== user.userId &&
+      user.role !== 'admin' &&
+      user.role !== 'superadmin'
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: 'No tens permís per modificar cupons d\'aquesta oferta'
+      });
+    }
+
+    const coupon = offer.coupons.find(c => c.code === code.toUpperCase());
+
+    if (!coupon) {
+      return res.status(404).json({
+        success: false,
+        message: 'Cupó no trobat'
+      });
+    }
+
+    const validatedData = createCouponSchema.partial().parse(req.body);
+
+    // Si se intenta cambiar el código, verificar que no exista otro con ese código
+    if (validatedData.code && validatedData.code !== code.toUpperCase()) {
+      const existingCoupon = offer.coupons.find(c => c.code === validatedData.code);
+      if (existingCoupon) {
+        return res.status(400).json({
+          success: false,
+          message: 'Ja existeix un cupó amb aquest codi'
+        });
+      }
+      coupon.code = validatedData.code;
+    }
+
+    if (validatedData.discountPercentage !== undefined) {
+      coupon.discountPercentage = validatedData.discountPercentage;
+    }
+    if (validatedData.validFrom !== undefined) {
+      coupon.validFrom = new Date(validatedData.validFrom);
+    }
+    if (validatedData.validUntil !== undefined) {
+      coupon.validUntil = new Date(validatedData.validUntil);
+    }
+    if (validatedData.maxUses !== undefined) {
+      coupon.maxUses = validatedData.maxUses;
+    }
+
+    await offer.save();
+
+    return res.json({
+      success: true,
+      message: 'Cupó actualitzat correctament',
+      coupon
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+/**
+ * Eliminar cupón permanentemente
+ * DELETE /api/offers/:id/coupons/:code
+ * Rol: colaborador, admin, superadmin
+ */
+export const deleteCoupon = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = (req as any).user;
+    const { id, code } = req.params;
+
+    const offer = await Offer.findById(id);
+
+    if (!offer) {
+      return res.status(404).json({
+        success: false,
+        message: 'Oferta no trobada'
+      });
+    }
+
+    // Verificar permisos
+    if (
+      offer.createdBy.toString() !== user.userId &&
+      user.role !== 'admin' &&
+      user.role !== 'superadmin'
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: 'No tens permís per eliminar cupons d\'aquesta oferta'
+      });
+    }
+
+    const couponIndex = offer.coupons.findIndex(c => c.code === code.toUpperCase());
+
+    if (couponIndex === -1) {
+      return res.status(404).json({
+        success: false,
+        message: 'Cupó no trobat'
+      });
+    }
+
+    offer.coupons.splice(couponIndex, 1);
+    await offer.save();
+
+    return res.json({
+      success: true,
+      message: 'Cupó eliminat correctament'
     });
   } catch (error) {
     return next(error);

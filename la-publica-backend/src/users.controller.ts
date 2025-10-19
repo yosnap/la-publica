@@ -10,7 +10,8 @@ export const listUsers = async (req: Request, res: Response) => {
       page = 1,
       limit = 20,
       search = '',
-      sortBy = 'newest'
+      sortBy = 'newest',
+      role
     } = req.query;
 
     const pageNum = parseInt(page as string);
@@ -25,6 +26,11 @@ export const listUsers = async (req: Request, res: Response) => {
         { lastName: { $regex: search, $options: 'i' } },
         { username: { $regex: search, $options: 'i' } }
       ];
+    }
+
+    // Filter by role if provided
+    if (role) {
+      filter.role = role;
     }
 
     // Build sort

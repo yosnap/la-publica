@@ -124,18 +124,20 @@ export default function Companies() {
             <h1 className="text-2xl font-bold text-gray-900">Empreses i Col·laboradors</h1>
             <p className="text-gray-600">Descobreix empreses verificades i els seus serveis professionals</p>
           </div>
-          <Button 
+          <Button
             className="bg-primary hover:bg-primary/90"
             onClick={() => {
-              if (currentUser?.role === 'colaborador') {
-                window.location.href = '/colaborador/empresas';
+              if (currentUser?.role === 'colaborador' || currentUser?.role === 'admin' || currentUser?.role === 'superadmin') {
+                navigate('/colaborador/empresas');
               } else {
-                alert('Només els col·laboradors poden registrar empreses');
+                alert('Només els col·laboradors i administradors poden gestionar empreses');
               }
             }}
           >
             <Building2 className="h-4 w-4 mr-2" />
-            {currentUser?.role === 'colaborador' ? 'Gestionar Les Meves Empreses' : 'Registrar Empresa'}
+            {(currentUser?.role === 'colaborador' || currentUser?.role === 'admin' || currentUser?.role === 'superadmin')
+              ? 'Gestionar Empreses'
+              : 'Registrar Empresa'}
           </Button>
         </div>
 

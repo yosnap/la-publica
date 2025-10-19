@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { 
-  Plus, Edit, Trash, Building, MapPin, Globe, 
+import {
+  Plus, Edit, Trash, Building, MapPin, Globe,
   Phone, Mail, Users, Calendar, BadgeCheck, Eye, EyeOff,
-  Camera, Upload
+  Camera, Upload, UserCircle
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -35,14 +35,18 @@ import {
   type CreateCompanyData
 } from "@/api/companies";
 import { getCategoriesTree } from "@/api/categories";
+import { getCollaborators, type User } from "@/api/users";
+import { useUserProfile } from "@/hooks/useUser";
 
 const MyCompanies = () => {
+  const { user: currentUser } = useUserProfile();
   const [companies, setCompanies] = useState<Company[]>([]);
   const [categories, setCategories] = useState<any[]>([]);
+  const [collaborators, setCollaborators] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [formData, setFormData] = useState<CreateCompanyData>({
+  const [formData, setFormData] = useState<CreateCompanyData & { owner?: string }>({
     name: "",
     description: "",
     category: "",
@@ -64,12 +68,15 @@ const MyCompanies = () => {
       employees: 0,
       founded: new Date().getFullYear(),
       revenue: ""
-    }
+    },
+    owner: undefined
   });
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string>("");
   const [bannerFile, setBannerFile] = useState<File | null>(null);
   const [bannerPreview, setBannerPreview] = useState<string>("");
+
+  const isAdmin = currentUser?.role === 'admin' || currentUser?.role === 'superadmin';
 
   const sizeOptions = [
     { value: "startup", label: "Startup (1-10 empleats)" },
@@ -97,14 +104,25 @@ const MyCompanies = () => {
     }
   };
 
+  const loadCollaboratorsData = async () => {
+    if (isAdmin) {
+      try {
+        const response = await getCollaborators();
+        setCollaborators(response.data || []);
+      } catch (error) {
+        console.error("Error al cargar colaboradores:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     const loadData = async () => {
       setLoading(true);
-      await Promise.all([loadCompanies(), loadCategories()]);
+      await Promise.all([loadCompanies(), loadCategories(), loadCollaboratorsData()]);
       setLoading(false);
     };
     loadData();
-  }, []);
+  }, [isAdmin]);
 
   const handleCreate = async () => {
     if (!formData.name.trim() || !formData.email.trim()) {
@@ -112,27 +130,63 @@ const MyCompanies = () => {
       return;
     }
 
+    if (isAdmin && !formData.owner) {
+      toast.error("Has de seleccionar un propietari per a l'empresa");
+      return;
+    }
+
     try {
-      const formDataToSend = new FormData();
-      
-      // Afegir camps de text
-      Object.entries(formData).forEach(([key, value]) => {
-        if (typeof value === 'object' && value !== null) {
-          formDataToSend.append(key, JSON.stringify(value));
-        } else {
-          formDataToSend.append(key, String(value));
+      // Si hay archivos, usar FormData
+      if (logoFile || bannerFile) {
+        const formDataToSend = new FormData();
+
+        // Afegir camps de text
+        Object.entries(formData).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && key !== 'owner') {
+            if (typeof value === 'object') {
+              formDataToSend.append(key, JSON.stringify(value));
+            } else {
+              formDataToSend.append(key, String(value));
+            }
+          }
+        });
+
+        // Agregar owner si es admin
+        if (isAdmin && formData.owner) {
+          formDataToSend.append('owner', formData.owner);
         }
-      });
-      
-      // Afegir imatges si existeixen
-      if (logoFile) {
-        formDataToSend.append('logo', logoFile);
+
+        // Afegir imatges
+        if (logoFile) {
+          formDataToSend.append('logo', logoFile);
+        }
+        if (bannerFile) {
+          formDataToSend.append('banner', bannerFile);
+        }
+
+        await createCompany(formDataToSend as any);
+      } else {
+        // Si no hay archivos, enviar JSON directamente
+        const dataToSend: any = { ...formData };
+
+        // Limpiar coordinates si están vacías
+        if (dataToSend.location && dataToSend.location.coordinates) {
+          if (!Array.isArray(dataToSend.location.coordinates) || dataToSend.location.coordinates.length === 0) {
+            delete dataToSend.location.coordinates;
+          }
+        }
+
+        // Gestionar owner
+        if (dataToSend.owner === undefined) {
+          delete dataToSend.owner;
+        }
+        if (isAdmin && formData.owner) {
+          dataToSend.owner = formData.owner;
+        }
+
+        await createCompany(dataToSend);
       }
-      if (bannerFile) {
-        formDataToSend.append('banner', bannerFile);
-      }
-      
-      await createCompany(formDataToSend as any);
+
       toast.success("Empresa creada exitosament");
       setIsCreateOpen(false);
       resetForm();
@@ -148,27 +202,63 @@ const MyCompanies = () => {
       return;
     }
 
+    if (isAdmin && !formData.owner) {
+      toast.error("Has de seleccionar un propietari per a l'empresa");
+      return;
+    }
+
     try {
-      const formDataToSend = new FormData();
-      
-      // Afegir camps de text
-      Object.entries(formData).forEach(([key, value]) => {
-        if (typeof value === 'object' && value !== null) {
-          formDataToSend.append(key, JSON.stringify(value));
-        } else {
-          formDataToSend.append(key, String(value));
+      // Si hay archivos nuevos, usar FormData
+      if (logoFile || bannerFile) {
+        const formDataToSend = new FormData();
+
+        // Afegir camps de text
+        Object.entries(formData).forEach(([key, value]) => {
+          if (value !== undefined && value !== null && key !== 'owner') {
+            if (typeof value === 'object') {
+              formDataToSend.append(key, JSON.stringify(value));
+            } else {
+              formDataToSend.append(key, String(value));
+            }
+          }
+        });
+
+        // Agregar owner si es admin
+        if (isAdmin && formData.owner) {
+          formDataToSend.append('owner', formData.owner);
         }
-      });
-      
-      // Afegir imatges si existeixen
-      if (logoFile) {
-        formDataToSend.append('logo', logoFile);
+
+        // Afegir imatges noves
+        if (logoFile) {
+          formDataToSend.append('logo', logoFile);
+        }
+        if (bannerFile) {
+          formDataToSend.append('banner', bannerFile);
+        }
+
+        await updateCompany(editingCompany._id, formDataToSend as any);
+      } else {
+        // Si no hay archivos nuevos, enviar JSON directamente
+        const dataToSend: any = { ...formData };
+
+        // Limpiar coordinates si están vacías
+        if (dataToSend.location && dataToSend.location.coordinates) {
+          if (!Array.isArray(dataToSend.location.coordinates) || dataToSend.location.coordinates.length === 0) {
+            delete dataToSend.location.coordinates;
+          }
+        }
+
+        // Gestionar owner
+        if (dataToSend.owner === undefined) {
+          delete dataToSend.owner;
+        }
+        if (isAdmin && formData.owner) {
+          dataToSend.owner = formData.owner;
+        }
+
+        await updateCompany(editingCompany._id, dataToSend);
       }
-      if (bannerFile) {
-        formDataToSend.append('banner', bannerFile);
-      }
-      
-      await updateCompany(editingCompany._id, formDataToSend as any);
+
       toast.success("Empresa actualitzada exitosament");
       setEditingCompany(null);
       resetForm();
@@ -213,7 +303,8 @@ const MyCompanies = () => {
         employees: 0,
         founded: new Date().getFullYear(),
         revenue: ""
-      }
+      },
+      owner: undefined
     });
     setLogoFile(null);
     setLogoPreview("");
@@ -223,6 +314,17 @@ const MyCompanies = () => {
 
   const startEdit = (company: Company) => {
     setEditingCompany(company);
+
+    // Extraer owner ID si está poblado como objeto
+    let ownerId: string | undefined = undefined;
+    if (isAdmin) {
+      if (typeof company.owner === 'string') {
+        ownerId = company.owner;
+      } else if (typeof company.owner === 'object' && company.owner && '_id' in company.owner) {
+        ownerId = (company.owner as any)._id;
+      }
+    }
+
     setFormData({
       name: company.name,
       description: company.description,
@@ -233,7 +335,8 @@ const MyCompanies = () => {
       website: company.website || "",
       location: company.location,
       socialLinks: company.socialLinks || { linkedin: "", twitter: "", facebook: "" },
-      stats: company.stats
+      stats: company.stats,
+      owner: ownerId
     });
     // Reset images first
     setLogoFile(null);
@@ -244,8 +347,8 @@ const MyCompanies = () => {
     if (company.logo) {
       setLogoPreview(company.logo);
     }
-    if (company.banner || company.coverImage) {
-      setBannerPreview(company.banner || company.coverImage);
+    if (company.banner) {
+      setBannerPreview(company.banner);
     }
   };
 
@@ -281,16 +384,20 @@ const MyCompanies = () => {
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold">Mis Empresas</h1>
+            <h1 className="text-2xl font-bold">
+              {isAdmin ? 'Gestió d\'Empreses' : 'Les Meves Empreses'}
+            </h1>
             <p className="text-gray-600">
-              Gestiona tus empresas y mantén actualizada tu información
+              {isAdmin
+                ? 'Gestiona totes les empreses de la plataforma i assigna propietaris'
+                : 'Gestiona les teves empreses i mantén actualitzada la informació'}
             </p>
           </div>
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
               <Button className="flex items-center gap-2">
                 <Plus className="h-4 w-4" />
-                Nueva Empresa
+                {isAdmin ? 'Crear Empresa' : 'Nova Empresa'}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
@@ -406,6 +513,30 @@ const MyCompanies = () => {
                     rows={4}
                   />
                 </div>
+
+                {isAdmin && (
+                  <div>
+                    <Label htmlFor="owner">Propietari de l'Empresa *</Label>
+                    <Select
+                      value={formData.owner}
+                      onValueChange={(value) => setFormData({...formData, owner: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar col·laborador" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {collaborators.map(collab => (
+                          <SelectItem key={collab._id} value={collab._id}>
+                            {collab.firstName} {collab.lastName} ({collab.email})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Assigna aquesta empresa a un usuari col·laborador
+                    </p>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -621,7 +752,14 @@ const MyCompanies = () => {
                         {company.stats.employees} empleados • Fundada en {company.stats.founded}
                       </div>
                     )}
-                    
+
+                    {isAdmin && typeof company.owner === 'object' && company.owner && (
+                      <div className="flex items-center gap-2 text-sm text-blue-600 font-medium">
+                        <UserCircle className="h-4 w-4" />
+                        Propietari: {(company.owner as any).firstName} {(company.owner as any).lastName}
+                      </div>
+                    )}
+
                     <div className="flex items-center gap-2 pt-3">
                       <Button
                         variant="outline"
@@ -763,6 +901,30 @@ const MyCompanies = () => {
                     rows={4}
                   />
                 </div>
+
+                {isAdmin && (
+                  <div>
+                    <Label htmlFor="edit-owner">Propietari de l'Empresa *</Label>
+                    <Select
+                      value={formData.owner}
+                      onValueChange={(value) => setFormData({...formData, owner: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Seleccionar col·laborador" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {collaborators.map(collab => (
+                          <SelectItem key={collab._id} value={collab._id}>
+                            {collab.firstName} {collab.lastName} ({collab.email})
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-sm text-gray-500 mt-1">
+                      Assigna aquesta empresa a un usuari col·laborador
+                    </p>
+                  </div>
+                )}
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>

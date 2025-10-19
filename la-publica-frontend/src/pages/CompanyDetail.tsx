@@ -10,7 +10,7 @@ import { getCompanies } from "@/api/companies";
 import { useUserProfile } from "@/hooks/useUser";
 
 export default function CompanyDetail() {
-  const { slugId } = useParams<{ slugId: string }>();
+  const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const [selectedCompany, setSelectedCompany] = useState<any>(null);
   const [offers, setOffers] = useState<any[]>([]);
@@ -21,37 +21,26 @@ export default function CompanyDetail() {
   useEffect(() => {
     window.scrollTo(0, 0);
     const fetchCompanyData = async () => {
-      if (!slugId) {
-        navigate('/companies');
+      if (!slug) {
+        navigate('/empreses');
         return;
       }
 
       try {
         setLoading(true);
-        
+
         // Obtenir totes les empreses i buscar la que coincideixi amb el slug
         const allCompaniesResponse = await getCompanies();
         if (!allCompaniesResponse.success) {
-          navigate('/companies');
+          navigate('/empreses');
           return;
         }
-        
+
         // Buscar l'empresa que coincideixi amb el slug
-        const company = allCompaniesResponse.data.find((comp: any) => {
-          const companySlug = comp.name
-            .toLowerCase()
-            .normalize('NFD')
-            .replace(/[\u0300-\u036f]/g, '')
-            .replace(/[^a-z0-9\s-]/g, '')
-            .replace(/\s+/g, '-')
-            .replace(/-+/g, '-')
-            .trim()
-            .replace(/^-+|-+$/g, '');
-          return companySlug === slugId || `${companySlug}-2` === slugId || `${companySlug}-3` === slugId;
-        });
-        
+        const company = allCompaniesResponse.data.find((comp: any) => comp.slug === slug);
+
         if (!company) {
-          navigate('/companies');
+          navigate('/empreses');
           return;
         }
 
@@ -67,14 +56,14 @@ export default function CompanyDetail() {
         setAdvisories(advisoriesResponse.data || []);
       } catch (error) {
         console.error('Error fetching company data:', error);
-        navigate('/companies');
+        navigate('/empreses');
       } finally {
         setLoading(false);
       }
     };
 
     fetchCompanyData();
-  }, [slugId, navigate]);
+  }, [slug, navigate]);
 
   if (loading) {
     return (
@@ -92,7 +81,7 @@ export default function CompanyDetail() {
         <div className="space-y-6">
           <Button 
             variant="outline" 
-            onClick={() => navigate('/companies')}
+            onClick={() => navigate('/empreses')}
             className="mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -129,7 +118,7 @@ export default function CompanyDetail() {
       <div className="space-y-6">
         <Button 
           variant="outline" 
-          onClick={() => navigate('/companies')}
+          onClick={() => navigate('/empreses')}
           className="mb-4"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />

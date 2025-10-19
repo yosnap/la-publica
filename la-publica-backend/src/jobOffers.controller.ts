@@ -42,7 +42,7 @@ export const createJobOffer = async (req: AuthenticatedRequest, res: Response, n
     await jobOffer.save();
 
     const populatedJobOffer = await JobOffer.findById(jobOffer._id)
-      .populate('company', 'name logo location verified owner');
+      .populate('company', 'name slug logo location verified owner');
 
     return res.status(201).json({
       success: true,
@@ -101,7 +101,7 @@ export const listJobOffers = async (req: Request, res: Response, next: NextFunct
     }
 
     const jobOffers = await JobOffer.find(filters)
-      .populate('company', 'name logo location verified owner')
+      .populate('company', 'name slug logo location verified owner')
       .sort({ createdAt: -1 })
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum);
@@ -181,7 +181,7 @@ export const updateJobOffer = async (req: AuthenticatedRequest, res: Response, n
       jobOfferId,
       req.body,
       { new: true, runValidators: true }
-    ).populate('company', 'name logo location verified');
+    ).populate('company', 'name slug logo location verified');
 
     return res.json({
       success: true,
@@ -249,7 +249,7 @@ export const getMyJobOffers = async (req: AuthenticatedRequest, res: Response, n
     const companyIds = userCompanies.map(company => company._id);
 
     const jobOffers = await JobOffer.find({ company: { $in: companyIds } })
-      .populate('company', 'name logo location verified owner')
+      .populate('company', 'name slug logo location verified owner')
       .sort({ createdAt: -1 });
 
     return res.json({
@@ -275,7 +275,7 @@ export const getJobOffersByCompany = async (req: Request, res: Response, next: N
     if (isActive !== undefined) filters.isActive = isActive === 'true';
 
     const jobOffers = await JobOffer.find(filters)
-      .populate('company', 'name logo location verified owner')
+      .populate('company', 'name slug logo location verified owner')
       .sort({ createdAt: -1 })
       .skip((pageNum - 1) * limitNum)
       .limit(limitNum);

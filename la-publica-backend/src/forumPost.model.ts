@@ -199,17 +199,21 @@ ForumPostSchema.pre('save', async function(next) {
   if (this.isNew) {
     // Actualizar contador de respuestas del post padre
     if (this.parentPost) {
-      await mongoose.model('ForumPost').findByIdAndUpdate(this.parentPost, {
+      const ForumPostModel = this.constructor as mongoose.Model<IForumPost>;
+      await ForumPostModel.findByIdAndUpdate(this.parentPost, {
         $inc: { replyCount: 1 },
         lastActivity: new Date()
       });
     }
-    
+
     // Actualizar contadores del foro
-    const Forum = mongoose.model('Forum');
-    await Forum.findByIdAndUpdate(this.forum, {
-      $inc: { postCount: 1 }
-    });
+    // Usamos mongoose.models.Forum en lugar de mongoose.model('Forum')
+    // para evitar problemas de referencia circular durante la carga inicial
+    if (mongoose.models.Forum) {
+      await mongoose.models.Forum.findByIdAndUpdate(this.forum, {
+        $inc: { postCount: 1 }
+      });
+    }
   }
   next();
 });
@@ -222,12 +226,13 @@ ForumPostSchema.pre('findOneAndUpdate', async function(next) {
     if (post) {
       // Actualizar contadores
       if (post.parentPost) {
-        await mongoose.model('ForumPost').findByIdAndUpdate(post.parentPost, {
+        const ForumPostModel = mongoose.models.ForumPost || mongoose.model('ForumPost');
+        await ForumPostModel.findByIdAndUpdate(post.parentPost, {
           $inc: { replyCount: -1 }
         });
       }
-      
-      const Forum = mongoose.model('Forum');
+
+      const Forum = mongoose.models.Forum || mongoose.model('Forum');
       await Forum.findByIdAndUpdate(post.forum, {
         $inc: { postCount: -1 }
       });

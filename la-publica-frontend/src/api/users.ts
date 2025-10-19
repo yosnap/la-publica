@@ -63,4 +63,15 @@ export const getUserBySlug = async (userSlug: string) => {
 export const sendUserMessage = async (userId: string, message: string) => {
   const response = await apiClient.post(`/api/users/${userId}/message`, { message });
   return response.data;
+};
+
+// Get all collaborators (users with 'colaborador' role)
+export const getCollaborators = async () => {
+  const response = await apiClient.get('/api/users', {
+    params: {
+      role: 'colaborador',
+      limit: 1000 // Get all collaborators
+    }
+  });
+  return response.data;
 }; 

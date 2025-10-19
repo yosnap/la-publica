@@ -1,8 +1,8 @@
 # Sistema de Ofertas Promocionales
 
-**Fecha:** 2025-10-18
+**Fecha:** 2025-10-19
 **Versión:** 1.0.0
-**Estado:** Backend completado
+**Estado:** Backend completado ⚠️ (ver nota sobre integración con Admin)
 
 ---
 
@@ -514,4 +514,30 @@ totalDiscountPercentage = Math.round((totalDiscount / originalPrice) * 100)
 
 ---
 
-**Última actualización:** 2025-10-18
+## ⚠️ Nota Importante: Integración con Admin
+
+**Estado actual:** La integración de ofertas en el panel de administración (`/api/admin-data/promotional-offers`) está **temporalmente deshabilitada** debido a problemas de referencias circulares en el modelo.
+
+**Detalles:**
+- ✅ **Todos los endpoints de ofertas funcionan correctamente** (`/api/offers/*`)
+- ❌ **Gestión desde Admin Data está pendiente** (no bloquea funcionalidad principal)
+- 📋 **Documento de seguimiento:** [docs/PENDIENTE_OFERTAS_ADMIN.md](PENDIENTE_OFERTAS_ADMIN.md)
+
+**Funcionalidades disponibles:**
+- Crear, editar, eliminar ofertas ✅
+- Listar ofertas (público y privado) ✅
+- Sistema de cupones completo ✅
+- Control de stock ✅
+- Todas las operaciones de colaboradores ✅
+
+**Funcionalidades pendientes:**
+- Listar ofertas desde panel de administración ⏳
+- Operaciones bulk en ofertas desde admin ⏳
+- Asignación de autor/categoría desde admin ⏳
+
+**Solución propuesta:**
+Implementar lazy loading del modelo Offer en `adminData.controller.ts` para evitar referencias circulares durante la inicialización de Mongoose.
+
+---
+
+**Última actualización:** 2025-10-19

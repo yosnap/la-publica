@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import {
   Calendar,
@@ -15,7 +15,9 @@ import {
   ArrowLeft,
   Share2,
   Heart,
-  AlertTriangle
+  AlertTriangle,
+  Building2,
+  VerifiedIcon
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -25,7 +27,7 @@ import { Separator } from "@/components/ui/separator";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { PageWrapper } from "@/components/PageWrapper";
 import { useUserProfile } from "@/hooks/useUser";
-import { getOfferBySlug, type Offer } from "@/api/offers";
+import { getOfferBySlug, getAllOffers, type Offer } from "@/api/offers";
 import { toast } from "sonner";
 import { getImageUrl } from "@/utils/getImageUrl";
 import { CouponValidator } from "@/components/offers/CouponValidator";
@@ -44,12 +46,20 @@ export default function PromotionalOfferDetail() {
   const [offer, setOffer] = useState<Offer | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState<string>("");
+  const [relatedOffersByCompany, setRelatedOffersByCompany] = useState<Offer[]>([]);
+  const [relatedOffersByCategory, setRelatedOffersByCategory] = useState<Offer[]>([]);
 
   useEffect(() => {
     if (slug) {
       loadOffer();
     }
   }, [slug]);
+
+  useEffect(() => {
+    if (offer) {
+      loadRelatedOffers();
+    }
+  }, [offer]);
 
   const loadOffer = async () => {
     try {
@@ -72,6 +82,50 @@ export default function PromotionalOfferDetail() {
       setLoading(false);
     }
   };
+
+  const loadRelatedOffers = useCallback(async () => {
+    if (!offer) return;
+
+    try {
+      // Cargar ofertas de la misma empresa (si tiene empresa)
+      if (offer.company) {
+        const companyOffers = await getAllOffers({
+          company: offer.company._id,
+          active: true,
+          limit: 4
+        });
+
+        // Filtrar la oferta actual
+        const filtered = companyOffers.offers.filter(
+          (o: Offer) => o._id !== offer._id
+        );
+        setRelatedOffersByCompany(filtered);
+      }
+
+      // Cargar ofertas de la misma categoría (si tiene categoría)
+      if (offer.category) {
+        const categoryId = typeof offer.category === 'string'
+          ? offer.category
+          : offer.category._id;
+
+        const categoryOffers = await getAllOffers({
+          category: categoryId,
+          active: true,
+          limit: 4
+        });
+
+        // Filtrar la oferta actual y las de la misma empresa
+        const filtered = categoryOffers.offers.filter(
+          (o: Offer) => o._id !== offer._id &&
+          (!offer.company || o.company?._id !== offer.company._id)
+        );
+        setRelatedOffersByCategory(filtered);
+      }
+    } catch (error) {
+      console.error('Error loading related offers:', error);
+      // No mostramos error al usuario, solo fallamos silenciosamente
+    }
+  }, [offer]);
 
   // Determinar la URL de retorno según el rol y contexto del usuario
   const getBackUrl = () => {
@@ -280,6 +334,51 @@ export default function PromotionalOfferDetail() {
               </CardContent>
             </Card>
 
+            {/* Sobre la empresa */}
+            {offer.company && (
+              <Card>
+                <CardHeader>
+                  <h2 className="text-xl font-bold flex items-center gap-2">
+                    <Building2 className="h-5 w-5 text-primary" />
+                    Sobre l'empresa
+                  </h2>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex items-start gap-4">
+                    {offer.company.logo && (
+                      <div className="flex-shrink-0">
+                        <img
+                          src={getImageUrl(offer.company.logo)}
+                          alt={offer.company.name}
+                          className="w-20 h-20 object-contain rounded-lg border border-gray-200"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <h3 className="text-lg font-semibold">{offer.company.name}</h3>
+                        {offer.company.verified?.status === 'verified' && (
+                          <VerifiedIcon className="h-5 w-5 text-blue-500" fill="currentColor" />
+                        )}
+                      </div>
+                      {offer.company.description && (
+                        <p className="text-gray-700 text-sm leading-relaxed">
+                          {offer.company.description}
+                        </p>
+                      )}
+                      <div className="mt-3">
+                        <Button variant="outline" size="sm" asChild>
+                          <Link to={offer.company.slug ? `/empresa/${offer.company.slug}` : '#'}>
+                            Veure més informació
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             {/* Qué incluye */}
             {offer.included.length > 0 && (
               <Card>
@@ -478,6 +577,124 @@ export default function PromotionalOfferDetail() {
             </Card>
           </div>
         </div>
+
+        {/* Más ofertas de la empresa */}
+        {relatedOffersByCompany.length > 0 && offer.company && (
+          <div className="mt-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">
+                Més ofertes de {offer.company.name}
+              </h2>
+              <Button variant="outline" asChild>
+                <Link to={offer.company.slug ? `/empresa/${offer.company.slug}` : '#'}>
+                  Veure totes
+                </Link>
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {relatedOffersByCompany.map((relatedOffer) => (
+                <Link
+                  key={relatedOffer._id}
+                  to={`/ofertes/${relatedOffer.slug}`}
+                  className="group"
+                >
+                  <Card className="h-full transition-shadow hover:shadow-lg">
+                    <div className="relative">
+                      <img
+                        src={getImageUrl(relatedOffer.mainImage)}
+                        alt={relatedOffer.title}
+                        className="w-full h-48 object-cover rounded-t-lg"
+                      />
+                      <Badge className="absolute top-3 right-3 bg-red-500 text-white font-bold">
+                        -{relatedOffer.discountPercentage}%
+                      </Badge>
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                        {relatedOffer.title}
+                      </h3>
+                      <div className="flex items-baseline gap-2 mb-2">
+                        <span className="text-xl font-bold text-primary">
+                          {relatedOffer.discountedPrice.toFixed(2)}€
+                        </span>
+                        <span className="text-sm text-gray-400 line-through">
+                          {relatedOffer.originalPrice.toFixed(2)}€
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <Package className="h-3 w-3" />
+                        <span>{relatedOffer.remainingStock} disponibles</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Ofertas similares por categoría */}
+        {relatedOffersByCategory.length > 0 && offer.category && typeof offer.category === 'object' && (
+          <div className="mt-12">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-2xl font-bold">
+                Ofertes similars
+              </h2>
+              <Button variant="outline" asChild>
+                <Link to={`/ofertes?category=${offer.category._id}`}>
+                  Veure més
+                </Link>
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {relatedOffersByCategory.map((relatedOffer) => (
+                <Link
+                  key={relatedOffer._id}
+                  to={`/ofertes/${relatedOffer.slug}`}
+                  className="group"
+                >
+                  <Card className="h-full transition-shadow hover:shadow-lg">
+                    <div className="relative">
+                      <img
+                        src={getImageUrl(relatedOffer.mainImage)}
+                        alt={relatedOffer.title}
+                        className="w-full h-48 object-cover rounded-t-lg"
+                      />
+                      <Badge className="absolute top-3 right-3 bg-red-500 text-white font-bold">
+                        -{relatedOffer.discountPercentage}%
+                      </Badge>
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold text-lg mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                        {relatedOffer.title}
+                      </h3>
+                      {relatedOffer.company && (
+                        <p className="text-xs text-gray-500 mb-2 flex items-center gap-1">
+                          <Building2 className="h-3 w-3" />
+                          {relatedOffer.company.name}
+                        </p>
+                      )}
+                      <div className="flex items-baseline gap-2 mb-2">
+                        <span className="text-xl font-bold text-primary">
+                          {relatedOffer.discountedPrice.toFixed(2)}€
+                        </span>
+                        <span className="text-sm text-gray-400 line-through">
+                          {relatedOffer.originalPrice.toFixed(2)}€
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <Package className="h-3 w-3" />
+                        <span>{relatedOffer.remainingStock} disponibles</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </PageWrapper>
   );

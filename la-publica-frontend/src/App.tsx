@@ -115,8 +115,8 @@ const App = () => {
                   <Route path="blogs/new" element={<CreateBlog />} />
                   <Route path="blogs/:slug" element={<BlogDetail />} />
                   <Route path="blogs/:id/edit" element={<CreateBlog />} />
-                  <Route path="companies" element={<Companies />} />
-                  <Route path="empresa/:slugId" element={<CompanyDetail />} />
+                  <Route path="empreses" element={<Companies />} />
+                  <Route path="empresa/:slug" element={<CompanyDetail />} />
                   <Route path="announcements" element={<Announcements />} />
                   <Route path="anunci/:slugId" element={<AnnouncementDetail />} />
                   <Route path="announcements/new" element={<AnnouncementForm />} />
@@ -148,9 +148,9 @@ const App = () => {
                   <Route path="ofertes" element={<PromotionalOffers />} />
                   <Route path="ofertes/:slug" element={<PromotionalOfferDetail />} />
                   <Route path="assessorament/:id" element={<AdvisoryDetail />} />
+                  <Route path="*" element={<NotFound />} />
                 </Route>
               </Route>
-              <Route path="*" element={<NotFound />} />
             </Routes>
             <Toaster />
           </div>

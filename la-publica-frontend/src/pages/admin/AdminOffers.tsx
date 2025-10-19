@@ -23,10 +23,26 @@ import {
   getAllOffers,
   deleteOffer,
   togglePauseOffer,
-  type Offer
+  createCoupon,
+  deactivateCoupon,
+  activateCoupon,
+  updateCoupon,
+  deleteCoupon,
+  type Offer,
+  type CreateCouponData
 } from "@/api/offers";
 import { toast } from "sonner";
 import { getImageUrl } from "@/utils/getImageUrl";
+import { Label } from "@/components/ui/label";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -60,7 +76,7 @@ export default function AdminOffers() {
   const loadOffers = async () => {
     try {
       setLoading(true);
-      const response = await getAllOffers({ status: activeTab });
+      const response = await getAllOffers();
 
       if (response.success) {
         setOffers(response.offers);
@@ -73,7 +89,7 @@ export default function AdminOffers() {
     }
   };
 
-  const handleTogglePause = async (offerId: string, currentStatus: boolean) => {
+  const handleTogglePause = async (offerId: string) => {
     try {
       const response = await togglePauseOffer(offerId);
 
@@ -127,6 +143,382 @@ export default function AdminOffers() {
     expired: offers.filter(o => getDaysRemaining(o.endDate) < 0).length,
     totalViews: offers.reduce((sum, o) => sum + o.views, 0),
     totalPurchases: offers.reduce((sum, o) => sum + o.purchases, 0),
+  };
+
+  // Componente de gestión de cupones
+  const CouponManagementDialog = ({ offer }: { offer: Offer }) => {
+    const [open, setOpen] = useState(false);
+    const [newCoupon, setNewCoupon] = useState<CreateCouponData>({
+      code: '',
+      discountPercentage: 0,
+      validFrom: new Date().toISOString().split('T')[0],
+      validUntil: '',
+    });
+    const [creating, setCreating] = useState(false);
+    const [editingCoupon, setEditingCoupon] = useState<string | null>(null);
+    const [editData, setEditData] = useState<CreateCouponData | null>(null);
+
+    const handleCreateCoupon = async () => {
+      try {
+        setCreating(true);
+        const response = await createCoupon(offer._id, newCoupon);
+
+        if (response.success) {
+          toast.success('Cupó creat correctament');
+          setNewCoupon({
+            code: '',
+            discountPercentage: 0,
+            validFrom: new Date().toISOString().split('T')[0],
+            validUntil: '',
+          });
+          loadOffers(); // Recargar ofertas
+        }
+      } catch (error: any) {
+        console.error('Error creant cupó:', error);
+        toast.error(error.response?.data?.message || 'Error al crear el cupó');
+      } finally {
+        setCreating(false);
+      }
+    };
+
+    const handleDeactivateCoupon = async (code: string) => {
+      try {
+        const response = await deactivateCoupon(offer._id, code);
+
+        if (response.success) {
+          toast.success('Cupó desactivat correctament');
+          loadOffers(); // Recargar ofertas
+        }
+      } catch (error: any) {
+        console.error('Error desactivant cupó:', error);
+        toast.error(error.response?.data?.message || 'Error al desactivar el cupó');
+      }
+    };
+
+    const handleActivateCoupon = async (code: string) => {
+      try {
+        const response = await activateCoupon(offer._id, code);
+
+        if (response.success) {
+          toast.success('Cupó activat correctament');
+          loadOffers();
+        }
+      } catch (error: any) {
+        console.error('Error activant cupó:', error);
+        toast.error(error.response?.data?.message || 'Error al activar el cupó');
+      }
+    };
+
+    const handleDeleteCoupon = async (code: string) => {
+      if (!confirm('Estàs segur que vols eliminar aquest cupó permanentment?')) {
+        return;
+      }
+
+      try {
+        const response = await deleteCoupon(offer._id, code);
+
+        if (response.success) {
+          toast.success('Cupó eliminat correctament');
+          loadOffers();
+        }
+      } catch (error: any) {
+        console.error('Error eliminant cupó:', error);
+        toast.error(error.response?.data?.message || 'Error al eliminar el cupó');
+      }
+    };
+
+    const startEdit = (coupon: any) => {
+      setEditingCoupon(coupon.code);
+      setEditData({
+        code: coupon.code,
+        discountPercentage: coupon.discountPercentage,
+        validFrom: typeof coupon.validFrom === 'string' ? coupon.validFrom : new Date(coupon.validFrom).toISOString().split('T')[0],
+        validUntil: typeof coupon.validUntil === 'string' ? coupon.validUntil : new Date(coupon.validUntil).toISOString().split('T')[0],
+        maxUses: coupon.maxUses,
+      });
+    };
+
+    const handleUpdateCoupon = async (originalCode: string) => {
+      if (!editData) return;
+
+      try {
+        const response = await updateCoupon(offer._id, originalCode, editData);
+
+        if (response.success) {
+          toast.success('Cupó actualitzat correctament');
+          setEditingCoupon(null);
+          setEditData(null);
+          loadOffers();
+        }
+      } catch (error: any) {
+        console.error('Error actualitzant cupó:', error);
+        toast.error(error.response?.data?.message || 'Error al actualitzar el cupó');
+      }
+    };
+
+    const activeCoupons = offer.coupons.filter(c => c.isActive);
+    const inactiveCoupons = offer.coupons.filter(c => !c.isActive);
+
+    return (
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button size="sm" variant="outline">
+            <Ticket className="h-4 w-4 mr-2" />
+            Cupons ({activeCoupons.length})
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Gestionar Cupons - {offer.title}</DialogTitle>
+            <DialogDescription>
+              Crea i gestiona cupons de descompte per aquesta oferta
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6">
+            {/* Formulario para crear cupón */}
+            <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+              <h3 className="font-semibold text-sm">Crear Nou Cupó</h3>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="code">Codi del cupó</Label>
+                  <Input
+                    id="code"
+                    placeholder="DESCOMPTE20"
+                    value={newCoupon.code}
+                    onChange={(e) => setNewCoupon({...newCoupon, code: e.target.value.toUpperCase()})}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="discount">Percentatge descompte (%)</Label>
+                  <Input
+                    id="discount"
+                    type="number"
+                    min="1"
+                    max="100"
+                    value={newCoupon.discountPercentage || ''}
+                    onChange={(e) => setNewCoupon({...newCoupon, discountPercentage: parseInt(e.target.value) || 0})}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="validFrom">Vàlid des de</Label>
+                  <Input
+                    id="validFrom"
+                    type="date"
+                    value={typeof newCoupon.validFrom === 'string' ? newCoupon.validFrom : new Date(newCoupon.validFrom).toISOString().split('T')[0]}
+                    onChange={(e) => setNewCoupon({...newCoupon, validFrom: e.target.value})}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="validUntil">Vàlid fins</Label>
+                  <Input
+                    id="validUntil"
+                    type="date"
+                    value={typeof newCoupon.validUntil === 'string' ? newCoupon.validUntil : new Date(newCoupon.validUntil).toISOString().split('T')[0]}
+                    onChange={(e) => setNewCoupon({...newCoupon, validUntil: e.target.value})}
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="maxUses">Usos màxims (opcional)</Label>
+                  <Input
+                    id="maxUses"
+                    type="number"
+                    min="1"
+                    placeholder="Il·limitat"
+                    value={newCoupon.maxUses || ''}
+                    onChange={(e) => setNewCoupon({...newCoupon, maxUses: parseInt(e.target.value) || undefined})}
+                  />
+                </div>
+              </div>
+
+              <Button
+                onClick={handleCreateCoupon}
+                disabled={creating || !newCoupon.code || !newCoupon.discountPercentage || !newCoupon.validUntil}
+                className="w-full"
+              >
+                {creating ? 'Creant...' : 'Crear Cupó'}
+              </Button>
+            </div>
+
+            {/* Cupones activos */}
+            {activeCoupons.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="font-semibold text-sm">Cupons Actius</h3>
+                {activeCoupons.map((coupon) => (
+                  <Card key={coupon.code} className="p-4">
+                    {editingCoupon === coupon.code && editData ? (
+                      // Modo edición
+                      <div className="space-y-4">
+                        <div className="grid grid-cols-2 gap-4">
+                          <div>
+                            <Label>Codi del cupó</Label>
+                            <Input
+                              value={editData.code}
+                              onChange={(e) => setEditData({...editData, code: e.target.value.toUpperCase()})}
+                            />
+                          </div>
+                          <div>
+                            <Label>Percentatge descompte (%)</Label>
+                            <Input
+                              type="number"
+                              min="1"
+                              max="100"
+                              value={editData.discountPercentage}
+                              onChange={(e) => setEditData({...editData, discountPercentage: parseInt(e.target.value) || 0})}
+                            />
+                          </div>
+                          <div>
+                            <Label>Vàlid des de</Label>
+                            <Input
+                              type="date"
+                              value={typeof editData.validFrom === 'string' ? editData.validFrom : new Date(editData.validFrom).toISOString().split('T')[0]}
+                              onChange={(e) => setEditData({...editData, validFrom: e.target.value})}
+                            />
+                          </div>
+                          <div>
+                            <Label>Vàlid fins</Label>
+                            <Input
+                              type="date"
+                              value={typeof editData.validUntil === 'string' ? editData.validUntil : new Date(editData.validUntil).toISOString().split('T')[0]}
+                              onChange={(e) => setEditData({...editData, validUntil: e.target.value})}
+                            />
+                          </div>
+                          <div>
+                            <Label>Usos màxims (opcional)</Label>
+                            <Input
+                              type="number"
+                              min="1"
+                              placeholder="Il·limitat"
+                              value={editData.maxUses || ''}
+                              onChange={(e) => setEditData({...editData, maxUses: parseInt(e.target.value) || undefined})}
+                            />
+                          </div>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            onClick={() => handleUpdateCoupon(coupon.code)}
+                          >
+                            Guardar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setEditingCoupon(null);
+                              setEditData(null);
+                            }}
+                          >
+                            Cancel·lar
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      // Modo visualización
+                      <div className="flex justify-between items-start">
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <Badge className="font-mono">{coupon.code}</Badge>
+                            <Badge variant="secondary">{coupon.discountPercentage}% descompte</Badge>
+                          </div>
+                          <p className="text-sm text-gray-600">
+                            Vàlid: {new Date(coupon.validFrom).toLocaleDateString()} - {new Date(coupon.validUntil).toLocaleDateString()}
+                          </p>
+                          <p className="text-xs text-gray-500">
+                            Usos: {coupon.usedCount}{coupon.maxUses ? ` / ${coupon.maxUses}` : ' (il·limitat)'}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => startEdit(coupon)}
+                          >
+                            Editar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleDeactivateCoupon(coupon.code)}
+                          >
+                            Desactivar
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            onClick={() => handleDeleteCoupon(coupon.code)}
+                          >
+                            Eliminar
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {/* Cupones inactivos */}
+            {inactiveCoupons.length > 0 && (
+              <div className="space-y-2">
+                <h3 className="font-semibold text-sm text-gray-500">Cupons Desactivats</h3>
+                {inactiveCoupons.map((coupon) => (
+                  <Card key={coupon.code} className="p-4 bg-gray-50">
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1 opacity-60">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="secondary" className="font-mono">{coupon.code}</Badge>
+                          <Badge variant="outline">{coupon.discountPercentage}% descompte</Badge>
+                        </div>
+                        <p className="text-sm text-gray-600">
+                          Vàlid: {new Date(coupon.validFrom).toLocaleDateString()} - {new Date(coupon.validUntil).toLocaleDateString()}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          Usos totals: {coupon.usedCount}
+                        </p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleActivateCoupon(coupon.code)}
+                        >
+                          Reactivar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDeleteCoupon(coupon.code)}
+                        >
+                          Eliminar
+                        </Button>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+            )}
+
+            {offer.coupons.length === 0 && (
+              <p className="text-center text-gray-500 py-4">
+                Encara no hi ha cupons per aquesta oferta
+              </p>
+            )}
+          </div>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpen(false)}>
+              Tancar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    );
   };
 
   const OfferRow = ({ offer }: { offer: Offer }) => {
@@ -283,10 +675,12 @@ export default function AdminOffers() {
                 </Link>
               </Button>
 
+              <CouponManagementDialog offer={offer} />
+
               <Button
                 size="sm"
                 variant="outline"
-                onClick={() => handleTogglePause(offer._id, offer.isPaused)}
+                onClick={() => handleTogglePause(offer._id)}
                 disabled={isExpired || isSoldOut}
               >
                 {offer.isPaused ? (

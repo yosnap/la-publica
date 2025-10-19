@@ -241,18 +241,24 @@ const CompanyProfile = ({ companyData, isOwner = false, offers = [], advisories 
                       </div>
                       <p className="text-gray-600 mb-3">{offer.description}</p>
                       <div className="flex items-center space-x-4 text-sm text-gray-500">
-                        <span className="flex items-center">
-                          <MapPin className="h-4 w-4 mr-1" />
-                          {offer.location.isRemote ? "Remot" : `${offer.location.city}, ${offer.location.country}`}
-                        </span>
-                        <span className="flex items-center">
-                          <Clock className="h-4 w-4 mr-1" />
-                          {offer.employmentType}
-                        </span>
-                        <span className="flex items-center">
-                          <DollarSign className="h-4 w-4 mr-1" />
-                          {offer.salary?.min && offer.salary?.max ? `€${offer.salary.min} - €${offer.salary.max}` : "A convenir"}
-                        </span>
+                        {offer.location && (
+                          <span className="flex items-center">
+                            <MapPin className="h-4 w-4 mr-1" />
+                            {offer.location.isRemote ? "Remot" : `${offer.location.city}, ${offer.location.country}`}
+                          </span>
+                        )}
+                        {offer.employmentType && (
+                          <span className="flex items-center">
+                            <Clock className="h-4 w-4 mr-1" />
+                            {offer.employmentType}
+                          </span>
+                        )}
+                        {offer.salary && (offer.salary.min || offer.salary.max) && (
+                          <span className="flex items-center">
+                            <DollarSign className="h-4 w-4 mr-1" />
+                            {offer.salary?.min && offer.salary?.max ? `€${offer.salary.min} - €${offer.salary.max}` : "A convenir"}
+                          </span>
+                        )}
                       </div>
                     </div>
                     <div className="flex space-x-2">

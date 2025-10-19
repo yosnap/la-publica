@@ -274,8 +274,9 @@ OfferSchema.pre('save', async function(next) {
     let slug = baseSlug;
     let counter = 1;
 
-    // Verificar si el slug ya existe
-    while (await mongoose.models.Offer.findOne({ slug, _id: { $ne: this._id } })) {
+    // Verificar si el slug ya existe (usando this.constructor para evitar referencia circular)
+    const Model = this.constructor as mongoose.Model<IOffer>;
+    while (await Model.findOne({ slug, _id: { $ne: this._id } })) {
       slug = `${baseSlug}-${counter}`;
       counter++;
     }

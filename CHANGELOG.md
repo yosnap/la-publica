@@ -1,5 +1,61 @@
 # Changelog
 
+## [1.0.9] - 2025-10-19
+
+### 🏢 Sistema de Gestión de Empresas para Administradores
+
+#### Backend - Gestión Completa de Empresas
+- **Control administrativo**: Admins y superadmins pueden crear, editar y eliminar empresas
+- **Asignación de propietarios**: Los admins pueden asignar colaboradores como propietarios de empresas
+- **Filtros por rol**: Los admins ven todas las empresas, los colaboradores solo las suyas
+- **Población de owner**: Endpoint `getMyCompanies` popula datos del propietario (nombre, email)
+- **API de colaboradores**: Nuevo endpoint para obtener lista de usuarios con rol `colaborador`
+- **Modificados**:
+  - `src/companies.controller.ts`: Lógica de creación con asignación de owner
+  - `src/companies.routes.ts`: Permisos de admin en ruta de creación
+  - `src/users.controller.ts`: Filtro por rol en listado de usuarios
+
+#### Frontend - Interfaz de Administración de Empresas
+- **Selector de propietario**: Campo específico para admins que permite seleccionar el colaborador propietario
+- **Preselección en edición**: Extracción correcta del owner ID desde objetos populados
+- **Visualización de propietario**: Cards muestran información del propietario para admins
+- **Acceso desde /empreses**: Botón "Gestionar Empreses" visible para admins
+- **Vista unificada**: Admins acceden a `/colaborador/empresas` para gestión completa
+- **Nuevos**:
+  - `src/api/users.ts`: Función `getCollaborators()` para obtener lista de colaboradores
+- **Modificados**:
+  - `src/pages/collaborator/MyCompanies.tsx`: Interfaz completa de gestión con selector de owner
+  - `src/pages/Companies.tsx`: Botón de acceso para admins
+  - `src/App.tsx`: Movido ruta 404 dentro de Layout
+
+### 🔧 Correcciones y Mejoras
+
+#### Validación de Coordenadas
+- **Campo opcional**: Coordenadas de ubicación ahora son opcionales en el modelo Company
+- **Limpieza automática**: Frontend limpia coordenadas vacías antes de enviar
+- **Validador mejorado**: Acepta arrays vacíos, undefined o exactamente 2 números
+- **Modificados**:
+  - `src/company.model.ts`: Validador actualizado para coordenadas opcionales
+
+#### Gestión de FormData vs JSON
+- **Envío inteligente**: JSON cuando no hay archivos, FormData solo cuando hay imágenes
+- **Prevención de errores**: Elimina error "Cast to Embedded failed" en location
+- **Modificados**:
+  - `src/pages/collaborator/MyCompanies.tsx`: Lógica de envío dual
+
+#### Layout y Navegación
+- **Página 404 integrada**: Ahora muestra sidebar y header como cualquier página
+- **Rutas estandarizadas**: Todas las rutas de empresa usan `/empresa/` (singular en catalán)
+- **Ancho consistente**: Página 404 sigue el max-width de la aplicación
+- **Modificados**:
+  - `src/App.tsx`: Ruta 404 movida dentro de Layout
+  - `src/pages/NotFound.tsx`: Actualizado max-width
+
+### 📊 Estadísticas
+- **~200 líneas modificadas** en backend (controllers, routes, model)
+- **~300 líneas modificadas** en frontend (MyCompanies, Companies, API)
+- **4 archivos nuevos**: Funciones API y mejoras de interfaz
+
 ## [1.0.8] - 2025-10-18
 
 ### 🔐 Sistema Complet d'Autenticació i Emails

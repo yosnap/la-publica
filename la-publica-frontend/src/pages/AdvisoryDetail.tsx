@@ -44,6 +44,7 @@ interface Advisory {
   company: {
     _id: string;
     name: string;
+    slug?: string;
     description?: string;
     logo?: string;
     verified: { status: 'verified' | 'pending' | 'rejected' };
@@ -349,7 +350,7 @@ export default function AdvisoryDetail() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <Link
-                        to={`/companies/${advisory.company._id}`}
+                        to={advisory.company.slug ? `/empresa/${advisory.company.slug}` : '#'}
                         className="text-lg font-semibold text-blue-600 hover:text-blue-800"
                       >
                         {advisory.company.name}
@@ -629,7 +630,7 @@ export default function AdvisoryDetail() {
                 </div>
 
                 <Button variant="outline" className="w-full" asChild>
-                  <Link to={`/companies/${advisory.company._id}`}>
+                  <Link to={advisory.company.slug ? `/empresa/${advisory.company.slug}` : '#'}>
                     <Building className="h-4 w-4 mr-2" />
                     Veure Perfil Complet
                   </Link>

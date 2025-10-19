@@ -14,7 +14,6 @@ import {
   Tag,
   DollarSign,
   Calendar,
-  Package,
   CheckCircle,
   XCircle,
   FileText,
@@ -23,14 +22,18 @@ import {
   ArrowLeft,
   Plus,
   Trash2,
-  Upload,
   Building,
   AlertTriangle
 } from "lucide-react";
-import { createOffer, updateOffer, getOfferBySlug, type CreateOfferData } from "@/api/offers";
+import { createOffer, updateOffer, getOfferById, type CreateOfferData } from "@/api/offers";
 import { uploadFile } from "@/api/uploads";
-import { getMyCompanies, type Company } from "@/api/companies";
+import { getMyCompanies, getCompanies, type Company } from "@/api/companies";
 import { Separator } from "@/components/ui/separator";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Check, ChevronsUpDown } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useUserProfile } from "@/hooks/useUser";
 
 // Schema de validación
 const offerSchema = z.object({
@@ -38,7 +41,7 @@ const offerSchema = z.object({
   description: z.string().min(10, "La descripció ha de tenir almenys 10 caràcters").max(5000, "La descripció no pot excedir 5000 caràcters"),
   company: z.string().min(1, "Has de seleccionar una empresa"),
   originalPrice: z.number().min(0.01, "El preu original ha de ser major que 0"),
-  discountedPrice: z.number().min(0.01, "El preu amb descompte ha de ser major que 0"),
+  discountedPrice: z.number().min(0, "El preu amb descompte no pot ser negatiu").optional().or(z.literal(0)),
   startDate: z.string().min(1, "La data d'inici és obligatòria"),
   endDate: z.string().min(1, "La data de fi és obligatòria"),
   stock: z.number().int().min(1, "L'stock ha de ser almenys 1"),
@@ -49,7 +52,13 @@ const offerSchema = z.object({
   gallery: z.array(z.string().url()).default([]),
   videoUrl: z.string().url("URL de vídeo invàlida").optional().or(z.literal("")),
 }).refine(
-  (data) => data.discountedPrice < data.originalPrice,
+  (data) => {
+    // Solo validar si hay precio con descuento
+    if (data.discountedPrice && data.discountedPrice > 0) {
+      return data.discountedPrice < data.originalPrice;
+    }
+    return true;
+  },
   {
     message: "El preu amb descompte ha de ser menor que el preu original",
     path: ["discountedPrice"],
@@ -67,7 +76,9 @@ type OfferFormData = z.infer<typeof offerSchema>;
 export default function OfferForm() {
   const navigate = useNavigate();
   const { id } = useParams();
+  const { user } = useUserProfile();
   const isEditing = !!id;
+  const isAdmin = user?.role === 'admin' || user?.role === 'superadmin';
 
   const [loading, setLoading] = useState(false);
   const [loadingData, setLoadingData] = useState(isEditing);
@@ -76,6 +87,8 @@ export default function OfferForm() {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [loadingCompanies, setLoadingCompanies] = useState(true);
   const [noCompanies, setNoCompanies] = useState(false);
+  const [companySearchOpen, setCompanySearchOpen] = useState(false);
+  const [companySearchValue, setCompanySearchValue] = useState("");
 
   const {
     register,
@@ -97,23 +110,64 @@ export default function OfferForm() {
     }
   });
 
+  // @ts-ignore - useFieldArray con arrays de strings primitivos
   const {
     fields: includedFields,
-    append: appendIncluded,
     remove: removeIncluded
   } = useFieldArray({
     control,
     name: "included"
   });
 
+  // @ts-ignore - useFieldArray con arrays de strings primitivos
   const {
     fields: notIncludedFields,
-    append: appendNotIncluded,
     remove: removeNotIncluded
   } = useFieldArray({
     control,
     name: "notIncluded"
   });
+
+  const loadUserCompanies = async () => {
+    try {
+      setLoadingCompanies(true);
+      console.log('Cargando empresas... isAdmin:', isAdmin);
+
+      // Si es admin, cargar todas las empresas. Si no, solo las del usuario
+      const response = isAdmin
+        ? await getCompanies({ limit: 1000 }) // Cargar todas para admin
+        : await getMyCompanies(); // Solo las del usuario para colaboradores
+
+      console.log('Respuesta de empresas:', response);
+
+      // El endpoint de getCompanies retorna "data", mientras que getMyCompanies retorna "companies"
+      const companiesList = response.success
+        ? (response.data || response.companies || [])
+        : [];
+
+      console.log('Empresas cargadas:', companiesList);
+      setCompanies(companiesList);
+      setNoCompanies(companiesList.length === 0);
+
+      // Si solo tiene una empresa, seleccionarla automáticamente (solo para colaboradores)
+      if (!isAdmin && companiesList.length === 1) {
+        setValue('company', companiesList[0]._id);
+      }
+    } catch (error) {
+      console.error('Error carregant empreses:', error);
+      toast.error('Error al carregar les empreses');
+    } finally {
+      setLoadingCompanies(false);
+    }
+  };
+
+  // Cargar empresas del colaborador
+  useEffect(() => {
+    if (user) {
+      loadUserCompanies();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, isAdmin]);
 
   const watchMainImage = watch("mainImage");
   const watchGallery = watch("gallery");
@@ -135,13 +189,14 @@ export default function OfferForm() {
   const loadOffer = async () => {
     try {
       setLoadingData(true);
-      const response = await getOfferBySlug(id!);
+      const response = await getOfferById(id!);
 
       if (response.success) {
         const offer = response.offer;
         reset({
           title: offer.title,
           description: offer.description,
+          company: offer.company?._id || offer.company,
           originalPrice: offer.originalPrice,
           discountedPrice: offer.discountedPrice,
           startDate: new Date(offer.startDate).toISOString().split('T')[0],
@@ -263,14 +318,14 @@ export default function OfferForm() {
       setLoading(true);
 
       // Filtrar campos vacíos en los arrays
-      const cleanData: CreateOfferData = {
+      const cleanData = {
         ...data,
         included: data.included.filter(item => item.trim() !== ""),
         notIncluded: data.notIncluded.filter(item => item.trim() !== ""),
         videoUrl: data.videoUrl?.trim() || undefined,
         usageInstructions: data.usageInstructions?.trim() || "",
         gallery: data.gallery || []
-      };
+      } as CreateOfferData;
 
       if (isEditing && id) {
         // Actualizar oferta existente
@@ -278,7 +333,12 @@ export default function OfferForm() {
 
         if (response.success) {
           toast.success('Oferta actualitzada correctament');
-          navigate(`/ofertes-promocionals/${response.offer.slug}`);
+          // Redirigir según el rol
+          if (isAdmin) {
+            navigate('/admin/ofertes');
+          } else {
+            navigate('/colaborador/les-meves-ofertes');
+          }
         }
       } else {
         // Crear nueva oferta
@@ -286,7 +346,12 @@ export default function OfferForm() {
 
         if (response.success) {
           toast.success('Oferta creada correctament');
-          navigate(`/ofertes-promocionals/${response.offer.slug}`);
+          // Redirigir según el rol
+          if (isAdmin) {
+            navigate('/admin/ofertes');
+          } else {
+            navigate('/colaborador/les-meves-ofertes');
+          }
         }
       }
     } catch (error: any) {
@@ -314,9 +379,9 @@ export default function OfferForm() {
         {/* Header */}
         <div className="mb-6">
           <Button variant="ghost" asChild className="mb-4">
-            <Link to="/colaborador/les-meves-ofertes">
+            <Link to={isAdmin ? '/admin/ofertes' : '/colaborador/les-meves-ofertes'}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Tornar a les meves ofertes
+              {isAdmin ? 'Tornar a ofertes' : 'Tornar a les meves ofertes'}
             </Link>
           </Button>
 
@@ -376,6 +441,165 @@ export default function OfferForm() {
             </CardContent>
           </Card>
 
+          {/* Selector de Empresa */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building className="h-5 w-5" />
+                Empresa
+              </CardTitle>
+              <CardDescription>
+                Selecciona l'empresa a la qual pertany aquesta oferta
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {noCompanies && !isAdmin ? (
+                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                  <div className="flex gap-3">
+                    <AlertTriangle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium text-yellow-900">
+                        No tens cap empresa creada
+                      </p>
+                      <p className="text-sm text-yellow-700">
+                        Per crear ofertes promocionals, primer necessites tenir una empresa. Les ofertes sempre estan associades a una empresa per identificar qui les ofereix.
+                      </p>
+                      <div className="flex gap-2">
+                        <Button asChild variant="default" size="sm">
+                          <Link to="/colaborador/empresa/crear">
+                            <Plus className="h-4 w-4 mr-2" />
+                            Crear la Meva Empresa
+                          </Link>
+                        </Button>
+                        <Button asChild variant="outline" size="sm">
+                          <Link to="/colaborador/empreses">
+                            Veure Empreses
+                          </Link>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ) : noCompanies && isAdmin ? (
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                  <div className="flex gap-3">
+                    <AlertTriangle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+                    <div className="space-y-3">
+                      <p className="text-sm font-medium text-blue-900">
+                        No hi ha empreses disponibles
+                      </p>
+                      <p className="text-sm text-blue-700">
+                        No existeixen empreses en el sistema. Els colaboradors han de crear les seves empreses abans de poder crear ofertes.
+                      </p>
+                      <p className="text-xs text-blue-600">
+                        Com a administrador, pots gestionar empreses des del panell d'administració, però no pots crear ofertes sense empreses existents.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ) : loadingCompanies ? (
+                <div className="flex justify-center py-8">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : (
+                <div>
+                  <Label htmlFor="company">
+                    Empresa <span className="text-red-500">*</span>
+                  </Label>
+
+                  {/* Combobox con búsqueda para admins o lista larga */}
+                  {isAdmin || companies.length > 5 ? (
+                    <Popover open={companySearchOpen} onOpenChange={setCompanySearchOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={companySearchOpen}
+                          className="w-full justify-between"
+                        >
+                          {watch("company")
+                            ? companies.find((c) => c._id === watch("company"))?.name
+                            : "Selecciona una empresa..."}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="p-0" align="start" style={{ width: 'var(--radix-popover-trigger-width)' }}>
+                        <Command>
+                          <CommandInput
+                            placeholder="Cerca empresa..."
+                            value={companySearchValue}
+                            onValueChange={setCompanySearchValue}
+                          />
+                          <CommandList>
+                            <CommandEmpty>No s'ha trobat cap empresa.</CommandEmpty>
+                            <CommandGroup>
+                              {companies
+                                .filter((company) =>
+                                  company.name
+                                    .toLowerCase()
+                                    .includes(companySearchValue.toLowerCase())
+                                )
+                                .map((company) => (
+                                  <CommandItem
+                                    key={company._id}
+                                    value={company.name}
+                                    onSelect={() => {
+                                      setValue("company", company._id);
+                                      setCompanySearchOpen(false);
+                                      setCompanySearchValue("");
+                                    }}
+                                  >
+                                    <Check
+                                      className={cn(
+                                        "mr-2 h-4 w-4",
+                                        watch("company") === company._id
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      )}
+                                    />
+                                    {company.name}
+                                  </CommandItem>
+                                ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
+                  ) : (
+                    /* Select simple para pocos elementos */
+                    <select
+                      id="company"
+                      {...register("company")}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      disabled={companies.length === 1}
+                    >
+                      <option value="">Selecciona una empresa</option>
+                      {companies.map((company) => (
+                        <option key={company._id} value={company._id}>
+                          {company.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+
+                  {errors.company && (
+                    <p className="text-sm text-red-500 mt-1">{errors.company.message}</p>
+                  )}
+                  {!isAdmin && companies.length === 1 && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      Selecció automàtica (només tens una empresa)
+                    </p>
+                  )}
+                  {isAdmin && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      Com a administrador pots seleccionar qualsevol empresa ({companies.length} disponibles)
+                    </p>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Precios */}
           <Card>
             <CardHeader>
@@ -406,14 +630,14 @@ export default function OfferForm() {
                 {/* Precio con descuento */}
                 <div>
                   <Label htmlFor="discountedPrice">
-                    Preu amb Descompte (€) <span className="text-red-500">*</span>
+                    Preu amb Descompte (€) <span className="text-gray-400 text-sm">(opcional)</span>
                   </Label>
                   <Input
                     id="discountedPrice"
                     type="number"
                     step="0.01"
                     {...register("discountedPrice", { valueAsNumber: true })}
-                    placeholder="70.00"
+                    placeholder="Deixa buit si no hi ha descompte"
                   />
                   {errors.discountedPrice && (
                     <p className="text-sm text-red-500 mt-1">{errors.discountedPrice.message}</p>
@@ -530,7 +754,10 @@ export default function OfferForm() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => appendIncluded("")}
+                onClick={() => {
+                  const currentIncluded = watch("included") || [];
+                  setValue("included", [...currentIncluded, ""]);
+                }}
                 className="w-full"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -570,7 +797,10 @@ export default function OfferForm() {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => appendNotIncluded("")}
+                onClick={() => {
+                  const currentNotIncluded = watch("notIncluded") || [];
+                  setValue("notIncluded", [...currentNotIncluded, ""]);
+                }}
                 className="w-full"
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -719,7 +949,7 @@ export default function OfferForm() {
             >
               Cancel·lar
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading || noCompanies}>
               {loading ? 'Guardant...' : isEditing ? 'Actualitzar Oferta' : 'Crear Oferta'}
             </Button>
           </div>

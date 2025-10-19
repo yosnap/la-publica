@@ -20,8 +20,8 @@ router.get('/:id', getCompanyById);
 // Rutas protegidas - requieren autenticación
 router.use(authenticate);
 
-// Rutas para colaboradores
-router.post('/', authorize(['colaborador']), createCompany);
+// Rutas para colaboradores y admin
+router.post('/', authorize(['colaborador', 'admin', 'superadmin']), createCompany);
 router.get('/my/companies', getMyCompanies);
 router.put('/:id', updateCompany);
 router.delete('/:id', deleteCompany);

@@ -192,6 +192,36 @@ export interface Advisory {
   createdAt: string;
 }
 
+export interface PromotionalOffer {
+  _id: string;
+  title: string;
+  description: string;
+  originalPrice: number;
+  discountedPrice: number;
+  discountPercentage: number;
+  startDate: Date | string;
+  endDate: Date | string;
+  stock: number;
+  remainingStock: number;
+  company?: {
+    _id: string;
+    name: string;
+  };
+  createdBy: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  category?: {
+    _id: string;
+    name: string;
+  };
+  isActive: boolean;
+  isPaused: boolean;
+  createdAt: string;
+}
+
 // Helper function to build query parameters
 const buildQueryParams = (params: PaginationParams): string => {
   const queryParams = new URLSearchParams();
@@ -305,6 +335,13 @@ export const getAnnouncements = async (params: PaginationParams = {}): Promise<A
 export const getAdvisories = async (params: PaginationParams = {}): Promise<AdminResponse<Advisory>> => {
   const queryString = buildQueryParams(params);
   const response = await apiClient.get(`/admin-data/advisories?${queryString}`);
+  return response.data;
+};
+
+// Promotional Offers Management
+export const getPromotionalOffers = async (params: PaginationParams = {}): Promise<AdminResponse<PromotionalOffer>> => {
+  const queryString = buildQueryParams(params);
+  const response = await apiClient.get(`/admin-data/promotional-offers?${queryString}`);
   return response.data;
 };
 

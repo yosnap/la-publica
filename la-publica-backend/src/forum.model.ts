@@ -103,8 +103,9 @@ ForumSchema.index({ name: 'text', description: 'text' });
 
 // Middleware para actualizar contadores
 ForumSchema.methods.updateStats = async function() {
-  const ForumPost = mongoose.model('ForumPost');
-  
+  // Usar mongoose.models para evitar problemas de referencia circular
+  const ForumPost = mongoose.models.ForumPost || mongoose.model('ForumPost');
+
   const stats = await ForumPost.aggregate([
     { $match: { forum: this._id, isActive: true } },
     { 

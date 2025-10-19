@@ -14,6 +14,9 @@ import Category from './category.model';
 import GroupCategory from './groupCategory.model';
 import ForumCategory from './forumCategory.model';
 
+// NOTA: El modelo Offer NO se importa aquí debido a problemas de referencias circulares
+// Ver docs/PENDIENTE_OFERTAS_ADMIN.md para más detalles
+
 // Helper function to check admin permissions
 const checkAdminPermission = (userRole: string, res: Response): boolean => {
   if (userRole !== 'admin') {
@@ -454,6 +457,41 @@ export const getJobOffers = async (req: Request, res: Response) => {
   }
 };
 
+// Promotional Offers Management
+export const getPromotionalOffers = async (req: Request, res: Response) => {
+  try {
+    const userRole = (req as any).user?.role;
+    if (!checkAdminPermission(userRole, res)) return;
+
+    // Temporalmente deshabilitado - necesita fix en el modelo Offer
+    return res.status(503).json({
+      success: false,
+      message: 'Funcionalitat temporalment no disponible'
+    });
+
+    /* const result = await getDataWithPagination(Offer, {
+      ...req.query,
+      populate: [
+        { path: 'company', select: 'name' },
+        { path: 'createdBy', select: 'firstName lastName email' },
+        { path: 'category', select: 'name' }
+      ]
+    });
+
+    return res.json({
+      success: true,
+      data: result.data,
+      pagination: result.pagination
+    }); */
+  } catch (error: any) {
+    return res.status(500).json({
+      success: false,
+      message: 'Error al obtenir ofertes promocionals',
+      error: error.message
+    });
+  }
+};
+
 // Announcements Management
 export const getAnnouncements = async (req: Request, res: Response) => {
   try {
@@ -524,6 +562,7 @@ export const bulkUpdateItems = async (req: Request, res: Response) => {
       case 'Group': Model = Group; break;
       case 'Forum': Model = Forum; break;
       case 'JobOffer': Model = JobOffer; break;
+      // case 'Offer': Model = Offer; break; // Temporalmente deshabilitado - ver docs/PENDIENTE_OFERTAS_ADMIN.md
       case 'Announcement': Model = Announcement; break;
       case 'Advisory': Model = Advisory; break;
       case 'Blog': Model = Blog; break;
@@ -607,6 +646,13 @@ export const bulkDeleteItems = async (req: Request, res: Response) => {
           result = await JobOffer.updateMany({ _id: { $in: itemIds } }, { isActive: false });
         }
         break;
+      /* case 'Offer': // Temporalmente deshabilitado - ver docs/PENDIENTE_OFERTAS_ADMIN.md
+        if (permanent) {
+          result = await Offer.deleteMany({ _id: { $in: itemIds } });
+        } else {
+          result = await Offer.updateMany({ _id: { $in: itemIds } }, { isActive: false });
+        }
+        break; */
       case 'Announcement':
         if (permanent) {
           result = await Announcement.deleteMany({ _id: { $in: itemIds } });
@@ -741,6 +787,13 @@ export const assignAuthor = async (req: Request, res: Response) => {
           { new: true }
         ).populate('author', 'firstName lastName email');
         break;
+      /* case 'Offer': // Temporalmente deshabilitado - ver docs/PENDIENTE_OFERTAS_ADMIN.md
+        item = await Offer.findByIdAndUpdate(
+          itemId,
+          { createdBy: authorId }, // Offer uses 'createdBy' not 'author'
+          { new: true }
+        ).populate('createdBy', 'firstName lastName email');
+        break; */
       default:
         return res.status(400).json({
           success: false,
@@ -822,6 +875,13 @@ export const assignCategory = async (req: Request, res: Response) => {
           { new: true }
         );
         break;
+      /* case 'Offer': // Temporalmente deshabilitado - ver docs/PENDIENTE_OFERTAS_ADMIN.md
+        item = await Offer.findByIdAndUpdate(
+          itemId,
+          { category: categoryId },
+          { new: true }
+        ).populate('category', 'name');
+        break; */
       default:
         return res.status(400).json({
           success: false,

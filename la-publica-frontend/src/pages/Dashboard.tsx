@@ -1350,7 +1350,7 @@ const Dashboard = () => {
                     variant="ghost"
                     size="sm"
                     className="text-xs text-gray-500 dark:text-gray-400 hover:text-purple-600"
-                    onClick={() => navigate('/companies')}
+                    onClick={() => navigate('/empreses')}
                   >
                     Ver totes
                   </Button>
@@ -1424,7 +1424,7 @@ const Dashboard = () => {
                   variant="outline"
                   size="sm"
                   className="w-full mt-3 border-purple-200 dark:border-gray-600 text-purple-600 dark:text-purple-400 hover:bg-gray-50 dark:hover:bg-gray-700/30"
-                  onClick={() => navigate('/companies')}
+                  onClick={() => navigate('/empreses')}
                 >
                   <Building className="h-4 w-4 mr-2" />
                   Explorar Empreses

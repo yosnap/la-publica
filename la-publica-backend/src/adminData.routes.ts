@@ -13,6 +13,7 @@ import {
   getGroups,
   getForums,
   getJobOffers,
+  getPromotionalOffers,
   getAnnouncements,
   getAdvisories,
   bulkUpdateItems,
@@ -49,6 +50,9 @@ router.get('/forums', getForums);
 
 // Job Offers Management
 router.get('/job-offers', getJobOffers);
+
+// Promotional Offers Management
+router.get('/promotional-offers', getPromotionalOffers);
 
 // Announcements Management
 router.get('/announcements', getAnnouncements);

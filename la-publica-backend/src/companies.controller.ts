@@ -6,21 +6,27 @@ import { AuthenticatedRequest } from './types';
 export const createCompany = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.userId;
+    const userRole = req.user?.role;
+
     if (!userId) {
       return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
-    // Verificar que el usuario sea colaborador
-    if (req.user?.role !== 'colaborador') {
-      return res.status(403).json({ 
-        success: false, 
-        message: 'Només els usuaris col·laboradors poden crear empreses' 
+    // Verificar que el usuario sea colaborador o admin
+    if (userRole !== 'colaborador' && userRole !== 'admin' && userRole !== 'superadmin') {
+      return res.status(403).json({
+        success: false,
+        message: 'Només els usuaris col·laboradors i administradors poden crear empreses'
       });
     }
 
+    // Si es admin/superadmin, puede especificar el owner en el body
+    // Si es colaborador, siempre es el propio usuario
     const companyData = {
       ...req.body,
-      owner: userId
+      owner: (userRole === 'admin' || userRole === 'superadmin') && req.body.owner
+        ? req.body.owner
+        : userId
     };
 
     const company = new Company(companyData);
@@ -36,10 +42,10 @@ export const createCompany = async (req: AuthenticatedRequest, res: Response, ne
 
   } catch (error: any) {
     if (error.name === 'ValidationError') {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Error de validació', 
-        error: error.message 
+      return res.status(400).json({
+        success: false,
+        message: 'Error de validació',
+        error: error.message
       });
     }
     return next(error);
@@ -195,12 +201,20 @@ export const deleteCompany = async (req: AuthenticatedRequest, res: Response, ne
 export const getMyCompanies = async (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   try {
     const userId = req.user?.userId;
+    const userRole = req.user?.role;
+
     if (!userId) {
       return res.status(401).json({ success: false, message: 'No autenticat' });
     }
 
-    const companies = await Company.find({ owner: userId })
-      .populate('owner', 'firstName lastName username')
+    // Si es admin o superadmin, obtener todas las empresas
+    // Si es colaborador, solo obtener sus empresas
+    const query = (userRole === 'admin' || userRole === 'superadmin')
+      ? {} // Sin filtro: todas las empresas
+      : { owner: userId }; // Filtrado por owner: solo sus empresas
+
+    const companies = await Company.find(query)
+      .populate('owner', 'firstName lastName username email')
       .sort({ createdAt: -1 });
 
     return res.json({

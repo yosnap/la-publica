@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { 
-  Users, Building, MessageSquare, Briefcase, Megaphone, 
-  HelpCircle, Tag, Edit, Trash2, UserPlus, Search, Filter,
+import {
+  Users, Building, MessageSquare, Megaphone,
+  HelpCircle, Tag, Edit, Trash2, UserPlus, Search,
   ChevronLeft, ChevronRight, MoreHorizontal, CheckSquare,
   Square, Eye, Settings
 } from "lucide-react";
@@ -14,6 +14,7 @@ import { PageWrapper } from "@/components/PageWrapper";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -40,37 +41,27 @@ import {
   getCompanies,
   getGroups,
   getForums,
-  getJobOffers,
+  getPromotionalOffers,
   getAnnouncements,
   getAdvisories,
-  updateUser,
-  deleteUser,
-  updatePost,
   deletePost,
-  updateCompany,
   bulkUpdateItems,
   bulkDeleteItems,
   assignAuthor,
   assignCategory,
   type PaginationParams,
-  type User,
-  type Post,
-  type Company,
-  type Group,
-  type Forum,
-  type JobOffer,
-  type Announcement,
-  type Advisory
+  type User
 } from "@/api/adminData";
 import { getCategoriesTree } from "@/api/categories";
 
-type DataType = 'posts' | 'companies' | 'groups' | 'forums' | 'jobOffers' | 'announcements' | 'advisories';
+type DataType = 'posts' | 'companies' | 'groups' | 'forums' | 'promotionalOffers' | 'announcements' | 'advisories';
 
 interface DataTypeConfig {
   key: DataType;
   label: string;
   icon: React.ComponentType<any>;
   endpoint: Function;
+  modelName: string; // Model name for backend operations
   canEdit: boolean;
   canDelete: boolean;
   canAssignAuthor: boolean;
@@ -83,6 +74,7 @@ const dataTypes: DataTypeConfig[] = [
     label: 'Posts',
     icon: MessageSquare,
     endpoint: getPosts,
+    modelName: 'Post',
     canEdit: true,
     canDelete: true,
     canAssignAuthor: true,
@@ -93,6 +85,7 @@ const dataTypes: DataTypeConfig[] = [
     label: 'Empreses',
     icon: Building,
     endpoint: getCompanies,
+    modelName: 'Company',
     canEdit: true,
     canDelete: false,
     canAssignAuthor: true,
@@ -103,6 +96,7 @@ const dataTypes: DataTypeConfig[] = [
     label: 'Grups',
     icon: Users,
     endpoint: getGroups,
+    modelName: 'Group',
     canEdit: false,
     canDelete: false,
     canAssignAuthor: true,
@@ -113,16 +107,18 @@ const dataTypes: DataTypeConfig[] = [
     label: 'Fòrums',
     icon: MessageSquare,
     endpoint: getForums,
+    modelName: 'Forum',
     canEdit: false,
     canDelete: false,
     canAssignAuthor: true,
     canAssignCategory: true
   },
   {
-    key: 'jobOffers',
-    label: 'Ofertes de Treball',
-    icon: Briefcase,
-    endpoint: getJobOffers,
+    key: 'promotionalOffers',
+    label: 'Ofertes Promocionals',
+    icon: Tag,
+    endpoint: getPromotionalOffers,
+    modelName: 'Offer',
     canEdit: false,
     canDelete: false,
     canAssignAuthor: true,
@@ -133,6 +129,7 @@ const dataTypes: DataTypeConfig[] = [
     label: 'Anuncis',
     icon: Megaphone,
     endpoint: getAnnouncements,
+    modelName: 'Announcement',
     canEdit: false,
     canDelete: false,
     canAssignAuthor: true,
@@ -143,9 +140,10 @@ const dataTypes: DataTypeConfig[] = [
     label: 'Assessoraments',
     icon: HelpCircle,
     endpoint: getAdvisories,
+    modelName: 'Advisory',
     canEdit: false,
     canDelete: false,
-    canAssignAuthor: true,
+    canAssignAuthor: false,
     canAssignCategory: true
   }
 ];
@@ -283,12 +281,10 @@ export default function DataManagement() {
       const config = dataTypes.find(dt => dt.key === activeTab);
       if (!config) return;
 
-      const modelName = activeTab.charAt(0).toUpperCase() + activeTab.slice(1);
-
       if (action === 'delete') {
-        await bulkDeleteItems(modelName, selectedItems);
+        await bulkDeleteItems(config.modelName, selectedItems);
       } else {
-        await bulkUpdateItems(modelName, selectedItems, {
+        await bulkUpdateItems(config.modelName, selectedItems, {
           isActive: action === 'activate'
         });
       }
@@ -305,13 +301,11 @@ export default function DataManagement() {
       const config = dataTypes.find(dt => dt.key === activeTab);
       if (!config) return;
 
-      const modelName = activeTab.charAt(0).toUpperCase() + activeTab.slice(1);
-
       if (assignType === 'author') {
-        await assignAuthor(modelName, assignItemId, targetId);
+        await assignAuthor(config.modelName, assignItemId, targetId);
         toast.success('Autor assignat correctament');
       } else {
-        await assignCategory(modelName, assignItemId, targetId);
+        await assignCategory(config.modelName, assignItemId, targetId);
         toast.success('Categoria assignada correctament');
       }
 
@@ -380,11 +374,42 @@ export default function DataManagement() {
               )}
               
               <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                {/* Mostrar usuario relacionado según el tipo de contenido */}
                 {item.author && (
-                  <span>Autor: {item.author.firstName} {item.author.lastName}</span>
+                  <span className="flex items-center gap-1">
+                    <UserPlus className="h-3 w-3" />
+                    Autor: {item.author.firstName} {item.author.lastName}
+                  </span>
+                )}
+                {item.owner && (
+                  <span className="flex items-center gap-1">
+                    <UserPlus className="h-3 w-3" />
+                    Propietari: {item.owner.firstName} {item.owner.lastName}
+                  </span>
+                )}
+                {item.creator && (
+                  <span className="flex items-center gap-1">
+                    <UserPlus className="h-3 w-3" />
+                    Creador: {item.creator.firstName} {item.creator.lastName}
+                  </span>
+                )}
+                {item.createdBy && (
+                  <span className="flex items-center gap-1">
+                    <UserPlus className="h-3 w-3" />
+                    Creat per: {item.createdBy.firstName} {item.createdBy.lastName}
+                  </span>
+                )}
+                {item.company && (
+                  <span className="flex items-center gap-1">
+                    <Building className="h-3 w-3" />
+                    Empresa: {typeof item.company === 'string' ? item.company : item.company.name}
+                  </span>
                 )}
                 {item.category && (
-                  <span>Categoria: {typeof item.category === 'string' ? item.category : item.category.name}</span>
+                  <span className="flex items-center gap-1">
+                    <Tag className="h-3 w-3" />
+                    Categoria: {typeof item.category === 'string' ? item.category : item.category.name}
+                  </span>
                 )}
                 {item.createdAt && (
                   <span>Creat: {new Date(item.createdAt).toLocaleDateString('ca-ES')}</span>
@@ -477,7 +502,7 @@ export default function DataManagement() {
 
         {/* Data Type Tabs */}
         <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as DataType)}>
-          <TabsList className="grid w-full grid-cols-3 lg:grid-cols-7">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8">
             {dataTypes.map(dataType => {
               const Icon = dataType.icon;
               return (
@@ -693,6 +718,9 @@ export default function DataManagement() {
               <DialogTitle>
                 Assignar {assignType === 'author' ? 'Autor' : 'Categoria'}
               </DialogTitle>
+              <DialogDescription>
+                Selecciona {assignType === 'author' ? 'un autor per a aquest element' : 'una categoria per a aquest element'}.
+              </DialogDescription>
             </DialogHeader>
             <div className="space-y-4">
               <Label>
