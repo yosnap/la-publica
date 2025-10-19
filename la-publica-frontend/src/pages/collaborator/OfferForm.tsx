@@ -28,6 +28,7 @@ import {
 import { createOffer, updateOffer, getOfferById, type CreateOfferData } from "@/api/offers";
 import { uploadFile } from "@/api/uploads";
 import { getMyCompanies, getCompanies, type Company } from "@/api/companies";
+import { getCategories, type Category } from "@/api/categories";
 import { Separator } from "@/components/ui/separator";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
@@ -40,6 +41,7 @@ const offerSchema = z.object({
   title: z.string().min(3, "El títol ha de tenir almenys 3 caràcters").max(200, "El títol no pot excedir 200 caràcters"),
   description: z.string().min(10, "La descripció ha de tenir almenys 10 caràcters").max(5000, "La descripció no pot excedir 5000 caràcters"),
   company: z.string().min(1, "Has de seleccionar una empresa"),
+  category: z.string().optional(),
   originalPrice: z.number().min(0.01, "El preu original ha de ser major que 0"),
   discountedPrice: z.number().min(0, "El preu amb descompte no pot ser negatiu").optional().or(z.literal(0)),
   startDate: z.string().min(1, "La data d'inici és obligatòria"),
@@ -89,6 +91,8 @@ export default function OfferForm() {
   const [noCompanies, setNoCompanies] = useState(false);
   const [companySearchOpen, setCompanySearchOpen] = useState(false);
   const [companySearchValue, setCompanySearchValue] = useState("");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loadingCategories, setLoadingCategories] = useState(true);
 
   const {
     register,
@@ -102,6 +106,7 @@ export default function OfferForm() {
     resolver: zodResolver(offerSchema),
     defaultValues: {
       company: "",
+      category: "",
       included: [""],
       notIncluded: [],
       gallery: [],
@@ -169,6 +174,24 @@ export default function OfferForm() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user, isAdmin]);
 
+  // Cargar categorías de ofertas promocionales
+  const loadCategories = async () => {
+    try {
+      setLoadingCategories(true);
+      const response = await getCategories({ type: 'promotional_offer' });
+      setCategories(response.data || []);
+    } catch (error) {
+      console.error('Error al cargar categorías:', error);
+      toast.error('Error al cargar les categories');
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCategories();
+  }, []);
+
   const watchMainImage = watch("mainImage");
   const watchGallery = watch("gallery");
   const watchOriginalPrice = watch("originalPrice");
@@ -197,6 +220,7 @@ export default function OfferForm() {
           title: offer.title,
           description: offer.description,
           company: offer.company?._id || offer.company,
+          category: offer.category?._id || offer.category || "",
           originalPrice: offer.originalPrice,
           discountedPrice: offer.discountedPrice,
           startDate: new Date(offer.startDate).toISOString().split('T')[0],
@@ -597,6 +621,45 @@ export default function OfferForm() {
                   )}
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Categoría */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Tag className="h-5 w-5" />
+                Categoria
+              </CardTitle>
+              <CardDescription>
+                Selecciona una categoria per a l'oferta (opcional)
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div>
+                <Label htmlFor="category">Categoria</Label>
+                <select
+                  id="category"
+                  {...register("category")}
+                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  disabled={loadingCategories}
+                >
+                  <option value="">Sense categoria</option>
+                  {categories.map((category) => (
+                    <option key={category._id} value={category._id}>
+                      {category.name}
+                    </option>
+                  ))}
+                </select>
+                {loadingCategories && (
+                  <p className="text-sm text-gray-500 mt-1">Carregant categories...</p>
+                )}
+                {!loadingCategories && categories.length === 0 && (
+                  <p className="text-sm text-amber-600 mt-1">
+                    No hi ha categories disponibles. Contacta amb l'administrador per crear-ne.
+                  </p>
+                )}
+              </div>
             </CardContent>
           </Card>
 

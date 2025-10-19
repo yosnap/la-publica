@@ -7,7 +7,7 @@ export interface Category {
   description?: string;
   color?: string;
   icon?: string;
-  type: 'company' | 'job' | 'announcement' | 'advisory';
+  type: 'company' | 'job' | 'announcement' | 'advisory' | 'promotional_offer';
   parentCategory?: string;
   isActive: boolean;
   order: number;
@@ -21,7 +21,7 @@ export interface CreateCategoryData {
   description?: string;
   color?: string;
   icon?: string;
-  type: 'company' | 'job' | 'announcement' | 'advisory';
+  type: 'company' | 'job' | 'announcement' | 'advisory' | 'promotional_offer';
   parentCategory?: string;
   order?: number;
 }

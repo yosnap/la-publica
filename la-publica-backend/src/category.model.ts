@@ -6,7 +6,7 @@ export interface ICategory extends Document {
   description?: string;
   color?: string;
   icon?: string;
-  type: 'company' | 'job' | 'announcement' | 'advisory' | 'blog';
+  type: 'company' | 'job' | 'announcement' | 'advisory' | 'blog' | 'promotional_offer';
   parentCategory?: mongoose.Types.ObjectId;
   isActive: boolean;
   order: number;
@@ -45,7 +45,7 @@ const CategorySchema = new Schema<ICategory>(
     },
     type: {
       type: String,
-      enum: ['company', 'job', 'announcement', 'advisory', 'blog'],
+      enum: ['company', 'job', 'announcement', 'advisory', 'blog', 'promotional_offer'],
       required: true,
       index: true
     },
