@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { 
-  Plus, Edit, Trash, Palette, Save, X, Tag, Layers, 
-  Building, Briefcase, Megaphone, HelpCircle, Code, Lightbulb, 
-  BookOpen, Calendar, Users, TrendingUp, Heart, Trophy, 
-  Music, Zap, Globe, Laptop, Shield, Cpu, Smartphone, 
+import {
+  Plus, Edit, Trash, Tag, Layers,
+  Building, Briefcase, Megaphone, HelpCircle, Code, Lightbulb,
+  BookOpen, Calendar, Users, TrendingUp, Heart, Trophy,
+  Music, Zap, Globe, Laptop, Shield, Cpu, Smartphone,
   Target, UserCheck, DollarSign, Monitor, Server, Settings,
   Image, Award, Search, Calculator, Clipboard, Camera, Video,
   Edit as EditIcon, Wrench, Scale, CheckCircle, PiggyBank
@@ -33,7 +33,6 @@ import {
 import { toast } from "sonner";
 import {
   getCategories,
-  getCategoriesTree,
   getCategoryStats,
   createCategory,
   updateCategory,
@@ -50,6 +49,8 @@ const Categories = () => {
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<string>("company");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showInactive, setShowInactive] = useState(false);
   const [formData, setFormData] = useState<CreateCategoryData>({
     name: "",
     description: "",
@@ -103,18 +104,23 @@ const Categories = () => {
   ];
 
   const typeOptions = [
-    { value: "company", label: "Empresas" },
-    { value: "job", label: "Ofertas de Trabajo" },
-    { value: "announcement", label: "Anuncios" },
-    { value: "advisory", label: "Asesorías" },
+    { value: "company", label: "Empreses" },
+    // { value: "job", label: "Ofertes de Treball" }, // Oculto temporalmente
+    { value: "announcement", label: "Anuncis" },
+    { value: "advisory", label: "Assessories" },
+    { value: "promotional_offer", label: "Ofertes" },
     { value: "blog", label: "Blogs" }
   ];
 
   const loadCategories = async () => {
     try {
-      const response = await getCategories({ type: selectedType });
+      const response = await getCategories({
+        type: selectedType,
+        includeInactive: showInactive
+      });
       setCategories(response.data);
     } catch (error) {
+      console.error('Error al cargar categorías:', error);
       toast.error("Error en carregar les categories");
     }
   };
@@ -135,7 +141,8 @@ const Categories = () => {
       setLoading(false);
     };
     loadData();
-  }, [selectedType]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedType, showInactive]);
 
   const handleCreate = async () => {
     if (!formData.name.trim()) {
@@ -232,9 +239,34 @@ const Categories = () => {
     return iconOption ? iconOption.icon : Tag;
   };
 
-  const parentCategories = categories.filter(cat => !cat.parentCategory);
-  const getSubcategories = (parentId: string) => 
-    categories.filter(cat => cat.parentCategory === parentId);
+  // Filtrar categorías por búsqueda
+  const filteredCategories = categories.filter(cat => {
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase();
+    return cat.name.toLowerCase().includes(query) ||
+           cat.description?.toLowerCase().includes(query);
+  });
+
+  // Obtener categorías padre ordenadas alfabéticamente
+  const parentCategories = filteredCategories
+    .filter(cat => !cat.parentCategory)
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  // Obtener subcategorías ordenadas alfabéticamente
+  const getSubcategories = (parentId: string) =>
+    filteredCategories
+      .filter(cat => {
+        if (!cat.parentCategory) return false;
+
+        // parentCategory puede ser string (ObjectId) o objeto populated
+        if (typeof cat.parentCategory === 'string') {
+          return cat.parentCategory === parentId;
+        } else if (typeof cat.parentCategory === 'object' && cat.parentCategory !== null) {
+          return (cat.parentCategory as any)._id === parentId;
+        }
+        return false;
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
 
   const getTypeStats = (type: string) => {
     return stats.find(s => s._id === type);
@@ -302,12 +334,12 @@ const Categories = () => {
                 
                 <div>
                   <Label htmlFor="parent">Categoría Padre (opcional)</Label>
-                  <Select value={formData.parentCategory || ""} onValueChange={(value) => setFormData({...formData, parentCategory: value || undefined})}>
+                  <Select value={formData.parentCategory || "none"} onValueChange={(value) => setFormData({...formData, parentCategory: value === 'none' ? undefined : value})}>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccionar categoría padre" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Sin categoría padre</SelectItem>
+                      <SelectItem value="none">Sense categoria pare</SelectItem>
                       {parentCategories.filter(cat => cat.type === formData.type).map(category => (
                         <SelectItem key={category._id} value={category._id}>
                           {category.name}
@@ -410,25 +442,63 @@ const Categories = () => {
           })}
         </div>
 
-        {/* Type Filter */}
-        <div className="flex gap-2">
-          <Label className="text-sm font-medium self-center">Tipo:</Label>
-          <Select value={selectedType} onValueChange={setSelectedType}>
-            <SelectTrigger className="w-48">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {typeOptions.map(option => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Filters Bar */}
+        <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+          {/* Type Filter */}
+          <div className="flex gap-2 items-center">
+            <Label className="text-sm font-medium">Tipus:</Label>
+            <Select value={selectedType} onValueChange={setSelectedType}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {typeOptions.map(option => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Search Filter */}
+          <div className="flex-1 max-w-md relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Cerca categories..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {/* Show Inactive Toggle */}
+          <div className="flex items-center gap-2">
+            <Switch
+              id="show-inactive"
+              checked={showInactive}
+              onCheckedChange={setShowInactive}
+            />
+            <Label htmlFor="show-inactive" className="text-sm cursor-pointer">
+              Mostrar inactives
+            </Label>
+          </div>
         </div>
 
         {/* Categories List */}
         <div className="space-y-4">
+          {parentCategories.length === 0 && searchQuery.trim() !== '' && (
+            <Card>
+              <CardContent className="py-8">
+                <div className="text-center text-gray-500">
+                  <Search className="h-12 w-12 mx-auto mb-3 text-gray-400" />
+                  <p className="text-lg font-medium">No s'han trobat categories</p>
+                  <p className="text-sm">Prova amb una altra cerca</p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
           {parentCategories.map(category => {
             const IconComponent = getIconComponent(category.icon || "Tag");
             const subcategories = getSubcategories(category._id);
@@ -565,12 +635,12 @@ const Categories = () => {
                 
                 <div>
                   <Label htmlFor="edit-parent">Categoría Padre (opcional)</Label>
-                  <Select value={formData.parentCategory || ""} onValueChange={(value) => setFormData({...formData, parentCategory: value || undefined})}>
+                  <Select value={formData.parentCategory || "none"} onValueChange={(value) => setFormData({...formData, parentCategory: value === 'none' ? undefined : value})}>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccionar categoría padre" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Sin categoría padre</SelectItem>
+                      <SelectItem value="none">Sense categoria pare</SelectItem>
                       {parentCategories.filter(cat => cat.type === formData.type && cat._id !== editingCategory._id).map(category => (
                         <SelectItem key={category._id} value={category._id}>
                           {category.name}

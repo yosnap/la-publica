@@ -32,6 +32,7 @@ import { getCategories, type Category } from "@/api/categories";
 import { Separator } from "@/components/ui/separator";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserProfile } from "@/hooks/useUser";
@@ -92,7 +93,9 @@ export default function OfferForm() {
   const [companySearchOpen, setCompanySearchOpen] = useState(false);
   const [companySearchValue, setCompanySearchValue] = useState("");
   const [categories, setCategories] = useState<Category[]>([]);
+  const [parentCategories, setParentCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
+  const [categorySearch, setCategorySearch] = useState("");
 
   const {
     register,
@@ -179,7 +182,14 @@ export default function OfferForm() {
     try {
       setLoadingCategories(true);
       const response = await getCategories({ type: 'promotional_offer' });
-      setCategories(response.data || []);
+      const allCategories = response.data || [];
+
+      // Separar categorías principales y subcategorías
+      const parents = allCategories.filter((cat: Category) => !cat.parentCategory);
+      const subcats = allCategories.filter((cat: Category) => cat.parentCategory);
+
+      setParentCategories(parents);
+      setCategories(subcats);
     } catch (error) {
       console.error('Error al cargar categorías:', error);
       toast.error('Error al cargar les categories');
@@ -638,19 +648,68 @@ export default function OfferForm() {
             <CardContent>
               <div>
                 <Label htmlFor="category">Categoria</Label>
-                <select
-                  id="category"
-                  {...register("category")}
-                  className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                <Select
+                  value={watch("category") || "none"}
+                  onValueChange={(value) => setValue("category", value === "none" ? "" : value)}
                   disabled={loadingCategories}
                 >
-                  <option value="">Sense categoria</option>
-                  {categories.map((category) => (
-                    <option key={category._id} value={category._id}>
-                      {category.name}
-                    </option>
-                  ))}
-                </select>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Selecciona una categoria" />
+                  </SelectTrigger>
+                  <SelectContent className="max-h-[400px]">
+                    {/* Buscador */}
+                    <div className="sticky top-0 bg-white z-10 p-2 border-b">
+                      <Input
+                        placeholder="Cerca categories..."
+                        value={categorySearch}
+                        onChange={(e) => setCategorySearch(e.target.value)}
+                        className="h-9"
+                      />
+                    </div>
+                    <div className="max-h-[300px] overflow-y-auto">
+                      <SelectItem value="none">Sense categoria</SelectItem>
+                      {parentCategories
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map((parent) => {
+                          const subcats = categories
+                            .filter((cat) => {
+                              // Filtrar por categoría padre
+                              const belongsToParent =
+                                typeof cat.parentCategory === 'string'
+                                  ? cat.parentCategory === parent._id
+                                  : cat.parentCategory && typeof cat.parentCategory === 'object'
+                                    ? (cat.parentCategory as any)._id === parent._id
+                                    : false;
+
+                              // Filtrar por búsqueda
+                              if (categorySearch.trim() === '') return belongsToParent;
+
+                              const searchLower = categorySearch.toLowerCase();
+                              return belongsToParent && (
+                                cat.name.toLowerCase().includes(searchLower) ||
+                                parent.name.toLowerCase().includes(searchLower)
+                              );
+                            })
+                            .sort((a, b) => a.name.localeCompare(b.name));
+
+                          if (subcats.length === 0) return null;
+
+                          return (
+                            <div key={parent._id}>
+                              <div className="px-2 py-1.5 text-sm font-semibold text-muted-foreground">
+                                {parent.name}
+                              </div>
+                              {subcats.map((subcat) => (
+                                <SelectItem key={subcat._id} value={subcat._id} className="pl-6">
+                                  {subcat.name}
+                                </SelectItem>
+                              ))}
+                            </div>
+                          );
+                        })}
+                    </div>
+                  </SelectContent>
+                </Select>
                 {loadingCategories && (
                   <p className="text-sm text-gray-500 mt-1">Carregant categories...</p>
                 )}

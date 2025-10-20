@@ -540,14 +540,15 @@ const MyCompanies = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="category">Categoría</Label>
-                    <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+                    <Label htmlFor="category">Categoria</Label>
+                    <Select value={formData.category || "none"} onValueChange={(value) => setFormData({...formData, category: value === "none" ? "" : value})}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar categoría" />
+                        <SelectValue placeholder="Selecciona una categoria" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="none">Sense categoria</SelectItem>
                         {categories.map(category => (
-                          <SelectItem key={category._id} value={category.name}>
+                          <SelectItem key={category._id} value={category._id}>
                             {category.name}
                           </SelectItem>
                         ))}
@@ -928,14 +929,15 @@ const MyCompanies = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="edit-category">Categoría</Label>
-                    <Select value={formData.category} onValueChange={(value) => setFormData({...formData, category: value})}>
+                    <Label htmlFor="edit-category">Categoria</Label>
+                    <Select value={formData.category || "none"} onValueChange={(value) => setFormData({...formData, category: value === "none" ? "" : value})}>
                       <SelectTrigger>
-                        <SelectValue placeholder="Seleccionar categoría" />
+                        <SelectValue placeholder="Selecciona una categoria" />
                       </SelectTrigger>
                       <SelectContent>
+                        <SelectItem value="none">Sense categoria</SelectItem>
                         {categories.map(category => (
-                          <SelectItem key={category._id} value={category.name}>
+                          <SelectItem key={category._id} value={category._id}>
                             {category.name}
                           </SelectItem>
                         ))}

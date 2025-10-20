@@ -7,7 +7,6 @@ import {
   TrendingDown,
   Eye,
   ShoppingCart,
-  MapPin,
   Package,
   XCircle,
   CheckCircle,
@@ -24,20 +23,13 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Separator } from "@/components/ui/separator";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { PageWrapper } from "@/components/PageWrapper";
 import { useUserProfile } from "@/hooks/useUser";
 import { getOfferBySlug, getAllOffers, type Offer } from "@/api/offers";
 import { toast } from "sonner";
 import { getImageUrl } from "@/utils/getImageUrl";
 import { CouponValidator } from "@/components/offers/CouponValidator";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
 
 export default function PromotionalOfferDetail() {
   const { slug } = useParams<{ slug: string }>();
@@ -637,15 +629,22 @@ export default function PromotionalOfferDetail() {
         {/* Ofertas similares por categoría */}
         {relatedOffersByCategory.length > 0 && offer.category && typeof offer.category === 'object' && (
           <div className="mt-12">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold">
-                Ofertes similars
-              </h2>
-              <Button variant="outline" asChild>
-                <Link to={`/ofertes?category=${offer.category._id}`}>
-                  Veure més
-                </Link>
-              </Button>
+            <div className="mb-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold">
+                    Ofertes similars
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Altres empreses amb ofertes de {offer.category.name}
+                  </p>
+                </div>
+                <Button variant="outline" asChild>
+                  <Link to={`/ofertes?category=${offer.category._id}`}>
+                    Veure més
+                  </Link>
+                </Button>
+              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
