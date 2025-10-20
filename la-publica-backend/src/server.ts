@@ -34,6 +34,9 @@ import superadminRoutes from './superadmin.routes';
 import emailTemplateRoutes from './emailTemplate.routes';
 import emailConfigRoutes from './emailConfig.routes';
 import offerRoutes from './offer.routes';
+import rolesRoutes from './roles.routes';
+import permissionsRoutes from './permissions.routes';
+import myPermissionsRoutes from './myPermissions.routes';
 import { errorHandler } from './middleware/errorHandler';
 import 'dotenv/config';
 
@@ -257,6 +260,15 @@ app.use('/api/admin/email-config', emailConfigRoutes);
 
 // Rutas de ofertas promocionales
 app.use('/api/offers', offerRoutes);
+
+// Rutas de gestión de roles (admin)
+app.use('/api/admin/roles', rolesRoutes);
+
+// Rutas de gestión de permisos (admin)
+app.use('/api/admin/permissions', permissionsRoutes);
+
+// Rutas de permisos del usuario autenticado
+app.use('/api/auth', myPermissionsRoutes);
 
 // Debug routes (solo en desarrollo)
 if (process.env.NODE_ENV === 'development') {

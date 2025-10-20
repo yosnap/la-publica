@@ -1,6 +1,23 @@
 import mongoose, { Schema, Document } from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+// Interfaz para permisos específicos del usuario (overrides)
+export interface IUserRoleOverride {
+  resource: string;
+  actions: {
+    create?: boolean;
+    read?: boolean;
+    update?: boolean;
+    delete?: boolean;
+    publish?: boolean;
+    moderate?: boolean;
+    export?: boolean;
+    import?: boolean;
+    approve?: boolean;
+  };
+  scope: 'none' | 'own' | 'department' | 'all';
+}
+
 // Interfaz para el documento de usuario
 export interface IUser extends Document {
   firstName: string;
@@ -8,6 +25,8 @@ export interface IUser extends Document {
   email: string;
   password: string;
   role: 'user' | 'admin' | 'colaborador' | 'editor' | 'superadmin';
+  customRoles: mongoose.Types.ObjectId[];
+  roleOverrides: IUserRoleOverride[];
   isPublic: boolean;
   isActive: boolean;
   isEmailVerified: boolean;
@@ -62,6 +81,27 @@ const workExperienceSchema = new mongoose.Schema({
   isCurrentJob: { type: Boolean, default: false },
 }, { _id: false });
 
+// Schema para role overrides (permisos específicos del usuario)
+const roleOverrideSchema = new mongoose.Schema({
+  resource: { type: String, required: true, trim: true, lowercase: true },
+  actions: {
+    create: { type: Boolean, default: false },
+    read: { type: Boolean, default: false },
+    update: { type: Boolean, default: false },
+    delete: { type: Boolean, default: false },
+    publish: { type: Boolean, default: false },
+    moderate: { type: Boolean, default: false },
+    export: { type: Boolean, default: false },
+    import: { type: Boolean, default: false },
+    approve: { type: Boolean, default: false },
+  },
+  scope: {
+    type: String,
+    enum: ['none', 'own', 'department', 'all'],
+    default: 'none',
+  },
+}, { _id: false });
+
 // Esquema de usuario
 const UserSchema = new Schema<IUser>(
   {
@@ -70,6 +110,8 @@ const UserSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true, lowercase: true, trim: true },
     password: { type: String, required: false, select: false }, // Opcional para OAuth
     role: { type: String, enum: ['user', 'admin', 'colaborador', 'editor', 'superadmin'], default: 'user' },
+    customRoles: [{ type: Schema.Types.ObjectId, ref: 'Role' }],
+    roleOverrides: [roleOverrideSchema],
     isPublic: { type: Boolean, default: true },
     isActive: { type: Boolean, default: true },
     isEmailVerified: { type: Boolean, default: false },

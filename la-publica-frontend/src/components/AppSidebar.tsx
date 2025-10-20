@@ -165,6 +165,11 @@ const adminItems = [
     icon: Users,
   },
   {
+    title: "Rols i Permisos",
+    url: "/admin/roles",
+    icon: Shield,
+  },
+  {
     title: "Emails",
     url: "/admin/emails",
     icon: Mail,

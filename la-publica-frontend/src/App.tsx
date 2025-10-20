@@ -62,6 +62,9 @@ import PromotionalOfferDetail from "./pages/PromotionalOfferDetail";
 import MyOffers from "./pages/collaborator/MyOffers";
 import OfferForm from "./pages/collaborator/OfferForm";
 import AdminOffers from "./pages/admin/AdminOffers";
+import AdminRoles from "./pages/admin/AdminRoles";
+import AdminRoleEdit from "./pages/admin/AdminRoleEdit";
+import AdminPermissions from "./pages/admin/AdminPermissions";
 
 const queryClient = new QueryClient();
 
@@ -138,6 +141,9 @@ const App = () => {
                   <Route path="admin/ofertes" element={<AdminOffers />} />
                   <Route path="admin/ofertes/crear" element={<OfferForm />} />
                   <Route path="admin/ofertes/:id/editar" element={<OfferForm />} />
+                  <Route path="admin/roles" element={<AdminRoles />} />
+                  <Route path="admin/roles/:id/edit" element={<AdminRoleEdit />} />
+                  <Route path="admin/permissions" element={<AdminPermissions />} />
                   <Route path="colaborador/empresas" element={<MyCompanies />} />
                   <Route path="colaborador/ofertes" element={<MyOffers />} />
                   <Route path="colaborador/ofertes/crear" element={<OfferForm />} />

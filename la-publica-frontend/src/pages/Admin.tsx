@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Server, 
-  Database, 
-  Users, 
-  Building, 
-  FileText, 
+import {
+  Server,
+  Database,
+  Users,
+  Building,
+  FileText,
   AlertCircle,
   Info,
   AlertTriangle,
@@ -24,7 +24,8 @@ import {
   HardDrive,
   Cpu,
   MemoryStick,
-  Package
+  Package,
+  Shield
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { getSystemInfo, getSystemLogs, getLogById, deleteLogs, updateSystemVersion } from '@/api/system';
@@ -238,6 +239,7 @@ const Admin = () => {
         <TabsList>
           <TabsTrigger value="system">Informació del Sistema</TabsTrigger>
           <TabsTrigger value="logs">Registros del Sistema</TabsTrigger>
+          <TabsTrigger value="roles">Rols i Permisos</TabsTrigger>
         </TabsList>
 
         {/* Tab de Informació del Sistema */}
@@ -612,6 +614,45 @@ const Admin = () => {
               </Button>
             </div>
           )}
+        </TabsContent>
+
+        {/* Tab de Roles i Permisos */}
+        <TabsContent value="roles" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Gestió de Rols i Permisos
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12">
+                <Shield className="h-16 w-16 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-lg font-semibold mb-2">Sistema RBAC</h3>
+                <p className="text-gray-600 dark:text-gray-400 mb-6">
+                  Gestió avançada de rols i permisos per controlar l'accés al sistema
+                </p>
+                <div className="space-y-2 text-sm text-gray-500 max-w-md mx-auto">
+                  <p>✓ 5 rols del sistema: Superadmin, Admin, Editor, Col·laborador, Usuari</p>
+                  <p>✓ 21 recursos amb permisos granulars</p>
+                  <p>✓ Sistema de caché per a rendiment òptim</p>
+                  <p>✓ Logs d'auditoria de tots els canvis</p>
+                </div>
+                <div className="mt-8 flex justify-center gap-4">
+                  <Link to="/admin/roles">
+                    <Button>
+                      Gestionar Rols
+                    </Button>
+                  </Link>
+                  <Link to="/admin/permissions">
+                    <Button variant="outline">
+                      Veure Permisos
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
 
